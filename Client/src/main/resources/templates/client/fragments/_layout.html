@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title th:text="'Pack Shop - ' + ${title}"></title>
     <div th:replace="~{client/fragments/components/_styles}"></div>
-</head>
+  </head>
 
-<body>
-    <th:block th:replace="~{${view}::content}"></th:block>
+  <body>
+    <header>
+      <div th:replace="~{client/fragments/components/_header}"></div>
+    </header>
+    <main class="container">
+      <th:block th:replace="~{${view}::content}"></th:block>
+    </main>
     <div th:replace="~{client/fragments/components/_scripts}"></div>
-</body>
-
+  </body>
 </html>

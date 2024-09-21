@@ -53,7 +53,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     public ThymeleafViewResolver viewResolver() {
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
         viewResolver.setTemplateEngine(templateEngine());
-        viewResolver.setViewNames(new String[]{".html", ".xhtml"});
+        viewResolver.setViewNames(new String[]{".html"});
         return viewResolver;
     }
 

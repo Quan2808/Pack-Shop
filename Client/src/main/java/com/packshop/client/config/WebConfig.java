@@ -13,6 +13,7 @@ import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 
+@SuppressWarnings("null")
 @Configuration
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
@@ -56,5 +57,4 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         viewResolver.setViewNames(new String[]{".html"});
         return viewResolver;
     }
-
 }

@@ -2,17 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="'Pack Shop - ' + ${title}"></title>
+    <!-- Begin Styles -->
     <div th:replace="~{client/fragments/components/_styles}"></div>
+    <!-- End Styles -->
   </head>
 
   <body>
+    <!-- Begin Header -->
     <header>
       <div th:replace="~{client/fragments/components/_header}"></div>
     </header>
-    <main class="container">
-      <th:block th:replace="~{${view}::content}"></th:block>
-    </main>
+    <!-- End Header -->
+
+    <!-- Begin Content -->
+    <th:block th:replace="~{${view}::content}"></th:block>
+    <!-- End Content -->
+
+    <!-- Begin Scripts -->
     <div th:replace="~{client/fragments/components/_scripts}"></div>
+    <!-- End Scripts -->
   </body>
 </html>

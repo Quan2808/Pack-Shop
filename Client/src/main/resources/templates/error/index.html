@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="'Pack Shop - ' + ${errorMessage}"></title>
+    <!-- Begin Styles -->
+    <div th:replace="~{client/fragments/components/_styles}"></div>
+    <!-- End Styles -->
+  </head>
+  <body>
+    <section class="d-flex justify-content-center align-items-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <div class="text-center">
+              <h2
+                class="d-flex justify-content-center align-items-center gap-2 mb-4"
+              >
+                <span
+                  class="display-1 fw-bold"
+                  th:text="${statusCode.toString().charAt(0)}"
+                ></span>
+                <i
+                  class="fa-solid fa-circle-exclamation fa-beat text-danger"
+                ></i>
+                <span
+                  class="display-1 fw-bold bsb-flip-h"
+                  th:text="${statusCode.toString().charAt(2)}"
+                ></span>
+              </h2>
+
+              <h3 class="h2 mb-5" th:text="${errorMessage}"></h3>
+              <a
+                href="/"
+                type="button"
+                class="btn btn-link px-5 fs-6 m-0"
+                data-mdb-ripple-init
+                data-mdb-ripple-color="dark"
+              >
+              Back to Home
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

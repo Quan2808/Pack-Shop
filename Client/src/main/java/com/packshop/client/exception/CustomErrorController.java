@@ -24,10 +24,6 @@ public class CustomErrorController implements ErrorController {
                     model.addAttribute("errorMessage", "Page not found!");
                     return "error/index";
                 }
-                case 500 -> {
-                    model.addAttribute("errorMessage", "Internal server error!");
-                    return "error/index";
-                }
                 default -> {
                     model.addAttribute("errorMessage", "An unexpected error occurred.");
                     return "error/index";

@@ -1,0 +1,38 @@
+<div
+  id="carousel_home_top"
+  class="carousel slide carousel-fade"
+  data-mdb-ride="carousel"
+  data-mdb-carousel-init
+>
+  <div class="carousel-inner">
+    <div
+      th:each="slide, iterStat : ${slides}"
+      th:class="${iterStat.index == 0} ? 'carousel-item active' : 'carousel-item'"
+    >
+      <img
+        th:src="${slide.imageUrl}"
+        class="d-block w-100"
+        th:alt="${slide.altText}"
+      />
+    </div>
+  </div>
+
+  <button
+    class="carousel-control-prev"
+    type="button"
+    data-mdb-target="#carousel_home_top"
+    data-mdb-slide="prev"
+  >
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button
+    class="carousel-control-next"
+    type="button"
+    data-mdb-target="#carousel_home_top"
+    data-mdb-slide="next"
+  >
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>

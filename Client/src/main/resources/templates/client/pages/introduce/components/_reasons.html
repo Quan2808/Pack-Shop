@@ -1,0 +1,16 @@
+
+<section class="mb-5 mt-5">
+    <h3 class="fw-bold mb-5">Why choose us?</h3>
+    <div class="row text-center">
+      <th:block th:each="reason : ${reasons}">
+        <div class="col-lg-3 col-md-6 mb-5 mb-md-5 mb-lg-0 position-relative">
+          <i th:class="${reason.icon} + ' fa-3x text-primary mb-4'"></i>
+          <h5 class="text-primary fw-bold mb-3" th:text="${reason.title}"></h5>
+          <h6 class="fw-normal mb-0" th:text="${reason.description}"></h6>
+          <div
+            class="vr vr-blurry position-absolute my-0 h-100 d-none d-md-block top-0 end-0"
+          ></div>
+        </div>
+      </th:block>
+    </div>
+  </section>

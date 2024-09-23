@@ -5,14 +5,14 @@
       data-mdb-ripple-init
       data-mdb-ripple-color="light"
     >
-      <img th:src="${banner.imageUrl}" class="card-img-top" alt="service" />
-      <a th:href="${banner.link}">
+      <img th:src="${banner['image']}" class="card-img-top" alt="banner" />
+      <a th:href="${banner['link']}">
         <div class="mask" style="background-color: hsla(0, 0%, 98%, 0.2)"></div>
       </a>
     </div>
     <div class="card-body">
-      <h6 class="card-title fw-bold" th:text="${banner.title}"></h6>
-      <a th:href="${banner.link}" class="btn btn-warning" data-mdb-ripple-init>
+      <h6 class="card-title fw-bold" th:text="${banner['title']}"></h6>
+      <a th:href="${banner['link']}" class="btn btn-warning" data-mdb-ripple-init>
         Go somewhere
       </a>
     </div>

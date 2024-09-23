@@ -10,9 +10,9 @@
       th:class="${iterStat.index == 0} ? 'carousel-item active' : 'carousel-item'"
     >
       <img
-        th:src="${slide.imageUrl}"
+        th:src="${slide.image}" 
         class="d-block w-100"
-        th:alt="${slide.altText}"
+        th:alt="${slide.caption}"
       />
     </div>
   </div>

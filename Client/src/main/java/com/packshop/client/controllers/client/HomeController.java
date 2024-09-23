@@ -59,7 +59,7 @@ public class HomeController {
         model.addAttribute("slides", slides);
         model.addAttribute("services", services);
         model.addAttribute("banners", banners);
-        return renderView(model, "client/pages/home", "Home");
+        return renderView(model, "client/pages/home/index", "Home");
     }
 
     @GetMapping("/introduce")

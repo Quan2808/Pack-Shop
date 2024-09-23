@@ -64,6 +64,6 @@ public class HomeController {
 
     @GetMapping("/introduce")
     public String introduce(Model model) {
-        return renderView(model, "client/home", "Home");
+        return renderView(model, "client/pages/introduce/index", "Introduce");
     }
 }

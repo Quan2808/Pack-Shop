@@ -1,0 +1,15 @@
+<div th:fragment="content" class="container">
+  <!-- Begin Breadcrumb -->
+  <div
+    th:replace="~{client/fragments/components/_breadcrumb :: breadcrumb(item=null)}"
+  ></div>
+  <!-- End Breadcrumb -->
+
+  <!-- Begin Information -->
+  <div th:replace="~{client/pages/contact/components/_information}"></div>
+  <!-- End Information -->
+
+  <!-- Begin Form -->
+  <div th:replace="~{client/pages/contact/components/_form}"></div>
+  <!-- End Form -->
+</div>

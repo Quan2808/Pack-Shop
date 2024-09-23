@@ -91,4 +91,9 @@ public class ClientController {
         model.addAttribute("reasons", reasons);
         return renderView(model, "client/pages/introduce/index", "Introduce");
     }
+
+    @GetMapping("/contact")
+    public String contact(Model model) {
+        return renderView(model, "client/pages/contact/index", "Contact");
+    }
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.packshop.client.viewmodel.home.HomeBannerModel;
 import com.packshop.client.viewmodel.home.HomeServiceModel;
 import com.packshop.client.viewmodel.home.HomeSlideModel;
 
@@ -22,15 +23,15 @@ public class HomeController {
 
     @GetMapping()
     public String home(Model model) {
-        List<HomeServiceModel> allServices = List.of(
+        List<HomeServiceModel> services = List.of(
                 new HomeServiceModel("Công ty may balo túi xách cao cấp thời trang uy tín chất lượng hàng đầu",
-                        "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_1.jpg?v=602",
+                        "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_1.jpg",
                         "service1"),
                 new HomeServiceModel("Thiết kế, sản xuất balo, túi xách theo yêu cầu số lượng lớn cho các doanh nghiệp",
-                        "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_2.jpg?v=602",
+                        "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_2.jpg",
                         "service2"),
                 new HomeServiceModel("Hệ Thống Đại Lý Phân Phối Thương Hiệu Pack Shop",
-                        "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_3.jpg?v=602",
+                        "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_3.jpg",
                         "service3")
         );
 
@@ -43,8 +44,21 @@ public class HomeController {
                         "Woman Reading a Book")
         );
 
+        List<HomeBannerModel> banners = List.of(
+                new HomeBannerModel("Tại sao chọn Kingbag?",
+                        "https://theme.hstatic.net/200000273565/1000933517/14/home_category_1_banner.jpg",
+                        "banner1"),
+                new HomeBannerModel("Quy trình đặt hàng",
+                        "https://theme.hstatic.net/200000273565/1000933517/14/home_category_2_banner.jpg",
+                        "banner2"),
+                new HomeBannerModel("Câu hỏi thường gặp",
+                        "https://theme.hstatic.net/200000273565/1000933517/14/home_category_3_banner.jpg",
+                        "banner3")
+        );      
+
         model.addAttribute("slides", slides);
-        model.addAttribute("topServices", allServices);
+        model.addAttribute("services", services);
+        model.addAttribute("banners", banners);
         return renderView(model, "client/pages/home", "Home");
     }
 

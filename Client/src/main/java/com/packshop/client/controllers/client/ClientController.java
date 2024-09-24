@@ -40,11 +40,14 @@ public class ClientController {
         );
 
         List<Map<String, String>> slides = List.of(
-                Map.of("image", "https://theme.hstatic.net/200000273565/1000933517/14/slideshow_4.jpg",
+                Map.of(
+                        "image", "https://theme.hstatic.net/200000273565/1000933517/14/slideshow_4.jpg",
                         "caption", "Motorbike Smoke"),
-                Map.of("image", "https://theme.hstatic.net/200000273565/1000933517/14/slideshow_3.jpg",
+                Map.of(
+                        "image", "https://theme.hstatic.net/200000273565/1000933517/14/slideshow_3.jpg",
                         "caption", "Mountaintop"),
-                Map.of("image", "https://theme.hstatic.net/200000273565/1000933517/14/slideshow_2.jpg",
+                Map.of(
+                        "image", "https://theme.hstatic.net/200000273565/1000933517/14/slideshow_2.jpg",
                         "caption", "Woman Reading a Book")
         );
 
@@ -96,4 +99,21 @@ public class ClientController {
     public String contact(Model model) {
         return renderView(model, "client/pages/contact/index", "Contact");
     }
+
+    // Services
+    @GetMapping("/services/leading-bag-manufacturing")
+    public String service1(Model model) {
+        return renderView(model, "client/pages/services/leading-bag-manufacturing", "Leading Bag Manufacturing");
+    }
+
+    @GetMapping("/services/custom-manufacturing")
+    public String customManufacturing(Model model) {
+        return renderView(model, "client/pages/services/custom-manufacturing", "Custom Manufacturing");
+    }
+
+    @GetMapping("/services/brand-distribution")
+    public String brandDistribution(Model model) {
+        return renderView(model, "client/pages/services/brand-distribution", "Brand Distribution");
+    }
+
 }

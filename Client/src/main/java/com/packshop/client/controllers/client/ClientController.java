@@ -23,19 +23,19 @@ public class ClientController {
     public String home(Model model) {
         List<Map<String, String>> services = List.of(
                 Map.of(
-                        "title", "Công ty may balo túi xách cao cấp thời trang uy tín chất lượng hàng đầu",
+                        "title", "The Leading Company in Quality and Trusted Backpack and Handbag Manufacturing",
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_1.jpg",
-                        "link", "service1"
+                        "link", "/services/leading-bag-manufacturing"
                 ),
                 Map.of(
-                        "title", "Thiết kế, sản xuất balo, túi xách theo yêu cầu số lượng lớn cho các doanh nghiệp",
+                        "title", "Custom manufacturing - high-end backpacks and handbags nationwide",
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_2.jpg",
-                        "link", "service2"
+                        "link", "/services/custom-manufacturing"
                 ),
                 Map.of(
-                        "title", "Hệ Thống Đại Lý Phân Phối Thương Hiệu Pack Shop",
+                        "title", "The Leading Company in Quality and Trusted Backpack and Handbag Manufacturing",
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_3.jpg",
-                        "link", "service3"
+                        "link", "/services/brand-distribution"
                 )
         );
 

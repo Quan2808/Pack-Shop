@@ -1,11 +1,21 @@
-<div class="nav flex-column nav-tabs text-center">
-  <a class="nav-link active" href="/services/leading-bag-manufacturing"
-    >Leading Bag Manufacturing</a
-  >
-  <a class="nav-link active" href="/services/custom-manufacturing"
-    >Custom Manufacturing</a
-  >
-  <a class="nav-link active" href="/services/brand-distribution"
-    >Brand Distribution</a
-  >
-</div>
+<div class="nav flex-column nav-tabs text-center mb-5">
+    <a
+      class="nav-link"
+      href="/services/leading-bag-manufacturing"
+      th:classappend="${view.contains('client/pages/services/leading-bag-manufacturing') ? 'active' : ''}"
+      >Leading Bag Manufacturing</a
+    >
+    <a
+      class="nav-link"
+      href="/services/custom-manufacturing"
+      th:classappend="${view.contains('client/pages/services/custom-manufacturing') ? 'active' : ''}"
+      >Custom Manufacturing</a
+    >
+    <a
+      class="nav-link"
+      href="/services/brand-distribution"
+      th:classappend="${view.contains('client/pages/services/brand-distribution') ? 'active' : ''}"
+      >Brand Distribution</a
+    >
+  </div>
+  

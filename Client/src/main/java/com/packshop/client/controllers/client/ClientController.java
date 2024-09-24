@@ -58,9 +58,9 @@ public class ClientController {
                         "link", "introduce"
                 ),
                 Map.of(
-                        "title", "Quy trình đặt hàng",
+                        "title", "Order process",
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/home_category_2_banner.jpg",
-                        "link", "banner2"
+                        "link", "/services/order-process"
                 ),
                 Map.of(
                         "title", "Câu hỏi thường gặp",
@@ -114,6 +114,11 @@ public class ClientController {
     @GetMapping("/services/brand-distribution")
     public String brandDistribution(Model model) {
         return renderView(model, "client/pages/services/brand-distribution", "Brand Distribution");
+    }
+
+    @GetMapping("/services/order-process")
+    public String orderProcess(Model model) {
+        return renderView(model, "client/pages/services/order-process", "Order Process");
     }
 
 }

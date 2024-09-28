@@ -76,43 +76,57 @@ public class ClientController {
         return renderView(model, "client/pages/home/index", "Home");
     }
 
-    @GetMapping("/introduce")
-    public String introduce(Model model) {
-        List<Map<String, String>> reasons = Arrays.asList(
-                Map.of("icon", "fa-solid fa-shield-halved",
-                        "title", "Responsibility",
-                        "description", "Employees are accountable, and the company considers its impact."),
-                Map.of("icon", "fa-regular fa-lightbulb",
-                        "title", "Open-minded",
-                        "description", "Values diverse ideas and fosters creativity."),
-                Map.of("icon", "fa-solid fa-chart-line",
-                        "title", "Efficiency",
-                        "description", "Optimizes resources for swift and effective goal achievement."),
-                Map.of("icon", "fa-regular fa-thumbs-up",
-                        "title", "Recognition",
-                        "description", "Appreciates and recognizes individual contributions and efforts.")
-        );
-        model.addAttribute("reasons", reasons);
-        return renderView(model, "client/pages/introduce/index", "Introduce");
+    // Introduce and Contact Pages
+    @GetMapping("/{page}")
+    public String renderPage(@PathVariable("page") String page, Model model) {
+        String templateName = "client/pages/" + page + "/index";
+        String title;
+
+        switch (page) {
+            case "introduce" -> {
+                title = "Introduce";
+                List<Map<String, String>> reasons = Arrays.asList(
+                        Map.of("icon", "fa-solid fa-shield-halved",
+                                "title", "Responsibility",
+                                "description", "Employees are accountable, and the company considers its impact."),
+                        Map.of("icon", "fa-regular fa-lightbulb",
+                                "title", "Open-minded",
+                                "description", "Values diverse ideas and fosters creativity."),
+                        Map.of("icon", "fa-solid fa-chart-line",
+                                "title", "Efficiency",
+                                "description", "Optimizes resources for swift and effective goal achievement."),
+                        Map.of("icon", "fa-regular fa-thumbs-up",
+                                "title", "Recognition",
+                                "description", "Appreciates and recognizes individual contributions and efforts.")
+                );
+                model.addAttribute("reasons", reasons);
+            }
+            case "contact" ->
+                title = "Contact";
+            default ->
+                throw new IllegalArgumentException("Invalid page name: " + page);
+        }
+
+        return renderView(model, templateName, title);
     }
 
-    @GetMapping("/contact")
-    public String contact(Model model) {
-        return renderView(model, "client/pages/contact/index", "Contact");
-    }
-
-    // Services
+    // Service Pages
     @GetMapping("/services/{serviceName}")
     public String renderServicePage(@PathVariable("serviceName") String serviceName, Model model) {
         String templateName = "client/pages/services/" + serviceName;
         String title;
 
         switch (serviceName) {
-            case "leading-bag-manufacturing" -> title = "Leading Bag Manufacturing";
-            case "custom-manufacturing" -> title = "Custom Manufacturing";
-            case "brand-distribution" -> title = "Brand Distribution";
-            case "order-process" -> title = "Order Process";
-            default -> throw new IllegalArgumentException("Invalid service name: " + serviceName);
+            case "leading-bag-manufacturing" ->
+                title = "Leading Bag Manufacturing";
+            case "custom-manufacturing" ->
+                title = "Custom Manufacturing";
+            case "brand-distribution" ->
+                title = "Brand Distribution";
+            case "order-process" ->
+                title = "Order Process";
+            default ->
+                throw new IllegalArgumentException("Invalid service name: " + serviceName);
         }
 
         return renderView(model, templateName, title);

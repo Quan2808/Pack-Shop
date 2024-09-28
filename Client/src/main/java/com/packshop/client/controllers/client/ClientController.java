@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class ClientController {
@@ -101,24 +102,20 @@ public class ClientController {
     }
 
     // Services
-    @GetMapping("/services/leading-bag-manufacturing")
-    public String service1(Model model) {
-        return renderView(model, "client/pages/services/leading-bag-manufacturing", "Leading Bag Manufacturing");
-    }
+    @GetMapping("/services/{serviceName}")
+    public String renderServicePage(@PathVariable("serviceName") String serviceName, Model model) {
+        String templateName = "client/pages/services/" + serviceName;
+        String title;
 
-    @GetMapping("/services/custom-manufacturing")
-    public String customManufacturing(Model model) {
-        return renderView(model, "client/pages/services/custom-manufacturing", "Custom Manufacturing");
-    }
+        switch (serviceName) {
+            case "leading-bag-manufacturing" -> title = "Leading Bag Manufacturing";
+            case "custom-manufacturing" -> title = "Custom Manufacturing";
+            case "brand-distribution" -> title = "Brand Distribution";
+            case "order-process" -> title = "Order Process";
+            default -> throw new IllegalArgumentException("Invalid service name: " + serviceName);
+        }
 
-    @GetMapping("/services/brand-distribution")
-    public String brandDistribution(Model model) {
-        return renderView(model, "client/pages/services/brand-distribution", "Brand Distribution");
-    }
-
-    @GetMapping("/services/order-process")
-    public String orderProcess(Model model) {
-        return renderView(model, "client/pages/services/order-process", "Order Process");
+        return renderView(model, templateName, title);
     }
 
 }

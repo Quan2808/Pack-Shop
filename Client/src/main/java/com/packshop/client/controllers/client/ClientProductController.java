@@ -13,6 +13,6 @@ public class ClientProductController {
 
     @GetMapping
     public String products(Model model) {
-        return ViewRenderer.renderView(model, "client/pages/products/index", "Home");
+        return ViewRenderer.renderView(model, "client/pages/products/categories/index", "All Products");
     }
 }

@@ -1,0 +1,11 @@
+<th:block th:fragment="viewStyles">
+  <link rel="stylesheet" th:href="@{/css/specific-view-style.css}">
+</th:block>
+
+<div th:fragment="content" class="container">
+  <!-- Begin Breadcrumb -->
+  <div
+    th:replace="~{client/fragments/components/_breadcrumb :: breadcrumb(item='Category')}"
+  ></div>
+  <!-- End Breadcrumb -->
+</div>

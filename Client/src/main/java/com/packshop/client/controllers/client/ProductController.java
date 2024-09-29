@@ -9,7 +9,7 @@ import com.packshop.client.controllers.ViewRenderer;
 
 @Controller
 @RequestMapping("/products")
-public class ClientProductController {
+public class ProductController {
 
     @GetMapping
     public String products(Model model) {

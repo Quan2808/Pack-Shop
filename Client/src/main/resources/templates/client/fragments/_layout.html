@@ -4,10 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="'Pack Shop - ' + ${title}"></title>
-    <link rel="shortcut icon" href="#">
+    <link rel="shortcut icon" href="#" />
     <!-- Begin Styles -->
     <div th:replace="~{client/fragments/components/_styles}"></div>
     <!-- End Styles -->
+
+    <!-- Begin View-Specific Styles -->
+    <th:block th:replace="~{${view} :: viewStyles} ?: _"></th:block>
+    <!-- End View-Specific Styles -->
   </head>
 
   <body>
@@ -26,5 +30,9 @@
     <!-- Begin Scripts -->
     <div th:replace="~{client/fragments/components/_scripts}"></div>
     <!-- End Scripts -->
+
+    <!-- Begin View-Specific Scripts -->
+    <th:block th:replace="~{${view} :: viewScripts} ?: _"></th:block>
+    <!-- End View-Specific Scripts -->
   </body>
 </html>

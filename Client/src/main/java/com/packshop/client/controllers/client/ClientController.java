@@ -9,16 +9,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.packshop.client.controllers.ViewRenderer;
+
 @Controller
 public class ClientController {
-
-    private static final String LAYOUT = "client/fragments/_layout";
-
-    public static String renderView(Model model, String templateName, String title) {
-        model.addAttribute("view", templateName);
-        model.addAttribute("title", title);
-        return LAYOUT;
-    }
 
     @GetMapping()
     public String home(Model model) {
@@ -66,20 +60,20 @@ public class ClientController {
                 Map.of(
                         "title", "Câu hỏi thường gặp",
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/home_category_3_banner.jpg",
-                        "link", "banner3"
+                        "link", "/services/faq"
                 )
         );
 
         model.addAttribute("slides", slides);
         model.addAttribute("services", services);
         model.addAttribute("banners", banners);
-        return renderView(model, "client/pages/home/index", "Home");
+        return ViewRenderer.renderView(model, "client/pages/home/index", "Home");
     }
 
     // Introduce and Contact Pages
     @GetMapping("/{page}")
     public String renderStaticPage(@PathVariable("page") String page, Model model) {
-        String templateName = "client/pages/" + page + "/index";
+        String templateName = "client/pages/static/" + page + "/index";
         String title;
 
         switch (page) {
@@ -107,13 +101,13 @@ public class ClientController {
                 throw new IllegalArgumentException("Invalid page name: " + page);
         }
 
-        return renderView(model, templateName, title);
+        return ViewRenderer.renderView(model, templateName, title);
     }
 
     // Service Pages
     @GetMapping("/services/{serviceName}")
     public String renderServicePage(@PathVariable("serviceName") String serviceName, Model model) {
-        String templateName = "client/pages/services/" + serviceName;
+        String templateName = "client/pages/static/services/" + serviceName;
         String title;
 
         switch (serviceName) {
@@ -131,7 +125,6 @@ public class ClientController {
                 throw new IllegalArgumentException("Invalid service name: " + serviceName);
         }
 
-        return renderView(model, templateName, title);
+        return ViewRenderer.renderView(model, templateName, title);
     }
-
 }

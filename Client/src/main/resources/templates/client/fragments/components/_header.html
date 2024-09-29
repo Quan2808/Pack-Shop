@@ -28,7 +28,7 @@
           <li class="nav-item">
             <a
               class="nav-link text-uppercase fw-bold"
-              th:classappend="${view.contains('client/pages/home') ? 'nav-active' : ''}"
+              th:classappend="${view.contains('pages/home') ? 'nav-active' : ''}"
               href="/"
               >Home</a
             >
@@ -36,7 +36,7 @@
           <li class="nav-item">
             <a
               class="nav-link text-uppercase fw-bold"
-              th:classappend="${view.contains('client/pages/introduce') ? 'nav-active' : ''}"
+              th:classappend="${view.contains('pages/static/introduce') ? 'nav-active' : ''}"
               href="/introduce"
               >Introduce</a
             >
@@ -49,7 +49,7 @@
               id="navbar_product"
               role="button"
               aria-expanded="false"
-              th:classappend="${view.contains('client/product') ? 'nav-active' : ''}"
+              th:classappend="${view.contains('product') ? 'nav-active' : ''}"
             >
               Product
             </a>
@@ -68,7 +68,7 @@
           <li class="nav-item">
             <a
               class="nav-link text-uppercase fw-bold"
-              th:classappend="${view.contains('client/pages/contact') ? 'nav-active' : ''}"
+              th:classappend="${view.contains('pages/static/contact') ? 'nav-active' : ''}"
               href="/contact"
               >Contact</a
             >

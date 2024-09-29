@@ -127,4 +127,24 @@ public class ClientController {
 
         return ViewRenderer.renderView(model, templateName, title);
     }
+
+    // Legal Pages
+    @GetMapping("/legal/{legalName}")
+    public String renderLegalPage(@PathVariable("legalName") String legalName, Model model) {
+        String templateName = "client/pages/static/legal/" + legalName;
+        String title;
+
+        switch (legalName) {
+            case "return-exchange-policy" ->
+                title = "Return and Exchange Policy";
+            case "privacy-policy" ->
+                title = "Privacy Policy";
+            case "term-of-service" ->
+                title = "Term of Service";
+            default ->
+                throw new IllegalArgumentException("Invalid legal name: " + legalName);
+        }
+
+        return ViewRenderer.renderView(model, templateName, title);
+    }
 }

@@ -1,0 +1,81 @@
+<div th:fragment="content" class="container">
+  <!-- Begin Breadcrumb -->
+  <div
+    th:replace="~{client/fragments/components/_breadcrumb :: breadcrumb(item='Legal')}"
+  ></div>
+  <!-- End Breadcrumb -->
+
+  <div class="row">
+    <div class="col-12 col-md-3">
+      <!-- Begin navs -->
+      <div th:replace="~{client/pages/static/legal/components/_nav.html}"></div>
+      <!-- End navs -->
+    </div>
+
+    <div class="col-12 col-md-9">
+      <section>
+        <h3 class="fw-bold mb-5">Terms of Service</h3>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">1. Introduction</p>
+            <p class="mb-3">Welcome to our website.</p>
+            <p class="mb-3">
+              By accessing our website, you agree to these terms. The website
+              reserves the right to change, modify, add, or remove any part of
+              these terms at any time. Changes take effect immediately upon
+              posting on the website without prior notice. Continuing to use the
+              website after changes are posted indicates your acceptance of
+              those changes.
+            </p>
+            <p class="mb-3">Please check regularly for updates.</p>
+          </blockquote>
+        </figure>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">2. Website Usage Guidelines</p>
+            <p class="mb-3">
+              When accessing our website, customers must be at least 18 years
+              old, or access the site under the supervision of a parent or legal
+              guardian. Customers must have full legal capacity to engage in
+              transactions in accordance with current laws of Vietnam.
+            </p>
+            <p class="mb-3">
+              During the registration process, you agree to receive promotional
+              emails from the website. If you no longer wish to receive these
+              emails, you can unsubscribe by clicking the link at the bottom of
+              any promotional email.
+            </p>
+          </blockquote>
+        </figure>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">3. Safe and Convenient Payment</p>
+            <p class="mb-3">
+              Customers can refer to the following payment methods and choose
+              the one that suits them:
+            </p>
+            <ul class="list-unstyled">
+              <ul>
+                <li>
+                  <span class="fw-bold">Method 1: </span>
+                  Direct payment (customer picks up at the seller's address)
+                </li>
+                <li>
+                  <span class="fw-bold">Method 2: </span>Cash on Delivery (COD –
+                  payment upon delivery)
+                </li>
+                <li>
+                  <span class="fw-bold">Method 3: </span>Online payment via
+                  credit card or bank transfer
+                </li>
+              </ul>
+            </ul>
+          </blockquote>
+        </figure>
+      </section>
+    </div>
+  </div>
+</div>

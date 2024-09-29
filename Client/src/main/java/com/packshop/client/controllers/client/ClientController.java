@@ -78,7 +78,7 @@ public class ClientController {
 
     // Introduce and Contact Pages
     @GetMapping("/{page}")
-    public String renderPage(@PathVariable("page") String page, Model model) {
+    public String renderStaticPage(@PathVariable("page") String page, Model model) {
         String templateName = "client/pages/" + page + "/index";
         String title;
 
@@ -125,6 +125,8 @@ public class ClientController {
                 title = "Brand Distribution";
             case "order-process" ->
                 title = "Order Process";
+            case "faq" ->
+                title = "Frequently Asked Questions";
             default ->
                 throw new IllegalArgumentException("Invalid service name: " + serviceName);
         }

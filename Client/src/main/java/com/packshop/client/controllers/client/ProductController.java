@@ -15,4 +15,21 @@ public class ProductController {
     public String products(Model model) {
         return ViewRenderer.renderView(model, "client/pages/products/categories/index", "All Products");
     }
+
+    // Get by category
+    @GetMapping("/{category}")
+    public String productsByCategory(Model model) {
+        return ViewRenderer.renderView(model, "client/pages/products/categories/index", "All Products");
+    }
+
+    // get by product
+    @GetMapping("/{product}")
+    public String productsByProduct(Model model) {
+        return ViewRenderer.renderView(model, "client/pages/products/categories/index", "Product Name");
+    }
+
+    @GetMapping("/example")
+    public String exp(Model model) {
+        return ViewRenderer.renderView(model, "client/pages/products/item/index", "Product Name");
+    }
 }

@@ -1,6 +1,4 @@
-<th:block th:fragment="viewStyles">
-  <link rel="stylesheet" th:href="@{/css/specific-view-style.css}">
-</th:block>
+<th:block th:fragment="viewStyles"> </th:block>
 
 <div th:fragment="content" class="container">
   <!-- Begin Breadcrumb -->
@@ -8,4 +6,26 @@
     th:replace="~{client/fragments/components/_breadcrumb :: breadcrumb(item='Category')}"
   ></div>
   <!-- End Breadcrumb -->
+
+  <div class="row">
+    <!-- Begin Gallery -->
+    <div class="col-md-6 col-12">
+      <div th:replace="~{client/pages/products/item/components/_gallery}"></div>
+    </div>
+    <!-- End Gallery -->
+
+    <!-- Begin Details -->
+    <div class="col-md-6 col-12">
+      <div th:replace="~{client/pages/products/item/components/_details}"></div>
+    </div>
+    <!-- End Details -->
+  </div>
+
+  <hr class="hr hr-blurry" />
+
+  <!-- Begin Information -->
+  <div th:replace="~{client/pages/products/item/components/_information}"></div>
+  <!-- End Information -->
 </div>
+
+<th:block th:fragment="viewScripts"> </th:block>

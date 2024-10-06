@@ -28,11 +28,12 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         String[][] resources = {
-            {"/css/**", "classpath:/static/css/"},
-            {"/js/**", "classpath:/static/js/"},
-            {"/images/**", "classpath:/static/images/"}
+                { "/css/**", "classpath:/static/css/" },
+                { "/js/**", "classpath:/static/js/" },
+                { "/images/**", "classpath:/static/images/" },
+                { "/plugins/**", "classpath:/static/plugins/" }
         };
-    
+
         for (String[] resource : resources) {
             registry.addResourceHandler(resource[0]).addResourceLocations(resource[1]);
         }
@@ -61,7 +62,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     public ThymeleafViewResolver viewResolver() {
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
         viewResolver.setTemplateEngine(templateEngine());
-        viewResolver.setViewNames(new String[]{".html"});
+        viewResolver.setViewNames(new String[] { ".html" });
         return viewResolver;
     }
 }

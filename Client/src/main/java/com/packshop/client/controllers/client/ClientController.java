@@ -20,19 +20,15 @@ public class ClientController {
                 Map.of(
                         "title", "The Leading Company in Quality and Trusted Backpack and Handbag Manufacturing",
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_1.jpg",
-                        "link", "/services/leading-bag-manufacturing"
-                ),
+                        "link", "/services/leading-bag-manufacturing"),
                 Map.of(
                         "title", "Custom manufacturing - high-end backpacks and handbags nationwide",
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_2.jpg",
-                        "link", "/services/custom-manufacturing"
-                ),
+                        "link", "/services/custom-manufacturing"),
                 Map.of(
                         "title", "The Leading Company in Quality and Trusted Backpack and Handbag Manufacturing",
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/h-service_item_3.jpg",
-                        "link", "/services/brand-distribution"
-                )
-        );
+                        "link", "/services/brand-distribution"));
 
         List<Map<String, String>> slides = List.of(
                 Map.of(
@@ -43,26 +39,21 @@ public class ClientController {
                         "caption", "Mountaintop"),
                 Map.of(
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/slideshow_2.jpg",
-                        "caption", "Woman Reading a Book")
-        );
+                        "caption", "Woman Reading a Book"));
 
         List<Map<String, String>> banners = List.of(
                 Map.of(
                         "title", "Tại sao chọn Kingbag?",
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/home_category_1_banner.jpg",
-                        "link", "introduce"
-                ),
+                        "link", "introduce"),
                 Map.of(
                         "title", "Order process",
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/home_category_2_banner.jpg",
-                        "link", "/services/order-process"
-                ),
+                        "link", "/services/order-process"),
                 Map.of(
                         "title", "Câu hỏi thường gặp",
                         "image", "https://theme.hstatic.net/200000273565/1000933517/14/home_category_3_banner.jpg",
-                        "link", "/services/faq"
-                )
-        );
+                        "link", "/services/faq"));
 
         model.addAttribute("slides", slides);
         model.addAttribute("services", services);
@@ -91,8 +82,7 @@ public class ClientController {
                                 "description", "Optimizes resources for swift and effective goal achievement."),
                         Map.of("icon", "fa-regular fa-thumbs-up",
                                 "title", "Recognition",
-                                "description", "Appreciates and recognizes individual contributions and efforts.")
-                );
+                                "description", "Appreciates and recognizes individual contributions and efforts."));
                 model.addAttribute("reasons", reasons);
             }
             case "contact" ->

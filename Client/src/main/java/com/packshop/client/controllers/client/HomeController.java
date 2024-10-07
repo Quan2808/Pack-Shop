@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.packshop.client.controllers.ViewRenderer;
 
 @Controller
-public class ClientController {
+public class HomeController {
 
     @GetMapping()
     public String home(Model model) {

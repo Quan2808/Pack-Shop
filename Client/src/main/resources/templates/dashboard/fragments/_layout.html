@@ -7,24 +7,28 @@
     <link rel="shortcut icon" href="#" />
 
     <!-- Include Global Styles -->
-    <div th:replace="~{client/fragments/components/_styles}"></div>
+    <div th:replace="~{dashboard/fragments/components/_styles}"></div>
 
     <!-- Include Styles Specific to the Current View -->
     <th:block th:replace="~{${view} :: viewStyles} ?: _"></th:block>
   </head>
 
   <body>
-    <!-- Include Header Section -->
-    <div th:replace="~{client/fragments/components/_header}"></div>
+    <!-- Include Sidebar Navigation -->
+    <div th:replace="~{dashboard/fragments/components/_sidenav}"></div>
 
-    <!-- Main Content Area -->
-    <th:block th:replace="~{${view}::content}"></th:block>
+    <div id="content">
+      <!-- Include Breadcrumb Navigation -->
+      <div th:replace="~{dashboard/fragments/components/_breadcrumb}"></div>
 
-    <!-- Include Footer Section -->
-    <div th:replace="~{client/fragments/components/_footer}"></div>
+      <!-- Main Content Area -->
+      <div class="container-fluid">
+        <th:block th:replace="~{${view}::content}"></th:block>
+      </div>
+    </div>
 
     <!-- Include Global Scripts -->
-    <div th:replace="~{client/fragments/components/_scripts}"></div>
+    <div th:replace="~{dashboard/fragments/components/_scripts}"></div>
 
     <!-- Include Scripts Specific to the Current View -->
     <th:block th:replace="~{${view} :: viewScripts} ?: _"></th:block>

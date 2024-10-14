@@ -11,7 +11,7 @@ import com.packshop.client.controllers.ViewRenderer;
 public class DashboardController {
 
     @RequestMapping
-    public String dashboard(Model model) {
-        return ViewRenderer.renderView(model, "dashboard/pages/dashboard/index", "Home");
+    public String home(Model model) {
+        return ViewRenderer.renderView(model, "dashboard/pages/home/index", "Overview");
     }
 }

@@ -1,0 +1,30 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary">
+  <div class="container-fluid">
+    <button
+      data-mdb-toggle="sidenav"
+      data-mdb-target="#sidenav"
+      class="navbar-toggler"
+      aria-controls="#sidenav"
+      aria-haspopup="true"
+    >
+      <i class="fas fa-bars"></i>
+    </button>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item fw-bold">
+          <a class="text-warning">Dashboard</a>
+        </li>
+        <li
+          class="breadcrumb-item fw-bold"
+          th:if="${item}"
+          th:text="${item}"
+        ></li>
+        <li
+          class="breadcrumb-item active"
+          aria-current="page"
+          th:text="${title}"
+        ></li>
+      </ol>
+    </nav>
+  </div>
+</nav>

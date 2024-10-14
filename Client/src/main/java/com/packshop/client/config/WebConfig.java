@@ -35,7 +35,8 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         };
 
         for (String[] resource : resources) {
-            registry.addResourceHandler(resource[0]).addResourceLocations(resource[1]);
+            registry.addResourceHandler(resource[0])
+                    .addResourceLocations(resource[1]);
         }
     }
 

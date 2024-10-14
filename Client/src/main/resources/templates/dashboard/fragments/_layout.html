@@ -23,6 +23,10 @@
 
       <!-- Main Content Area -->
       <div class="container-fluid">
+        <h3
+          class="page-heading d-flex flex-column justify-content-center text-gray-900 fw-bolder fs-1 lh-0 mb-3"
+          th:text="${title}"
+        ></h3>
         <th:block th:replace="~{${view}::content}"></th:block>
       </div>
     </div>

@@ -3,7 +3,8 @@ package com.packshop.client.controllers.client;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.packshop.client.controllers.ViewRenderer;
+
+import com.packshop.client.controllers.common.ViewRenderer;
 
 @Controller
 @RequestMapping("/account")

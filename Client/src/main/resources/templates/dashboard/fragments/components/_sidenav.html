@@ -2,8 +2,7 @@
   data-mdb-sidenav-init
   id="sidenav"
   data-mdb-close-on-esc="false"
-  class="sidenav"
-  data-mdb-position="absolute"
+  class="sidenav fixed-top"
   data-mdb-mode="side"
   data-mdb-content="#content"
   data-mdb-focus-trap="false"
@@ -12,7 +11,7 @@
   <a
     data-mdb-ripple-init
     class="d-flex justify-content-center py-4 mb-3"
-    style="border-bottom: 2px solid #f5f5f5"
+    style="border-bottom: 1px solid #dcdcdc"
     href="#!"
     data-mdb-ripple-color="primary"
   >
@@ -26,36 +25,58 @@
   </a>
   <ul class="sidenav-menu px-2 pb-5">
     <li class="sidenav-item">
-      <a class="sidenav-link" href="">
-        <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Overview</span></a
+      <a
+        class="sidenav-link"
+        href="/dashboard"
+        th:classappend="${view.contains('/home') ? 'fw-bold text-warning' : ''}"
       >
+        <i
+          class="fas fa-tachometer-alt fa-fw me-3"
+          th:classappend="${view.contains('/home') ? 'text-warning' : ''}"
+        ></i>
+        <span>Overview</span>
+      </a>
     </li>
+
     <li class="sidenav-item pt-3">
-      <span class="sidenav-subheading text-muted">Create</span>
-      <a class="sidenav-link"
-        ><i class="fas fa-grin fa-fw me-3"></i><span>Category 1</span></a
+      <span class="sidenav-subheading text-muted">Catalog</span>
+      <a
+        class="sidenav-link"
+        href="/dashboard/catalog/products"
+        th:classappend="${view.contains('/products') ? 'fw-bold text-warning' : ''}"
       >
-      <ul class="sidenav-collapse">
-        <li class="sidenav-item">
-          <a class="sidenav-link">Link 2</a>
-        </li>
-        <li class="sidenav-item">
-          <a class="sidenav-link">Link 3</a>
-        </li>
-      </ul>
+        <i
+          class="fas fa-tag fa-fw me-3"
+          th:classappend="${view.contains('/products') ? 'text-warning' : ''}"
+        ></i>
+        <span>Products</span>
+      </a>
+      <a
+        class="sidenav-link"
+        href="/dashboard/categories"
+        th:classappend="${view.contains('/categories') ? 'fw-bold text-warning' : ''}"
+      >
+        <i
+          class="fas fa-cubes fa-fw me-3"
+          th:classappend="${view.contains('/categories') ? 'text-warning' : ''}"
+        ></i>
+        <span>Categories</span>
+      </a>
     </li>
-    <li class="sidenav-item">
-      <a class="sidenav-link"
-        ><i class="fas fa-grin-wink fa-fw me-3"></i><span>Category 2</span></a
+
+    <li class="sidenav-item pt-3">
+      <span class="sidenav-subheading text-muted">Sales</span>
+      <a
+        class="sidenav-link"
+        href="/dashboard/orders"
+        th:classappend="${view.contains('/orders') ? 'fw-bold text-warning' : ''}"
       >
-      <ul class="sidenav-collapse">
-        <li class="sidenav-item">
-          <a class="sidenav-link">Link 4</a>
-        </li>
-        <li class="sidenav-item">
-          <a class="sidenav-link">Link 5</a>
-        </li>
-      </ul>
+        <i
+          class="fas fa-clipboard-list fa-fw me-3"
+          th:classappend="${view.contains('/orders') ? 'text-warning' : ''}"
+        ></i>
+        <span>Orders</span>
+      </a>
     </li>
   </ul>
 </nav>

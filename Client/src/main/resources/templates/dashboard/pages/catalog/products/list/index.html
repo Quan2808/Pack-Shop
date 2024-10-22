@@ -21,9 +21,15 @@
           </div>
         </div>
         <div class="p-2">
-          <button type="button" class="btn btn-success" data-mdb-ripple-init>
+          <a
+            href="/dashboard/catalog/products/create"
+            role="button"
+            aria-pressed="true"
+            class="btn btn-success"
+            data-mdb-ripple-init
+          >
             Add Product
-          </button>
+          </a>
         </div>
       </div>
     </div>
@@ -48,50 +54,45 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>School Backpack</td>
-              <td>BP001</td>
-              <td>150</td>
-              <td>$25.00</td>
-              <td>4.5</td>
+            <tr th:each="i : ${#numbers.sequence(1, 69)}">
               <td>
-                <span class="badge rounded-pill badge-primary">In Stock</span>
+                <div class="d-flex align-items-center">
+                  <img
+                    src="https://mdbootstrap.com/img/new/avatars/8.jpg"
+                    alt=""
+                    style="width: 45px; height: 45px"
+                    class="rounded-circle"
+                  />
+                  <div class="ms-3">
+                    <p class="fw-bold mb-1" th:text="'Product ' + ${i}">
+                      Product Name
+                    </p>
+                  </div>
+                </div>
               </td>
+              <td th:text="'SKU' + ${#numbers.formatInteger(i, 3)}">SKU001</td>
+              <td th:text="${i * 10}">100</td>
+              <td th:text="'$' + ${i * 10}">$0.00</td>
+              <td th:text="${4.5 + (i % 5) * 0.1}">5.0</td>
               <td>
-                <button type="button" class="btn btn-info" data-mdb-ripple-init>
-                  Edit
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>Office Bag</td>
-              <td>BP002</td>
-              <td>75</td>
-              <td>$45.00</td>
-              <td>4.7</td>
-              <td>
-                <span class="badge rounded-pill badge-primary">In Stock</span>
-              </td>
-              <td>
-                <button type="button" class="btn btn-info" data-mdb-ripple-init>
-                  Edit
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>Travel Backpack</td>
-              <td>BP003</td>
-              <td>30</td>
-              <td>$60.00</td>
-              <td>4.8</td>
-              <td>
-                <span class="badge rounded-pill badge-danger"
-                  >Out of Stock</span
+                <span
+                  class="badge rounded-pill badge-primary"
+                  th:text="'In Stock'"
+                  >In Stock</span
                 >
               </td>
               <td>
-                <button type="button" class="btn btn-info" data-mdb-ripple-init>
-                  Edit
+                <button
+                  data-mdb-ripple-init=""
+                  class="call-btn btn btn-outline-primary btn-floating btn-sm"
+                >
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button
+                  data-mdb-ripple-init=""
+                  class="message-btn btn ms-2 btn-danger btn-floating btn-sm"
+                >
+                  <i class="fa-regular fa-trash-can"></i>
                 </button>
               </td>
             </tr>

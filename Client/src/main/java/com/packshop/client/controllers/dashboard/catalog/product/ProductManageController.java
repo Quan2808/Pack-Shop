@@ -16,4 +16,11 @@ public class ProductManageController implements CatalogManageBaseController {
                 CATALOG_PATH + "/products/list/index",
                 "Product List");
     }
+
+    @GetMapping("/products/create")
+    public String showCreateProductForm(Model model) {
+        return ViewRenderer.renderView(model,
+                CATALOG_PATH + "/products/create/index",
+                "Create Product");
+    }
 }

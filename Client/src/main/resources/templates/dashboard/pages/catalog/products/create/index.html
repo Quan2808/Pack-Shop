@@ -1,0 +1,303 @@
+<th:block th:fragment="viewStyles">
+  <link href="/plugins/file-upload/file-upload.min.css" rel="stylesheet" />
+  <link href="/plugins/wysiwyg/wysiwyg.min.css" rel="stylesheet" />
+</th:block>
+
+<div th:fragment="content">
+  <div class="row">
+    <div class="col-lg-3">
+      <div
+        th:replace="~{dashboard/pages/catalog/products/create/components/thumbnail}"
+      ></div>
+      <div
+        th:replace="~{dashboard/pages/catalog/products/create/components/status}"
+      ></div>
+    </div>
+    <div class="col-lg">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <ul class="nav nav-tabs mb-3" id="ex1" role="tablist">
+            <li class="nav-item" role="presentation">
+              <a
+                data-mdb-tab-init
+                class="nav-link active"
+                id="general"
+                href="#general-tab"
+                role="tab"
+                aria-controls="general-tab"
+                aria-selected="true"
+                >General</a
+              >
+            </li>
+            <li class="nav-item" role="presentation">
+              <a
+                data-mdb-tab-init
+                class="nav-link"
+                id="advanced"
+                href="#advanced-tab"
+                role="tab"
+                aria-controls="advanced-tab"
+                aria-selected="false"
+                >Advanced</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div>
+          <button
+            type="button"
+            class="btn btn-light"
+            data-mdb-ripple-init
+            data-mdb-ripple-color="dark"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-success" data-mdb-ripple-init>
+            Save
+          </button>
+        </div>
+      </div>
+
+      <div class="tab-content" id="ex1-content">
+        <div
+          class="tab-pane fade show active"
+          id="general-tab"
+          role="tabpanel"
+          aria-labelledby="general"
+        >
+          <div
+            th:replace="~{dashboard/pages/catalog/products/create/components/general}"
+          ></div>
+        </div>
+
+        <div
+          class="tab-pane fade"
+          id="advanced-tab"
+          role="tabpanel"
+          aria-labelledby="advanced"
+        >
+          <div
+            th:replace="~{dashboard/pages/catalog/products/create/components/advanced}"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:fragment="viewScripts">
+  <script src="/plugins/file-upload/file-upload.min.js"></script>
+  <script src="/plugins/wysiwyg/wysiwyg.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Import SweetAlert2
+    document.addEventListener("DOMContentLoaded", function () {
+      // Get all form elements
+      const productForm = {
+        name: document.getElementById("name"),
+        price: document.getElementById("price"),
+        sku: document.getElementById("sku"),
+        quantity: document.getElementById("qty"),
+        style: document.getElementById("style"),
+        color: document.getElementById("color"),
+        size: document.getElementById("size"),
+        material: document.getElementById("material"),
+        category: document.querySelector("select[data-mdb-select-init]"),
+        status: document.querySelectorAll("select[data-mdb-select-init]")[1],
+        thumbnail: document.querySelector(".file-upload-input"),
+        gallery: document.getElementById("dnd-multiple-files"),
+      };
+
+      // Save button click handler
+      document
+        .querySelector(".btn-success")
+        .addEventListener("click", validateAndSave);
+
+      // Cancel button click handler
+      document.querySelector(".btn-light").addEventListener("click", () => {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You will lose all unsaved changes!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, cancel changes",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            resetForm();
+            Swal.fire(
+              "Cancelled!",
+              "Your changes have been discarded.",
+              "success"
+            );
+          }
+        });
+      });
+
+      // Form validation and save function
+      function validateAndSave() {
+        // Required fields validation
+        if (!validateRequiredFields()) {
+          return;
+        }
+
+        // Price validation
+        if (
+          productForm.price.value &&
+          parseFloat(productForm.price.value) < 0
+        ) {
+          showError("Price cannot be negative.");
+          return;
+        }
+
+        // Quantity validation
+        if (
+          productForm.quantity.value &&
+          parseInt(productForm.quantity.value) < 0
+        ) {
+          showError("Quantity cannot be negative.");
+          return;
+        }
+
+        // Thumbnail validation
+        if (productForm.thumbnail.files.length > 0) {
+          const file = productForm.thumbnail.files[0];
+          const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+          if (!validTypes.includes(file.type)) {
+            showError("Thumbnail must be a PNG, JPG, or JPEG image.");
+            return;
+          }
+        }
+
+        // If all validations pass, show success message
+        Swal.fire({
+          title: "Save Changes?",
+          text: "Are you sure you want to save these changes?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#198754",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, save changes",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Here you would typically make an API call to save the data
+            saveProduct();
+          }
+        });
+      }
+
+      function validateRequiredFields() {
+        if (!productForm.name.value.trim()) {
+          showError("Product name is required.");
+          return false;
+        }
+
+        if (!productForm.price.value) {
+          showError("Product price is required.");
+          return false;
+        }
+
+        if (!productForm.category.value) {
+          showError("Please select a category.");
+          return false;
+        }
+
+        return true;
+      }
+
+      function showError(message) {
+        Swal.fire({
+          title: "Validation Error",
+          text: message,
+          icon: "error",
+          confirmButtonColor: "#3085d6",
+        });
+      }
+
+      function saveProduct() {
+        // Simulate API call with loading state
+        Swal.fire({
+          title: "Saving...",
+          html: "Please wait while we save your product",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        // Simulate API delay
+        setTimeout(() => {
+          Swal.fire({
+            title: "Success!",
+            text: "Product has been saved successfully",
+            icon: "success",
+            confirmButtonColor: "#198754",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              resetForm();
+            }
+          });
+        }, 1500);
+      }
+
+      function resetForm() {
+        // Reset all form fields
+        Object.values(productForm).forEach((field) => {
+          if (field && field.type !== "file") {
+            field.value = "";
+          }
+        });
+
+        // Reset file inputs
+        const fileInputs = document.querySelectorAll(".file-upload-input");
+        fileInputs.forEach((input) => {
+          input.value = "";
+        });
+
+        // Reset WYSIWYG editor if it exists
+        const editor = document.querySelector(".wysiwyg");
+        if (editor) {
+          editor.innerHTML = "";
+        }
+
+        // Reset selects
+        const selects = document.querySelectorAll(
+          "select[data-mdb-select-init]"
+        );
+        selects.forEach((select) => {
+          select.selectedIndex = 0;
+        });
+      }
+
+      // Add input event listeners for real-time validation
+      productForm.price.addEventListener("input", function () {
+        if (this.value < 0) {
+          this.classList.add("is-invalid");
+        } else {
+          this.classList.remove("is-invalid");
+        }
+      });
+
+      productForm.quantity.addEventListener("input", function () {
+        if (this.value < 0) {
+          this.classList.add("is-invalid");
+        } else {
+          this.classList.remove("is-invalid");
+        }
+      });
+
+      // File upload validation
+      productForm.thumbnail.addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (file) {
+          const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+          if (!validTypes.includes(file.type)) {
+            showError("Thumbnail must be a PNG, JPG, or JPEG image.");
+            this.value = "";
+          }
+        }
+      });
+    });
+  </script>
+</th:block>

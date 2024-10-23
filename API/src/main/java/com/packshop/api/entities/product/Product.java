@@ -1,17 +1,24 @@
 package com.packshop.api.entities.product;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.packshop.api.entities.category.Category;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -33,23 +40,29 @@ public class Product {
     @Column(nullable = false)
     private String name;
 
-    @Column(length = 500)
-    private String description;
-
-    @Column(nullable = false)
-    private double price;
-
-    @Column(length = 255)
     private String thumbnail;
 
-    @JsonManagedReference
-    @OneToMany(mappedBy = "product")
-    private List<ProductImage> images;
+    @Enumerated(EnumType.STRING)
+    private ProductStatus status;
+
+    @Lob
+    private String description;
+
+    @ElementCollection
+    private List<String> media;
+
+    @Column(nullable = false)
+    private BigDecimal price;
+
+    private String sku;
+
+    private int quantity;
 
     @ManyToOne
     private Category category;
-    
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "product_attribute_id")
     @JsonManagedReference
-    @OneToMany(mappedBy = "product")
-    private List<ProductVariant> variants;
+    private ProductAttribute productAttribute;
 }

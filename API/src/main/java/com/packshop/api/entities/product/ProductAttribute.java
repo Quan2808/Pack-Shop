@@ -1,41 +1,37 @@
 package com.packshop.api.entities.product;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "product_variant")
+@Table(name = "product_attribute")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductVariant {
+public class ProductAttribute {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    private String name; // Example: "Màu đỏ", "Kích thước lớn"
+    private String material; // Example: "Cotton"
 
+    private String dimensions; // Example: "30x40x10 cm"
+
+    private String capacity; // Example: "20L"
+
+    private String weight; // Example: "0.8 kg"
+
+    @OneToOne(mappedBy = "productAttribute")
     @JsonBackReference
-    @ManyToOne
     private Product product;
-
-    @JsonManagedReference
-    @OneToMany(mappedBy = "variant")
-    private List<ProductOption> options;
 }

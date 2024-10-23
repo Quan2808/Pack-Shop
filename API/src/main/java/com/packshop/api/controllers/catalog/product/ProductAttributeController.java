@@ -1,13 +1,20 @@
-package com.packshop.api.controllers.product;
+package com.packshop.api.controllers.catalog.product;
+
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.packshop.api.entities.product.ProductAttribute;
-import com.packshop.api.services.product.ProductAttributeService;
-
-import java.util.List;
+import com.packshop.api.entities.catalog.product.ProductAttribute;
+import com.packshop.api.services.catalog.product.ProductAttributeService;
 
 @RestController
 @RequestMapping("/api/product-attributes")

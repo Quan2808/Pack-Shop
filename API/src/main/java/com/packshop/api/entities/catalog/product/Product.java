@@ -1,10 +1,10 @@
-package com.packshop.api.entities.product;
+package com.packshop.api.entities.catalog.product;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.packshop.api.entities.category.Category;
+import com.packshop.api.entities.catalog.category.Category;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

@@ -1,4 +1,4 @@
-package com.packshop.api.controllers.product;
+package com.packshop.api.controllers.catalog.product;
 
 import java.util.List;
 
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.packshop.api.entities.product.Product;
-import com.packshop.api.services.product.ProductService;
+import com.packshop.api.entities.catalog.product.Product;
+import com.packshop.api.services.catalog.product.ProductService;
 
 @RestController
 @RequestMapping("/api/products")

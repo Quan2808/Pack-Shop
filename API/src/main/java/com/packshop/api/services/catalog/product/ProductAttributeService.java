@@ -1,12 +1,12 @@
-package com.packshop.api.services.product;
+package com.packshop.api.services.catalog.product;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.packshop.api.entities.product.ProductAttribute;
-import com.packshop.api.repositories.product.ProductAttributeRepository;
+import com.packshop.api.entities.catalog.product.ProductAttribute;
+import com.packshop.api.repositories.catalog.product.ProductAttributeRepository;
 
 import java.util.List;
 import java.util.Optional;

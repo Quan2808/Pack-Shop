@@ -1,4 +1,4 @@
-package com.packshop.api.services.product;
+package com.packshop.api.services.catalog.product;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.packshop.api.entities.product.Product;
-import com.packshop.api.entities.product.ProductAttribute;
-import com.packshop.api.repositories.product.ProductRepository;
+import com.packshop.api.entities.catalog.product.Product;
+import com.packshop.api.entities.catalog.product.ProductAttribute;
+import com.packshop.api.repositories.catalog.product.ProductRepository;
 
 @Service
 public class ProductService {

@@ -17,7 +17,7 @@ import com.packshop.api.entities.catalog.product.Product;
 import com.packshop.api.services.catalog.product.ProductService;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/products")
 public class ProductController {
 
     @Autowired

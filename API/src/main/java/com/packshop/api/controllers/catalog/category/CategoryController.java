@@ -17,7 +17,7 @@ import com.packshop.api.entities.catalog.category.Category;
 import com.packshop.api.services.catalog.category.CategoryService;
 
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/categories")
 public class CategoryController {
 
     @Autowired

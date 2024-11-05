@@ -17,7 +17,7 @@ import com.packshop.api.entities.catalog.product.ProductAttribute;
 import com.packshop.api.services.catalog.product.ProductAttributeService;
 
 @RestController
-@RequestMapping("/api/product-attributes")
+@RequestMapping("/product-attributes")
 public class ProductAttributeController {
 
     @Autowired

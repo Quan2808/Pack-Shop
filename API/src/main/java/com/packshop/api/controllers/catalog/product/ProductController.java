@@ -10,40 +10,39 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.packshop.api.controllers.catalog.base.CatalogBaseController;
 import com.packshop.api.entities.catalog.product.Product;
 import com.packshop.api.services.catalog.product.ProductService;
 
 @RestController
-@RequestMapping("/products")
-public class ProductController {
+public class ProductController implements CatalogBaseController {
 
     @Autowired
     private ProductService productService;
 
-    @GetMapping
+    @GetMapping("/products")
     public List<Product> getAllProducts() {
         return productService.getAllProducts();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/products/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
 
-    @PostMapping
+    @PostMapping("/products")
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         return productService.createProduct(product);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/products/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
         return productService.updateProduct(id, product);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/products/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         return productService.deleteProduct(id);
     }

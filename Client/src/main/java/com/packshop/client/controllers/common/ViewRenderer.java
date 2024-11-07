@@ -15,6 +15,5 @@ public class ViewRenderer {
             return DASHBOARD_LAYOUT;
         }
         return CLIENT_LAYOUT;
-
     }
 }

@@ -59,6 +59,8 @@ public class Product {
     private int quantity;
 
     @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    @JsonManagedReference
     private Category category;
 
     @OneToOne(cascade = CascadeType.ALL)

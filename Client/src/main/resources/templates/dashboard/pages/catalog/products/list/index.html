@@ -20,6 +20,22 @@
             </div>
           </div>
         </div>
+
+        <div class="p-2">
+          <!-- Dropdown for Status Filter -->
+          <div class="form-outline">
+            <select
+              class="form-select"
+              id="status-filter"
+              aria-label="Filter by Status"
+            >
+              <option value="" selected>All Status</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+        </div>
+
         <div class="p-2">
           <a
             href="/dashboard/catalog/products/create"
@@ -141,5 +157,21 @@
 
       instance.search(phrase, columns);
     };
+
+    document.getElementById("status-filter").addEventListener("change", (e) => {
+      const statusFilter = e.target.value;
+      const rows = document.querySelectorAll("#datatable-search tbody tr");
+
+      rows.forEach((row) => {
+        const statusCell = row.querySelector("td:nth-child(6)");
+        const productStatus = statusCell ? statusCell.textContent.trim() : "";
+
+        if (statusFilter === "" || productStatus === statusFilter) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    });
   </script>
 </th:block>

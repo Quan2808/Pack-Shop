@@ -10,14 +10,8 @@
           <!-- Search Product -->
           <div class="form-outline">
             <div data-mdb-input-init class="form-outline">
-              <input
-                type="text"
-                class="form-control"
-                id="datatable-search-input"
-              />
-              <label class="form-label" for="datatable-search-input"
-                >Search</label
-              >
+              <input type="text" class="form-control" id="catalog-search" />
+              <label class="form-label" for="catalog-search">Search</label>
             </div>
           </div>
         </div>
@@ -54,8 +48,8 @@
       <div
         data-mdb-datatable-init
         data-mdb-hover="true"
-        class="datatable-search"
-        id="datatable-search"
+        class="catalog-table"
+        id="catalog-table"
       >
         <table>
           <thead>
@@ -65,7 +59,7 @@
               <th class="th-sm">Quantity</th>
               <th class="th-sm">Price</th>
               <th class="th-sm">Rating</th>
-              <th class="th-sm">Status</th>
+              <th class="th-sm" data-mdb-sort="false">Status</th>
               <th class="th-sm" data-mdb-sort="false">Action</th>
             </tr>
           </thead>
@@ -129,49 +123,5 @@
 
 <th:block th:fragment="viewScripts">
   <script src="/plugins/datatables/datatables.bundle.js"></script>
-  <script>
-    document
-      .getElementById("datatable-search-input")
-      .addEventListener("input", (e) => {
-        const instance = mdb.Datatable.getInstance(
-          document.getElementById("datatable-search")
-        );
-
-        instance.search(e.target.value);
-      });
-
-    const advancedSearchInput = document.getElementById(
-      "advanced-search-input"
-    );
-
-    const search = (value) => {
-      const instance = mdb.Datatable.getInstance(
-        document.getElementById("datatable-advanced-search")
-      );
-
-      let [phrase, columns] = value.split(" in:").map((str) => str.trim());
-
-      if (columns) {
-        columns = columns.split(",").map((str) => str.toLowerCase().trim());
-      }
-
-      instance.search(phrase, columns);
-    };
-
-    document.getElementById("status-filter").addEventListener("change", (e) => {
-      const statusFilter = e.target.value;
-      const rows = document.querySelectorAll("#datatable-search tbody tr");
-
-      rows.forEach((row) => {
-        const statusCell = row.querySelector("td:nth-child(6)");
-        const productStatus = statusCell ? statusCell.textContent.trim() : "";
-
-        if (statusFilter === "" || productStatus === statusFilter) {
-          row.style.display = "";
-        } else {
-          row.style.display = "none";
-        }
-      });
-    });
-  </script>
+  <script src="/plugins/custom/catalog/list.js"></script>
 </th:block>

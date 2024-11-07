@@ -14,8 +14,9 @@
     <h5 class="card-title fw-bold mb-4">Category</h5>
     <select data-mdb-select-init data-mdb-auto-select="true">
       <option value="" hidden selected>Select an option</option>
-      <option value="category 1">Category 1</option>
-      <option value="category 2">Category 2</option>
+      <th:block th:each="category : ${categories}">
+        <option th:value="${category.id}" th:text="${category.name}"></option>
+      </th:block>
     </select>
     <small class="text-muted text-center">Add product to a category.</small>
   </div>

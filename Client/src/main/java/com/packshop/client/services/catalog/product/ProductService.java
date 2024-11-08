@@ -1,7 +1,7 @@
 package com.packshop.client.services.catalog.product;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.packshop.client.dto.catalog.product.ProductDTO;
 import com.packshop.client.services.catalog.base.CatalogBaseService;
 
 @Service
@@ -22,12 +23,14 @@ public class ProductService implements CatalogBaseService {
         this.restTemplate = restTemplate;
     }
 
-    public List<Map<String, Object>> getProducts() {
-        ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
-                PRODUCTS_API_URL, HttpMethod.GET,
-                null, new ParameterizedTypeReference<List<Map<String, Object>>>() {
+    public List<ProductDTO> getAllProducts() {
+        ResponseEntity<List<ProductDTO>> response = restTemplate.exchange(
+                PRODUCTS_API_URL,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<ProductDTO>>() {
                 });
-        return response.getBody();
+        return response.getBody() != null ? response.getBody() : new ArrayList<>();
     }
 
 }

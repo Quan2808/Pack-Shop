@@ -10,7 +10,7 @@ public class ProductDTO {
     private Long id;
     private String name;
     private String thumbnail;
-    private ProductStatus status;
+    private String status;
     private String description;
     private List<String> media;
     private BigDecimal price;

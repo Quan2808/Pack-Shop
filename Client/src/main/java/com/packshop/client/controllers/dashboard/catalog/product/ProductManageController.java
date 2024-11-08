@@ -1,7 +1,6 @@
 package com.packshop.client.controllers.dashboard.catalog.product;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import com.packshop.client.controllers.common.ViewRenderer;
 import com.packshop.client.controllers.dashboard.catalog.base.CatalogManageBaseController;
+import com.packshop.client.dto.catalog.category.CategoryDTO;
+import com.packshop.client.dto.catalog.product.ProductDTO;
 import com.packshop.client.services.catalog.category.CategoryService;
 import com.packshop.client.services.catalog.product.ProductService;
 
@@ -24,7 +25,7 @@ public class ProductManageController implements CatalogManageBaseController {
 
     @GetMapping("/products")
     public String list(Model model) {
-        List<Map<String, Object>> products = productService.getProducts();
+        List<ProductDTO> products = productService.getAllProducts();
         model.addAttribute("products", products);
 
         return ViewRenderer.renderView(model,
@@ -34,7 +35,7 @@ public class ProductManageController implements CatalogManageBaseController {
 
     @GetMapping("/products/create")
     public String showCreateProductForm(Model model) {
-        List<Map<String, Object>> categories = categoryService.getCategories();
+        List<CategoryDTO> categories = categoryService.getAllCategories();
         model.addAttribute("categories", categories);
 
         return ViewRenderer.renderView(model,

@@ -1,6 +1,33 @@
 package com.packshop.client.services.catalog.base;
 
-public interface CatalogBaseService {
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+public abstract class CatalogBaseService {
     String CATALOG_API_URL = "http://localhost:8080/api/catalog/";
 
+    private final RestTemplate restTemplate;
+
+    public CatalogBaseService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    protected <T> List<T> getListFromApi(String apiUrl, ParameterizedTypeReference<List<T>> responseType) {
+        // try {
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // return new ArrayList<>();
+        // }
+        ResponseEntity<List<T>> response = restTemplate.exchange(
+                CATALOG_API_URL + apiUrl,
+                HttpMethod.GET,
+                null,
+                responseType);
+        return response.getBody() != null ? response.getBody() : new ArrayList<>();
+    }
 }

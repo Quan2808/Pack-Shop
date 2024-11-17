@@ -8,6 +8,7 @@
         <input
           type="text"
           id="sku"
+          name="sku"
           class="form-control"
           placeholder="SKU Number"
         />
@@ -18,7 +19,13 @@
     <div class="mb-4">
       <label class="form-label fw-bold" for="qty">Quantity</label>
       <div data-mdb-input-init class="form-outline">
-        <input type="number" id="qty" class="form-control" placeholder="0" />
+        <input
+          type="number"
+          id="qty"
+          name="quantity"
+          class="form-control"
+          placeholder="0"
+        />
       </div>
       <small class="text-muted text-center">Enter the product quantity.</small>
     </div>
@@ -36,6 +43,7 @@
             <input
               type="text"
               id="style"
+              name="productAttribute.style"
               class="form-control"
               placeholder="Enter product style"
             />
@@ -49,6 +57,7 @@
             <input
               type="text"
               id="color"
+              name="productAttribute.color"
               class="form-control"
               placeholder="Enter product color"
             />
@@ -63,6 +72,7 @@
             <input
               type="text"
               id="size"
+              name="productAttribute.size"
               class="form-control"
               placeholder="Enter product size"
             />
@@ -76,6 +86,7 @@
             <input
               type="text"
               id="material"
+              name="productAttribute.material"
               class="form-control"
               placeholder="Enter product material"
             />

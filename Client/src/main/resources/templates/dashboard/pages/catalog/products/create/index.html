@@ -4,7 +4,14 @@
 </th:block>
 
 <div th:fragment="content">
-  <div class="row">
+  <form
+    action="#"
+    th:action="@{/dashboard/catalog/products/create}"
+    th:object="${product}"
+    method="post"
+    enctype="multipart/form-data"
+    class="row"
+  >
     <div class="col-lg-3">
       <div
         th:replace="~{dashboard/pages/catalog/products/create/components/thumbnail}"
@@ -82,7 +89,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </form>
 </div>
 
 <th:block th:fragment="viewScripts">

@@ -1,51 +1,51 @@
 package com.packshop.api.services.catalog.category;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.packshop.api.dto.catalog.category.CategoryDTO;
+import com.packshop.api.entities.catalog.category.Category;
+import com.packshop.api.exception.ResourceNotFoundException;
+import com.packshop.api.repositories.catalog.category.CategoryRepository;
+import com.packshop.api.utilities.MapperUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.packshop.api.entities.catalog.category.Category;
-import com.packshop.api.repositories.catalog.category.CategoryRepository;
-
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryService {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryDTO> getAllCategories() {
+        List<Category> categories = categoryRepository.findAll();
+        return MapperUtil.mapEntitiesToDtos(categories, CategoryDTO.class);
     }
 
-    public ResponseEntity<Category> getCategoryById(Long id) {
-        Optional<Category> category = categoryRepository.findById(id);
-        return category.map(ResponseEntity::ok)
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public CategoryDTO getCategoryById(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
+        return MapperUtil.mapToDto(category, CategoryDTO.class);
     }
 
-    public ResponseEntity<Category> createCategory(Category category) {
-        Category savedCategory = categoryRepository.save(category);
-        return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
+    public CategoryDTO createCategory(CategoryDTO categoryDTO) {
+        Category category = MapperUtil.mapToEntity(categoryDTO, Category.class);
+        category = categoryRepository.save(category);
+        return MapperUtil.mapToDto(category, CategoryDTO.class);
     }
 
-    public ResponseEntity<Category> updateCategory(Long id, Category category) {
+    public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
+        MapperUtil.updateEntityFromDto(category, categoryDTO);
+        category = categoryRepository.save(category);
+        return MapperUtil.mapToDto(category, CategoryDTO.class);
+    }
+
+    public void deleteCategory(Long id) {
         if (!categoryRepository.existsById(id)) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        category.setId(id);
-        Category updatedCategory = categoryRepository.save(category);
-        return ResponseEntity.ok(updatedCategory);
-    }
-
-    public ResponseEntity<Void> deleteCategory(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("Category not found with id: " + id);
         }
         categoryRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }
+

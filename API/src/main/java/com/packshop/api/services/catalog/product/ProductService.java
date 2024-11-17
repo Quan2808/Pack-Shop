@@ -1,72 +1,59 @@
 package com.packshop.api.services.catalog.product;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
+import com.packshop.api.dto.catalog.product.ProductDTO;
 import com.packshop.api.entities.catalog.product.Product;
 import com.packshop.api.entities.catalog.product.ProductAttribute;
+import com.packshop.api.exception.ResourceNotFoundException;
 import com.packshop.api.repositories.catalog.product.ProductRepository;
+import com.packshop.api.utilities.MapperUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductDTO> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+        return MapperUtil.mapEntitiesToDtos(products, ProductDTO.class);
     }
 
-    public ResponseEntity<Product> getProductById(Long id) {
-        Optional<Product> product = productRepository.findById(id);
-        return product.map(ResponseEntity::ok)
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ProductDTO getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        return MapperUtil.mapToDto(product, ProductDTO.class);
     }
 
-    public ResponseEntity<Product> createProduct(Product product) {
-        Product savedProduct = productRepository.save(product);
-        return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
-    }
+    public ProductDTO createProduct(ProductDTO productDTO) {
+        Product product = MapperUtil.mapToEntity(productDTO, Product.class);
 
-    public ResponseEntity<Product> updateProduct(Long id, Product product) {
-        if (!productRepository.existsById(id))
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
-        Product existingProduct = productRepository.findById(id).get();
-
-        existingProduct.setName(product.getName());
-        existingProduct.setThumbnail(product.getThumbnail());
-        existingProduct.setStatus(product.getStatus());
-        existingProduct.setDescription(product.getDescription());
-        existingProduct.setMedia(product.getMedia());
-        existingProduct.setPrice(product.getPrice());
-        existingProduct.setSku(product.getSku());
-        existingProduct.setQuantity(product.getQuantity());
-        existingProduct.setCategory(product.getCategory());
-
-        if (product.getProductAttribute() != null) {
-            ProductAttribute existingAttribute = existingProduct.getProductAttribute();
-            existingAttribute.setMaterial(product.getProductAttribute().getMaterial());
-            existingAttribute.setDimensions(product.getProductAttribute().getDimensions());
-            existingAttribute.setCapacity(product.getProductAttribute().getCapacity());
-            existingAttribute.setWeight(product.getProductAttribute().getWeight());
+        if (product.getAttributes() != null) {
+            ProductAttribute attributes = product.getAttributes();
+            attributes.setProduct(product);
         }
 
-        Product updatedProduct = productRepository.save(existingProduct);
+        product = productRepository.save(product);
 
-        return ResponseEntity.ok(updatedProduct);
+        return MapperUtil.mapToDto(product, ProductDTO.class);
     }
 
-    public ResponseEntity<Void> deleteProduct(Long id) {
+    public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        MapperUtil.updateEntityFromDto(product, productDTO);
+        product = productRepository.save(product);
+        return MapperUtil.mapToDto(product, ProductDTO.class);
+    }
+
+    public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("Product not found with id: " + id);
         }
         productRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }
+

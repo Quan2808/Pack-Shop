@@ -1,4 +1,4 @@
-package com.packshop.client.dto.catalog.product;
+package com.packshop.api.dto.catalog.product;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,5 +18,5 @@ public class ProductDTO {
     private String sku;
     private int quantity;
     private Long categoryId;
-    private ProductAttributeDTO productAttribute;
+    private ProductAttributeDTO attributes;
 }

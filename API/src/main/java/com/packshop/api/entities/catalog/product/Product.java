@@ -51,7 +51,6 @@ public class Product {
     @ElementCollection
     private List<String> media;
 
-    @Column(nullable = false)
     private BigDecimal price;
 
     private String sku;
@@ -59,12 +58,11 @@ public class Product {
     private int quantity;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
     @JsonManagedReference
     private Category category;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_attribute_id")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
     @JsonManagedReference
-    private ProductAttribute productAttribute;
+    private ProductAttribute attributes;
 }

@@ -8,6 +8,7 @@
         <input
           type="text"
           id="name"
+          name="name"
           class="form-control"
           placeholder="Product name"
         />
@@ -16,12 +17,14 @@
         A product name is required and recommended to be unique.
       </small>
     </div>
+
     <div class="mb-4">
       <label class="form-label fw-bold" for="price">Base Price</label>
       <div data-mdb-input-init class="form-outline">
         <input
           type="number"
           id="price"
+          name="price"
           class="form-control"
           placeholder="Product price"
         />
@@ -32,6 +35,7 @@
       <label class="form-label fw-bold">Description</label>
       <div
         class="wysiwyg"
+        name="description"
         data-mdb-wysiwyg-init
         data-mdb-wysiwyg-formatting-section="false"
         data-mdb-wysiwyg-justify-section="false"
@@ -50,6 +54,7 @@
       <input
         id="dnd-multiple-files"
         type="file"
+        name="media"
         class="file-upload-input"
         data-mdb-multiple="true"
         data-mdb-file-upload-init

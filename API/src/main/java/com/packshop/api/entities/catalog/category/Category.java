@@ -36,7 +36,7 @@ public class Category {
     @Column(length = 255)
     private String image;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     @JsonBackReference
     private List<Product> products;
 }

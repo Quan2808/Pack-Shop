@@ -1,4 +1,4 @@
-package com.packshop.client.dto.catalog.product;
+package com.packshop.api.dto.catalog.product;
 
 import lombok.Data;
 

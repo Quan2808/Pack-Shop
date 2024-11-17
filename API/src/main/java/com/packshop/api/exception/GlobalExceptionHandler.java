@@ -1,57 +1,51 @@
 package com.packshop.api.exception;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import jakarta.validation.ConstraintViolationException;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private ResponseEntity<ErrorDetails> buildErrorResponse(HttpStatus status, String message, String details) {
-        ErrorDetails errorDetails = new ErrorDetails(status.value(), message, details);
-        return new ResponseEntity<>(errorDetails, status);
-    }
-
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDetails> handleGlobalException(Exception ex, WebRequest request) {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal server error: " + ex.getMessage(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler({NoSuchElementException.class, ResourceNotFoundException.class})
-    public ResponseEntity<ErrorDetails> handleNotFoundException(Exception ex, WebRequest request) {
-        return buildErrorResponse(HttpStatus.NOT_FOUND, "Resource not found", ex.getMessage());
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorDetails> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid input data", ex.getMessage());
-    }
-
-    @ExceptionHandler({ConstraintViolationException.class, org.hibernate.exception.ConstraintViolationException.class})
-    public ResponseEntity<ErrorDetails> handleConstraintViolationException(Exception ex) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Validation error", ex.getMessage());
-    }
+//    @ExceptionHandler(ResourceNotFoundException.class)
+//    @ResponseStatus(HttpStatus.NOT_FOUND)
+//    public ErrorResponse handleResourceNotFound(ResourceNotFoundException ex) {
+//        return new ErrorResponse(
+//                HttpStatus.NOT_FOUND.value(),
+//                ex.getMessage(),
+//                System.currentTimeMillis()
+//        );
+//    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorDetails> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining(", "));
 
-        ErrorDetails errorDetails = new ErrorDetails(HttpStatus.BAD_REQUEST.value(), "Validation failed", errors.toString());
-        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+        return new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation failed: " + errorMessage,
+                System.currentTimeMillis()
+        );
     }
 }

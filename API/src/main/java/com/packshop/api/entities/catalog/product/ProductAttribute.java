@@ -1,16 +1,9 @@
 package com.packshop.api.entities.catalog.product;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "product_attribute")
@@ -31,7 +24,8 @@ public class ProductAttribute {
 
     private String weight; // Example: "0.8 kg"
 
-    @OneToOne(mappedBy = "productAttribute")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "product_id", nullable = false)
     @JsonBackReference
     private Product product;
 }

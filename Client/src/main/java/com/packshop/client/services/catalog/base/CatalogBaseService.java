@@ -9,9 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 public abstract class CatalogBaseService {
-    String CATALOG_API_URL = "http://localhost:8080/api/catalog/";
+    protected static final String CATALOG_API_URL = "http://localhost:8080/api/catalog/";
 
-    private final RestTemplate restTemplate;
+    // Make restTemplate protected so it can be accessed by subclasses
+    protected final RestTemplate restTemplate;
 
     public CatalogBaseService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;

@@ -1,4 +1,4 @@
-package com.packshop.api.exception;
+package com.packshop.api.common.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.packshop.api.utilities;
+package com.packshop.api.common.utilities;
 
 import org.modelmapper.ModelMapper;
 

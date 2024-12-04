@@ -3,9 +3,9 @@ package com.packshop.api.services.catalog;
 import com.packshop.api.dto.catalog.ProductDTO;
 import com.packshop.api.etities.catalog.Product;
 import com.packshop.api.etities.catalog.ProductAttribute;
-import com.packshop.api.exception.ResourceNotFoundException;
+import com.packshop.api.common.exception.ResourceNotFoundException;
 import com.packshop.api.repositories.catalog.ProductRepository;
-import com.packshop.api.utilities.EntityDtoMapper;
+import com.packshop.api.common.utilities.EntityDtoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

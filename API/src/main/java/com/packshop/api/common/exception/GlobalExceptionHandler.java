@@ -1,4 +1,4 @@
-package com.packshop.api.exception;
+package com.packshop.api.common.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;

@@ -1,9 +1,8 @@
 package com.packshop.api.dto.catalog;
 
-import lombok.Data;
-
-import java.math.BigDecimal;
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class CategoryDTO {
@@ -13,4 +12,3 @@ public class CategoryDTO {
     private String image;
     private List<ProductDTO> products;
 }
-

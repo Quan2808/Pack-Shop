@@ -4,6 +4,9 @@ pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
 pom.xml.diff
+.mvn/
+mvnw
+mvnw.cmd
 
 # Gradle
 .gradle/
@@ -26,7 +29,6 @@ spring-boot-starter-logging/
 *.swp
 *.swo
 *.swn
-*.swo
 *.project
 *.classpath
 *.settings/

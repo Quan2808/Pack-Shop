@@ -30,4 +30,5 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     @JsonBackReference
     private List<Product> products;
+
 }

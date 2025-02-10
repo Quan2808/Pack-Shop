@@ -1,4 +1,4 @@
-package com.packshop.client.config;
+package com.packshop.client.common.config;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

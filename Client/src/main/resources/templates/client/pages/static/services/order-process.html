@@ -1,0 +1,92 @@
+<div th:fragment="content" class="container">
+    <!-- Begin Breadcrumb -->
+    <div
+      th:replace="~{client/fragments/components/_breadcrumb :: breadcrumb(item='Services')}"
+    ></div>
+    <!-- End Breadcrumb -->
+  
+    <div class="row">
+      <div class="col-12 col-md-3">
+        <!-- Begin navs -->
+        <div th:replace="~{client/pages/static/services/components/_nav.html}"></div>
+        <!-- End navs -->
+      </div>
+  
+      <div class="col-12 col-md-9">
+        <h3 class="fw-bold mb-5">Order Process</h3>
+        <ul class="list-group list-group-light mb-3">
+          <li class="list-group-item">
+            <h5 class="fw-bold">Contact and Consultation</h5>
+            <p class="text-muted mb-0">
+              Customers who need to order backpacks or bags can contact us via
+              email or hotline for consultation.
+            </p>
+            <p class="text-muted mb-0">
+              Customers can choose color samples on our website. All requests will
+              be recorded according to the customer’s preferences and usage
+              purposes.
+            </p>
+          </li>
+          <li class="list-group-item">
+            <h5 class="fw-bold">Free Quotation and Color Samples</h5>
+            <p class="text-muted mb-0">
+              Customers can send design requests, dimensions, materials, company
+              details, quantity, etc., to receive the most reasonable quotation.
+            </p>
+          </li>
+          <li class="list-group-item">
+            <h5 class="fw-bold">Sample Approval</h5>
+            <p class="text-muted mb-0">
+              The design sample will be completed within 3 - 5 days, depending on
+              the complexity of the product.
+            </p>
+            <p class="text-muted mb-0">
+              If the sample meets your requirements and you agree, both parties
+              will proceed to sign the contract.
+            </p>
+          </li>
+  
+          <li class="list-group-item">
+            <h5 class="fw-bold">Contract Signing</h5>
+            <p class="text-muted mb-2 fw-bold">The contract will include:</p>
+            <p class="text-muted mb-0">
+              Agreement on the deposit and legal steps related to the contract.
+            </p>
+            <p class="text-muted mb-0">
+              Payment methods, delivery, transportation support, and order
+              completion assistance.
+            </p>
+            <p class="text-muted mb-0">
+              Please make an upfront payment of 50% of the total contract value.
+            </p>
+          </li>
+  
+          <li class="list-group-item">
+            <h5 class="fw-bold">Mass Production</h5>
+            <p class="text-muted mb-0">
+              The order completion time will range from 7 to 20 days, depending on
+              the quantity ordered.
+            </p>
+          </li>
+  
+          <li class="list-group-item">
+            <h5 class="fw-bold">Inspection and Packaging</h5>
+            <p class="text-muted mb-0">
+              The products will be thoroughly inspected and carefully packaged
+              before being delivered to you.
+            </p>
+          </li>
+  
+          <li class="list-group-item">
+            <h5 class="fw-bold">Product Delivery</h5>
+            <p class="text-muted mb-0">
+              The products will be delivered to your location, where you can check
+              the product quality and quantity according to your requirements
+              before making the final payment.
+            </p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  

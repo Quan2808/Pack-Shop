@@ -1,0 +1,28 @@
+body {
+  font-family: "Quicksand", sans-serif;
+  padding-top: 87px;
+}
+
+.nav-link:hover {
+  color: #f5a623;
+}
+
+.nav-link.nav-active,
+.nav-link.dropdown-toggle.show,
+.dropdown-item:hover {
+  color: #f5a623;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  transition: top 0.3s;
+  z-index: 1000;
+}
+
+.product-card .card-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

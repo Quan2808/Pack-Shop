@@ -1,0 +1,23 @@
+<div class="card card-flush py-4 mb-3">
+  <div class="card-body pt-0">
+    <h5 class="card-title fw-bold mb-4">Status</h5>
+    <select name="status" data-mdb-select-init data-mdb-auto-select="true">
+      <option value="PUBLISHED">Published</option>
+      <option value="INACTIVE">Inactive</option>
+    </select>
+    <small class="text-muted text-center">Set the product status.</small>
+  </div>
+</div>
+
+<div class="card card-flush py-4 mb-3">
+  <div class="card-body pt-0">
+    <h5 class="card-title fw-bold mb-4">Category</h5>
+    <select name="categoryId" data-mdb-select-init data-mdb-auto-select="true">
+      <option value="" hidden selected>Select an option</option>
+      <th:block th:each="category : ${categories}">
+        <option th:value="${category.id}" th:text="${category.name}"></option>
+      </th:block>
+    </select>
+    <small class="text-muted text-center">Add product to a category.</small>
+  </div>
+</div>

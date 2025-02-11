@@ -1,0 +1,20 @@
+<div class="nav flex-column nav-tabs text-center mb-5">
+  <a
+    class="nav-link"
+    href="/legal/return-exchange-policy"
+    th:classappend="${view.contains('return-exchange-policy') ? 'active' : ''}"
+    >Return and Exchange Policy</a
+  >
+  <a
+    class="nav-link"
+    href="/legal/privacy-policy"
+    th:classappend="${view.contains('privacy-policy') ? 'active' : ''}"
+    >Privacy Policy</a
+  >
+  <a
+    class="nav-link"
+    href="/legal/term-of-service"
+    th:classappend="${view.contains('term-of-service') ? 'active' : ''}"
+    >Term of Service</a
+  >
+</div>

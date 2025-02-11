@@ -1,0 +1,127 @@
+<th:block th:fragment="viewStyles">
+  <link href="/plugins/datatables/datatables.bundle.css" rel="stylesheet" />
+</th:block>
+
+<div th:fragment="content">
+  <div class="card card-flush">
+    <div class="card-header py-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="p-2">
+          <!-- Search Product -->
+          <div class="form-outline">
+            <div data-mdb-input-init class="form-outline">
+              <input type="text" class="form-control" id="catalog-search" />
+              <label class="form-label" for="catalog-search">Search</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center">
+          <!-- Dropdown for Status Filter -->
+          <div class="me-3">
+            <select
+              class="form-select"
+              id="status-filter"
+              aria-label="Filter by Status"
+            >
+              <option value="" selected>All Status</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          <!-- Add Product Button -->
+          <a
+            href="/dashboard/catalog/products/create"
+            role="button"
+            aria-pressed="true"
+            class="btn btn-success"
+            data-mdb-ripple-init
+          >
+            Add Product
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body pt-0">
+      <div
+        data-mdb-datatable-init
+        data-mdb-hover="true"
+        class="catalog-table"
+        id="catalog-table"
+      >
+        <table>
+          <thead>
+            <tr>
+              <th class="th-sm">Product</th>
+              <th class="th-sm">SKU</th>
+              <th class="th-sm">Quantity</th>
+              <th class="th-sm">Price</th>
+              <th class="th-sm">Rating</th>
+              <th class="th-sm" data-mdb-sort="false">Status</th>
+              <th class="th-sm" data-mdb-sort="false">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="product : ${products}">
+              <td>
+                <div class="d-flex align-items-center">
+                  <img
+                    th:src="@{${product.thumbnail}}"
+                    alt="Product Image"
+                    style="width: 45px; height: 45px"
+                    class="rounded-circle"
+                  />
+                  <div class="ms-3">
+                    <p class="fw-bold mb-1" th:text="${product.name}">
+                      Product Name
+                    </p>
+                  </div>
+                </div>
+              </td>
+              <td th:text="${product.sku}">SKU12345</td>
+              <td th:text="${product.quantity}">100</td>
+              <td th:text="${product.price}">$0.00</td>
+              <td>5.0</td>
+
+              <td>
+                <span
+                  class="badge rounded-pill"
+                  th:classappend="${product.status == 'PUBLISHED' ? 'badge-success' : 'badge-danger'}"
+                  th:text="${product.status}"
+                  >In Stock</span
+                >
+              </td>
+
+              <td>
+                <!-- Edit Button -->
+                <button
+                  data-mdb-ripple-init=""
+                  class="call-btn btn btn-outline-primary btn-floating btn-sm"
+                  th:onclick="'location.href=\'/edit-product/' + ${product.id} + '\''"
+                >
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+
+                <!-- Delete Button -->
+                <button
+                  data-mdb-ripple-init=""
+                  class="message-btn btn ms-2 btn-danger btn-floating btn-sm"
+                  th:onclick="'location.href=\'/delete-product/' + ${product.id} + '\''"
+                >
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:fragment="viewScripts">
+  <script src="/plugins/datatables/datatables.bundle.js"></script>
+  <script src="/plugins/custom/catalog/list.js"></script>
+</th:block>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="'Pack Shop - ' + ${title}"></title>
+    <link
+      rel="icon"
+      href="/images/logos/favicon-64x64.png"
+      sizes="64x64"
+      type="image/png"
+    />
+
+    <!-- Include Styles Specific to the Current View -->
+    <th:block th:replace="~{${view} :: viewStyles} ?: _"></th:block>
+
+    <!-- Include Global Styles -->
+    <div th:replace="~{dashboard/fragments/components/_styles}"></div>
+  </head>
+
+  <body>
+    <!-- Include Sidebar Navigation -->
+    <div th:replace="~{dashboard/fragments/components/_sidenav}"></div>
+
+    <div id="content">
+      <!-- Include Breadcrumb Navigation -->
+      <div th:replace="~{dashboard/fragments/components/_breadcrumb}"></div>
+
+      <!-- Main Content Area -->
+      <div class="container-fluid">
+        <h6
+          class="page-heading d-flex flex-column justify-content-center text-gray-900 fw-bolder fs-1 lh-0 mb-3"
+          th:text="${title}"
+        ></h6>
+        <th:block th:replace="~{${view}::content}"></th:block>
+      </div>
+    </div>
+
+    <!-- Include Global Scripts -->
+    <div th:replace="~{dashboard/fragments/components/_scripts}"></div>
+
+    <!-- Include Scripts Specific to the Current View -->
+    <th:block th:replace="~{${view} :: viewScripts} ?: _"></th:block>
+  </body>
+</html>

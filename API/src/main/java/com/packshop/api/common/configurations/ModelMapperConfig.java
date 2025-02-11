@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.packshop.api.dto.catalog.ProductDTO;
-import com.packshop.api.etities.catalog.Product;
+import com.packshop.api.entities.catalog.Product;
 
 @Configuration
 public class ModelMapperConfig {

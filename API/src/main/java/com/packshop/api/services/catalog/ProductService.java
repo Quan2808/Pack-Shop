@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.packshop.api.common.exception.ResourceNotFoundException;
 import com.packshop.api.dto.catalog.ProductDTO;
-import com.packshop.api.etities.catalog.Category;
-import com.packshop.api.etities.catalog.Product;
-import com.packshop.api.etities.catalog.ProductAttribute;
+import com.packshop.api.entities.catalog.Category;
+import com.packshop.api.entities.catalog.Product;
+import com.packshop.api.entities.catalog.ProductAttribute;
 import com.packshop.api.repositories.catalog.CategoryRepository;
 import com.packshop.api.repositories.catalog.ProductRepository;
 

@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.packshop.api.common.exception.DuplicateResourceException;
 import com.packshop.api.common.exception.ResourceNotFoundException;
 import com.packshop.api.dto.catalog.CategoryDTO;
-import com.packshop.api.etities.catalog.Category;
+import com.packshop.api.entities.catalog.Category;
 import com.packshop.api.repositories.catalog.CategoryRepository;
 
 import lombok.RequiredArgsConstructor;

@@ -42,13 +42,23 @@ public class Product {
 
     private int quantity;
 
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private ProductAttribute attributes;
+
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
     @JsonManagedReference
     private Category category;
 
-    @OneToOne(mappedBy = "product", cascade = CascadeType.PERSIST)
-    @JsonManagedReference
-    private ProductAttribute attributes;
+    public void setAttributes(ProductAttribute attributes) {
+        if (attributes == null) {
+            if (this.attributes != null) {
+                this.attributes.setProduct(null);
+            }
+        } else {
+            attributes.setProduct(this);
+        }
+        this.attributes = attributes;
+    }
 }
-

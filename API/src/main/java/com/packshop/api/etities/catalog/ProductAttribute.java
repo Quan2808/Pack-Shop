@@ -25,9 +25,8 @@ public class ProductAttribute {
 
     private String weight; // Example: "0.8 kg"
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     @JsonBackReference
     private Product product;
 }
-

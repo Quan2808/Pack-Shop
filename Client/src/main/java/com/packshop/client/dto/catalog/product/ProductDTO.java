@@ -6,22 +6,18 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDTO {
     private Long id;
     private String name;
-    private MultipartFile thumbnailFile;
     private String thumbnail;
     private String status;
     private String description;
-    private List<MultipartFile> mediaFiles;
     private List<String> media;
     private BigDecimal price;
     private String sku;
@@ -31,4 +27,8 @@ public class ProductDTO {
     private String dimensions;
     private String capacity;
     private String weight;
+
+    // Add fields for file upload
+    private MultipartFile thumbnailFile;
+    private List<MultipartFile> mediaFiles;
 }

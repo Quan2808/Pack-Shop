@@ -54,9 +54,11 @@
       <input
         id="dnd-multiple-files"
         type="file"
-        name="media"
+        name="mediaFiles"
+        th:field="*{mediaFiles}"
         class="file-upload-input"
         data-mdb-multiple="true"
+        data-mdb-accepted-extensions="image/*, .pdf"
         data-mdb-file-upload-init
       />
     </div>

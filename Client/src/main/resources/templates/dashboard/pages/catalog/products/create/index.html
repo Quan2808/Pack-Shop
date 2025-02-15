@@ -307,4 +307,29 @@
       });
     });
   </script> -->
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const wysiwygDiv = document.querySelector(
+        ".wysiwyg[data-mdb-wysiwyg-init]"
+      );
+      const hiddenTextarea = document.createElement("textarea");
+
+      hiddenTextarea.style.display = "none";
+      hiddenTextarea.setAttribute("name", "description");
+      hiddenTextarea.setAttribute("id", "description");
+
+      wysiwygDiv.parentNode.insertBefore(hiddenTextarea, wysiwygDiv);
+
+      const wysiwygContent = wysiwygDiv.querySelector(".wysiwyg-content");
+
+      wysiwygContent.addEventListener("input", function () {
+        hiddenTextarea.value = wysiwygContent.innerHTML.trim();
+      });
+
+      if (hiddenTextarea.value) {
+        wysiwygContent.innerHTML = hiddenTextarea.value;
+      }
+    });
+  </script>
 </th:block>

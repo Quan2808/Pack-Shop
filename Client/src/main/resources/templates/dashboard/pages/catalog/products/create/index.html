@@ -309,27 +309,27 @@
   </script> -->
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", () => {
       const wysiwygDiv = document.querySelector(
         ".wysiwyg[data-mdb-wysiwyg-init]"
       );
-      const hiddenTextarea = document.createElement("textarea");
+      if (!wysiwygDiv) return;
 
-      hiddenTextarea.style.display = "none";
-      hiddenTextarea.setAttribute("name", "description");
-      hiddenTextarea.setAttribute("id", "description");
+      const hiddenTextarea = Object.assign(document.createElement("textarea"), {
+        name: "description",
+        id: "description",
+        style: "display: none;",
+      });
 
-      wysiwygDiv.parentNode.insertBefore(hiddenTextarea, wysiwygDiv);
+      wysiwygDiv.before(hiddenTextarea);
 
       const wysiwygContent = wysiwygDiv.querySelector(".wysiwyg-content");
 
-      wysiwygContent.addEventListener("input", function () {
+      wysiwygContent.addEventListener("input", () => {
         hiddenTextarea.value = wysiwygContent.innerHTML.trim();
       });
 
-      if (hiddenTextarea.value) {
-        wysiwygContent.innerHTML = hiddenTextarea.value;
-      }
+      if (hiddenTextarea.value) wysiwygContent.innerHTML = hiddenTextarea.value;
     });
   </script>
 </th:block>

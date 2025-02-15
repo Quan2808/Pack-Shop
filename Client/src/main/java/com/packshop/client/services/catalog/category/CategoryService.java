@@ -6,6 +6,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.dto.catalog.category.CategoryDTO;
 import com.packshop.client.services.catalog.base.CatalogBaseService;
 
@@ -14,8 +15,8 @@ public class CategoryService extends CatalogBaseService {
 
     private static final String CATEGORIES_API_URL = "categories";
 
-    public CategoryService(RestTemplate restTemplate) {
-        super(restTemplate);
+    public CategoryService(RestTemplate restTemplate, ObjectMapper objectMapper) {
+        super(restTemplate, objectMapper);
     }
 
     public List<CategoryDTO> getAllCategories() {

@@ -1,9 +1,9 @@
 package com.packshop.api.services.catalog;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,13 +52,11 @@ public class ProductService {
         return modelMapper.map(product, ProductDTO.class);
     }
 
-    public Page<ProductDTO> getAllProducts(int page, int size, String search) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Product> productPage = (search != null && !search.trim().isEmpty())
-                ? productRepository.findByNameContainingIgnoreCase(search, pageable)
-                : productRepository.findAll(pageable);
-
-        return productPage.map(product -> modelMapper.map(product, ProductDTO.class));
+    public List<ProductDTO> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+        return products.stream()
+                .map(product -> modelMapper.map(product, ProductDTO.class))
+                .collect(Collectors.toList());
     }
 
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {

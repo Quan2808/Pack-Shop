@@ -68,7 +68,7 @@
               <td>
                 <div class="d-flex align-items-center">
                   <img
-                    th:src="@{${product.thumbnail}}"
+                    th:src="@{'/uploads/' + ${product.thumbnail}}"
                     alt="Product Image"
                     style="width: 45px; height: 45px"
                     class="rounded-circle"

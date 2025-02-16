@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -26,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileStorageService {
 
-    private final ResourceLoader resourceLoader;
     private Path rootLocation;
 
     @PostConstruct
@@ -54,6 +52,7 @@ public class FileStorageService {
             }
 
             // Generate unique filename
+            @SuppressWarnings("null")
             String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
             String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String fileName = UUID.randomUUID().toString() + fileExtension;

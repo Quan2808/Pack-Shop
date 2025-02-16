@@ -5,16 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.packshop.client.common.exception.ProductNotFoundException;
 import com.packshop.client.common.utilities.FileStorageService;
 import com.packshop.client.dto.catalog.product.ProductDTO;
 import com.packshop.client.services.catalog.base.CatalogBaseService;
@@ -36,9 +32,11 @@ public class ProductService extends CatalogBaseService {
 
     public List<ProductDTO> getAllProducts() {
         log.debug("Fetching all products from catalog");
-        return getListFromApi(PRODUCTS_API_URL,
-                new ParameterizedTypeReference<List<ProductDTO>>() {
-                });
+        return getAllFromApi(PRODUCTS_API_URL, ProductDTO[].class);
+    }
+
+    public ProductDTO getProduct(Long id) {
+        return getFromApi(PRODUCTS_API_URL, id, ProductDTO.class);
     }
 
     public ProductDTO createProduct(ProductDTO productDTO) throws IOException {
@@ -49,50 +47,15 @@ public class ProductService extends CatalogBaseService {
         BeanUtils.copyProperties(productDTO, apiProduct, "thumbnailFile", "mediaFiles");
 
         // Handle thumbnail upload
-        if (productDTO.getThumbnailFile() != null && !productDTO.getThumbnailFile().isEmpty()) {
-            String thumbnailPath = fileStorageService.storeFile(productDTO.getThumbnailFile());
-            apiProduct.setThumbnail(thumbnailPath);
-            log.info("Thumbnail uploaded: {}", thumbnailPath);
-        }
+        apiProduct.setThumbnail(handleThumbnailUpload(productDTO.getThumbnailFile()));
 
         // Handle media files upload
-        if (productDTO.getMediaFiles() != null && !productDTO.getMediaFiles().isEmpty()) {
-            List<String> mediaPaths = new ArrayList<>();
-            for (MultipartFile mediaFile : productDTO.getMediaFiles()) {
-                if (!mediaFile.isEmpty()) {
-                    String mediaPath = fileStorageService.storeFile(mediaFile);
-                    mediaPaths.add(mediaPath);
-                    log.info("Media file uploaded: {}", mediaPath);
-                }
-            }
-            apiProduct.setMedia(mediaPaths);
-        }
-
-        // // Set headers for JSON content
-        // HttpHeaders headers = new HttpHeaders();
-        // headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // HttpEntity<ProductDTO> requestEntity = new HttpEntity<>(apiProduct, headers);
-
-        // return restTemplate.postForObject("http://localhost:8080/api/catalog/" +
-        // PRODUCTS_API_URL, requestEntity,
-        // ProductDTO.class);
+        apiProduct.setMedia(handleMediaFilesUpload(productDTO.getMediaFiles()));
 
         ProductDTO createdProduct = postToApi(PRODUCTS_API_URL, apiProduct, ProductDTO.class);
 
         log.info("Product created successfully: {}", createdProduct);
         return createdProduct;
-    }
-
-    public ProductDTO getProduct(Long id) {
-        try {
-            return restTemplate.getForObject(
-                    CATALOG_API_URL + PRODUCTS_API_URL + "/" + id,
-                    ProductDTO.class);
-        } catch (Exception e) {
-            log.error("Failed to fetch product with id: {}", id, e);
-            throw new ProductNotFoundException("Product not found with id: " + id);
-        }
     }
 
     public void updateProduct(Long id, ProductDTO productDTO) throws IOException {
@@ -105,14 +68,8 @@ public class ProductService extends CatalogBaseService {
 
         // Handle thumbnail update
         if (productDTO.getThumbnailFile() != null && !productDTO.getThumbnailFile().isEmpty()) {
-            // Delete old thumbnail if it exists
-            if (existingProduct.getThumbnail() != null && !existingProduct.getThumbnail().isEmpty()) {
-                fileStorageService.deleteFile(existingProduct.getThumbnail());
-            }
-
-            // Store new thumbnail
-            String thumbnailPath = fileStorageService.storeFile(productDTO.getThumbnailFile());
-            apiProduct.setThumbnail(thumbnailPath);
+            fileStorageService.deleteFile(existingProduct.getThumbnail());
+            apiProduct.setThumbnail(handleThumbnailUpload(productDTO.getThumbnailFile()));
         } else {
             // Keep existing thumbnail if no new file is uploaded
             apiProduct.setThumbnail(existingProduct.getThumbnail());
@@ -121,58 +78,62 @@ public class ProductService extends CatalogBaseService {
         // Handle media files update
         if (productDTO.getMediaFiles() != null && !productDTO.getMediaFiles().isEmpty()) {
             // Delete old media files if they exist
-            if (existingProduct.getMedia() != null && !existingProduct.getMedia().isEmpty()) {
-                fileStorageService.deleteFiles(existingProduct.getMedia());
-            }
-
-            // Store new media files
-            List<String> mediaPaths = new ArrayList<>();
-            for (MultipartFile mediaFile : productDTO.getMediaFiles()) {
-                if (!mediaFile.isEmpty()) {
-                    String mediaPath = fileStorageService.storeFile(mediaFile);
-                    mediaPaths.add(mediaPath);
-                }
-            }
-            apiProduct.setMedia(mediaPaths);
+            fileStorageService.deleteFiles(existingProduct.getMedia());
+            apiProduct.setMedia(handleMediaFilesUpload(productDTO.getMediaFiles()));
         } else {
             // Keep existing media files if no new files are uploaded
             apiProduct.setMedia(existingProduct.getMedia());
         }
 
-        // Set headers for JSON content
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<ProductDTO> requestEntity = new HttpEntity<>(apiProduct, headers);
-
-        restTemplate.put(API_BASE_URL + "/{id}", requestEntity, id);
+        putToApi(PRODUCTS_API_URL, apiProduct, id);
+        log.info("Product updated successfully: {}", apiProduct);
     }
 
-    // @Transactional
+    @Transactional
     public void deleteProduct(Long id) {
-        // First, get the product to retrieve file paths
         ProductDTO product = getProduct(id);
 
-        // Delete the product from the API
-        restTemplate.delete(API_BASE_URL + "/{id}", id);
+        // Delete the product from the API first
+        try {
+            restTemplate.delete(API_BASE_URL + "/{id}", id);
+        } catch (Exception e) {
+            log.error("Failed to delete product from API, skipping file deletion", e);
+        }
 
         // After successful API deletion, delete associated files
+        deleteProductFiles(product);
+    }
+
+    private void deleteProductFiles(ProductDTO product) {
         try {
-            // Delete thumbnail
-            if (product.getThumbnail() != null && !product.getThumbnail().isEmpty()) {
+            if (product.getThumbnail() != null) {
                 fileStorageService.deleteFile(product.getThumbnail());
             }
-
-            // Delete media files
-            if (product.getMedia() != null && !product.getMedia().isEmpty()) {
+            if (product.getMedia() != null) {
                 fileStorageService.deleteFiles(product.getMedia());
             }
         } catch (Exception e) {
-            log.error("Error deleting product files for product ID: {}", id, e);
-            // You might want to handle this error according to your requirements
-            // For now, we'll log it but not throw an exception since the product is already
-            // deleted
+            log.error("Error deleting product files: {}", product.getId(), e);
         }
+    }
+
+    private String handleThumbnailUpload(MultipartFile file) throws IOException {
+        if (file != null && !file.isEmpty()) {
+            return fileStorageService.storeFile(file);
+        }
+        return null;
+    }
+
+    private List<String> handleMediaFilesUpload(List<MultipartFile> files) throws IOException {
+        List<String> mediaPaths = new ArrayList<>();
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile mediaFile : files) {
+                if (!mediaFile.isEmpty()) {
+                    mediaPaths.add(fileStorageService.storeFile(mediaFile));
+                }
+            }
+        }
+        return mediaPaths;
     }
 
 }

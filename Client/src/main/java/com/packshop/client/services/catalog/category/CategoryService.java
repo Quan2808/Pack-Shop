@@ -2,7 +2,6 @@ package com.packshop.client.services.catalog.category;
 
 import java.util.List;
 
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,7 +19,14 @@ public class CategoryService extends CatalogBaseService {
     }
 
     public List<CategoryDTO> getAllCategories() {
-        return getListFromApi(CATEGORIES_API_URL, new ParameterizedTypeReference<List<CategoryDTO>>() {
-        });
+        return getAllFromApi(CATEGORIES_API_URL, CategoryDTO[].class);
+    }
+
+    public CategoryDTO createCategory(CategoryDTO categoryDTO) {
+        return postToApi(CATEGORIES_API_URL, categoryDTO, CategoryDTO.class);
+    }
+
+    public void updateCategory(Long id, CategoryDTO categoryDTO) {
+        putToApi(CATEGORIES_API_URL, categoryDTO, id);
     }
 }

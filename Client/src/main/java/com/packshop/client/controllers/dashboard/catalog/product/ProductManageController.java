@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.packshop.client.controllers.common.ViewRenderer;
-import com.packshop.client.controllers.dashboard.catalog.base.CatalogManageBaseController;
 import com.packshop.client.dto.catalog.category.CategoryDTO;
 import com.packshop.client.dto.catalog.product.ProductDTO;
 import com.packshop.client.services.catalog.category.CategoryService;
@@ -20,7 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @Slf4j
-public class ProductManageController implements CatalogManageBaseController {
+@RequestMapping("/dashboard/catalog/products")
+public class ProductManageController {
+
+    private static final String CATALOG_PATH = "dashboard/pages/catalog";
 
     private final ProductService productService;
     private final CategoryService categoryService;
@@ -30,7 +33,7 @@ public class ProductManageController implements CatalogManageBaseController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping("/products")
+    @GetMapping()
     public String list(Model model) {
         List<ProductDTO> products = productService.getAllProducts();
         model.addAttribute("products", products);
@@ -40,7 +43,7 @@ public class ProductManageController implements CatalogManageBaseController {
                 "Product List");
     }
 
-    @GetMapping("/products/create")
+    @GetMapping("/create")
     public String showCreateProductForm(Model model) {
         List<CategoryDTO> categories = categoryService.getAllCategories();
         model.addAttribute("categories", categories);
@@ -51,7 +54,7 @@ public class ProductManageController implements CatalogManageBaseController {
                 "Create Product");
     }
 
-    @PostMapping("/products/create")
+    @PostMapping("/create")
     public String createProduct(@ModelAttribute("product") ProductDTO productDTO, Model model) {
         log.info("Received request to create product: {}", productDTO);
 
@@ -72,7 +75,7 @@ public class ProductManageController implements CatalogManageBaseController {
         }
     }
 
-    @GetMapping("/products/delete/{id}")
+    @GetMapping("/delete/{id}")
     public String deleteProduct(@PathVariable Long id) {
         log.info("Received request to delete product with ID: {}", id);
 

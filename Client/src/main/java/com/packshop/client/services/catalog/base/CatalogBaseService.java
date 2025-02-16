@@ -1,24 +1,19 @@
 package com.packshop.client.services.catalog.base;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import javax.xml.catalog.CatalogException;
 
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.packshop.client.common.exception.CatalogClientException;
-import com.packshop.client.common.exception.CatalogServerException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,26 +29,30 @@ public abstract class CatalogBaseService {
         this.objectMapper = objectMapper;
     }
 
-    protected <T> List<T> getListFromApi(String apiUrl, ParameterizedTypeReference<List<T>> responseType) {
+    protected <T> T getFromApi(String apiUrl, Long id, Class<T> responseType) {
         try {
-            ResponseEntity<List<T>> response = restTemplate.exchange(
+            return restTemplate.getForObject(
+                    CATALOG_API_URL + apiUrl + "/" + id,
+                    responseType);
+        } catch (Exception e) {
+            log.error("Failed to fetch data from API {}/{}", apiUrl, id, e);
+            throw new CatalogException("Failed to fetch data with id: " + id, e);
+        }
+    }
+
+    protected <T> List<T> getAllFromApi(String apiUrl, Class<T[]> clazz) {
+        try {
+            ResponseEntity<T[]> response = restTemplate.exchange(
                     CATALOG_API_URL + apiUrl,
                     HttpMethod.GET,
                     null,
-                    responseType);
+                    clazz);
 
-            return Optional.ofNullable(response.getBody())
-                    .orElse(new ArrayList<>());
+            return response.getBody() != null ? Arrays.asList(response.getBody()) : new ArrayList<>();
 
-        } catch (HttpClientErrorException e) {
-            log.error("Client error when calling API {}: {}", apiUrl, e.getMessage());
-            throw new CatalogClientException("Failed to fetch data from catalog", e);
-        } catch (HttpServerErrorException e) {
-            log.error("Server error when calling API {}: {}", apiUrl, e.getMessage());
-            throw new CatalogServerException("Catalog service is currently unavailable", e);
         } catch (Exception e) {
-            log.error("Unexpected error when calling API {}: {}", apiUrl, e.getMessage());
-            throw new CatalogException("An unexpected error occurred", e);
+            log.error("Failed to fetch data from API {}", apiUrl, e);
+            throw new CatalogException("Failed to fetch data", e);
         }
     }
 
@@ -72,15 +71,23 @@ public abstract class CatalogBaseService {
 
             return response.getBody();
 
-        } catch (HttpClientErrorException e) {
-            log.error("Client error when posting to API {}: {}", apiUrl, e.getMessage());
-            throw new CatalogClientException("Failed to send data to catalog", e);
-        } catch (HttpServerErrorException e) {
-            log.error("Server error when posting to API {}: {}", apiUrl, e.getMessage());
-            throw new CatalogServerException("Catalog service is currently unavailable", e);
         } catch (Exception e) {
             log.error("Unexpected error when posting to API {}: {}", apiUrl, e.getMessage());
             throw new CatalogException("An unexpected error occurred", e);
         }
     }
+
+    protected <T> void putToApi(String apiUrl, Object request, Long id) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> entity = new HttpEntity<>(request, headers);
+            restTemplate.put(CATALOG_API_URL + apiUrl + "/" + id, entity);
+        } catch (Exception e) {
+            log.error("Failed to update data at API {}", apiUrl, e);
+            throw new CatalogException("Failed to update data", e);
+        }
+    }
+
 }

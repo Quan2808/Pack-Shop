@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -20,12 +20,27 @@ jobs:
           distribution: "temurin"
           cache: maven
 
+      - name: Setup MSSQL Server
+        uses: potatoqualitee/mssqlsuite@v1.7
+        with:
+          install: sqlengine
+          version: 2019
+          sa-password: YourStrong@Passw0rd
+
+      - name: Create Database
+        run: |
+          sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q "CREATE DATABASE PackShop2"
+
       # Build and test the API module
       - name: Build and Test API
+        env:
+          SPRING_DATASOURCE_URL: jdbc:sqlserver://localhost:1433;databaseName=PackShop2;trustServerCertificate=true
+          SPRING_DATASOURCE_USERNAME: sa
+          SPRING_DATASOURCE_PASSWORD: YourStrong@Passw0rd
         run: |
           cd API
           mvn clean install -B
-          mvn test -Dspring.profiles.active=test
+          mvn test
 
       # Build and test the Client module
       - name: Build and Test Client

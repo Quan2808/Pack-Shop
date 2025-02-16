@@ -25,7 +25,7 @@ jobs:
         run: |
           cd API
           mvn clean install -B
-          mvn test
+          mvn test -Dspring.profiles.active=test
 
       # Build and test the Client module
       - name: Build and Test Client

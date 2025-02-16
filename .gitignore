@@ -107,3 +107,8 @@ out/
 # Cache
 .cache/
 *.lock
+
+# Ignore uploaded files
+Client/src/main/resources/static/uploads/*
+# But keep the uploads directory
+!Client/src/main/resources/static/uploads/.gitkeep

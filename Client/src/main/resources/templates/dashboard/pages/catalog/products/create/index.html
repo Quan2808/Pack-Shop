@@ -96,7 +96,7 @@
   <script src="/plugins/file-upload/file-upload.min.js"></script>
   <script src="/plugins/wysiwyg/wysiwyg.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
+  <!-- <script>
     // Import SweetAlert2
     document.addEventListener("DOMContentLoaded", function () {
       // Get all form elements
@@ -305,6 +305,31 @@
           }
         }
       });
+    });
+  </script> -->
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const wysiwygDiv = document.querySelector(
+        ".wysiwyg[data-mdb-wysiwyg-init]"
+      );
+      if (!wysiwygDiv) return;
+
+      const hiddenTextarea = Object.assign(document.createElement("textarea"), {
+        name: "description",
+        id: "description",
+        style: "display: none;",
+      });
+
+      wysiwygDiv.before(hiddenTextarea);
+
+      const wysiwygContent = wysiwygDiv.querySelector(".wysiwyg-content");
+
+      wysiwygContent.addEventListener("input", () => {
+        hiddenTextarea.value = wysiwygContent.innerHTML.trim();
+      });
+
+      if (hiddenTextarea.value) wysiwygContent.innerHTML = hiddenTextarea.value;
     });
   </script>
 </th:block>

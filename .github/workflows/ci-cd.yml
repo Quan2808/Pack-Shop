@@ -31,18 +31,36 @@ jobs:
         run: |
           sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q "CREATE DATABASE PackShop2"
 
-      # Build and test the API module
+      - name: Verify SQL Server Connection
+        run: |
+          sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q "SELECT @@VERSION"
+
+      # Build và test API module với debug chi tiết
       - name: Build and Test API
         env:
           SPRING_DATASOURCE_URL: jdbc:sqlserver://localhost:1433;databaseName=PackShop2;trustServerCertificate=true
           SPRING_DATASOURCE_USERNAME: sa
           SPRING_DATASOURCE_PASSWORD: YourStrong@Passw0rd
+          SPRING_JPA_SHOW_SQL: true
+          SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: true
+          LOGGING_LEVEL_ORG_HIBERNATE_SQL: DEBUG
+          LOGGING_LEVEL_ORG_HIBERNATE_TYPE_DESCRIPTOR_SQL_BASICBINDER: TRACE
         run: |
           cd API
-          mvn clean install -B
-          mvn test
+          mvn clean install -B -X
+          mvn test -X
 
-      # Build and test the Client module
+      # Upload test reports nếu test fail
+      - name: Upload Test Reports
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: |
+            API/target/surefire-reports/
+            API/target/site/jacoco/
+
+      # Build và test Client module
       - name: Build and Test Client
         run: |
           cd Client

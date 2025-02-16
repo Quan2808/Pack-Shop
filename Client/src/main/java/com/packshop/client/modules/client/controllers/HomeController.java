@@ -1,4 +1,4 @@
-package com.packshop.client.controllers.client;
+package com.packshop.client.modules.client.controllers;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.packshop.client.controllers.common.ViewRenderer;
+import com.packshop.client.common.utilities.ViewRenderer;
 
 @Controller
 public class HomeController {

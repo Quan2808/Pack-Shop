@@ -1,4 +1,4 @@
-package com.packshop.client.controllers.dashboard.catalog.product;
+package com.packshop.client.modules.dashboard.controllers.catalog.product;
 
 import java.util.List;
 
@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.packshop.client.controllers.common.ViewRenderer;
-import com.packshop.client.dto.catalog.category.CategoryDTO;
-import com.packshop.client.dto.catalog.product.ProductDTO;
-import com.packshop.client.services.catalog.category.CategoryService;
-import com.packshop.client.services.catalog.product.ProductService;
+import com.packshop.client.common.utilities.ViewRenderer;
+import com.packshop.client.dto.catalog.CategoryDTO;
+import com.packshop.client.dto.catalog.ProductDTO;
+import com.packshop.client.modules.dashboard.services.catalog.category.CategoryService;
+import com.packshop.client.modules.dashboard.services.catalog.product.ProductService;
 
 import lombok.extern.slf4j.Slf4j;
 

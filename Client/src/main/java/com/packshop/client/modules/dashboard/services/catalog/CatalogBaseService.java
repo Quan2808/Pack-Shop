@@ -1,4 +1,4 @@
-package com.packshop.client.services.catalog.base;
+package com.packshop.client.modules.dashboard.services.catalog;
 
 import java.util.ArrayList;
 import java.util.Arrays;

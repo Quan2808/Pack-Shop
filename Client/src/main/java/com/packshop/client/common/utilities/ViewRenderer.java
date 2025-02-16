@@ -1,4 +1,4 @@
-package com.packshop.client.controllers.common;
+package com.packshop.client.common.utilities;
 
 import org.springframework.ui.Model;
 

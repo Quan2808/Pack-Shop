@@ -1,4 +1,4 @@
-package com.packshop.client.dto.catalog.product;
+package com.packshop.client.dto.catalog;
 
 import java.math.BigDecimal;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.packshop.client.dto.catalog.category;
+package com.packshop.client.dto.catalog;
 
 import java.util.List;
 import lombok.Data;

@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 public class CustomLogEncoder extends PatternLayoutEncoderBase<ILoggingEvent> {
     private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
                     .withZone(ZoneId.systemDefault());
 
     @Override

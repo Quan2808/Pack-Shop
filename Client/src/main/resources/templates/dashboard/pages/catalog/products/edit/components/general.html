@@ -1,0 +1,110 @@
+<div class="card card-flush py-4 mb-3">
+  <div class="card-body pt-0">
+    <h5 class="card-title fw-bold mb-4">General</h5>
+
+    <div class="mb-4">
+      <label class="form-label fw-bold" for="name">Name</label>
+      <div data-mdb-input-init class="form-outline">
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="form-control"
+          placeholder="Product name"
+          th:field="*{name}"
+        />
+      </div>
+      <small class="text-muted text-center">
+        A product name is required and recommended to be unique.
+      </small>
+      <div
+        class="text-danger"
+        th:if="${#fields.hasErrors('name')}"
+        th:errors="*{name}"
+      ></div>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label fw-bold" for="price">Base Price</label>
+      <div data-mdb-input-init class="form-outline">
+        <input
+          type="number"
+          id="price"
+          name="price"
+          class="form-control"
+          placeholder="Product price"
+          th:field="*{price}"
+        />
+      </div>
+      <small class="text-muted text-center"> Set the product price. </small>
+      <div
+        class="text-danger"
+        th:if="${#fields.hasErrors('price')}"
+        th:errors="*{price}"
+      ></div>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label fw-bold" for="description">Description</label>
+      <div
+        data-mdb-wysiwyg-init
+        class="wysiwyg"
+        th:field="*{description}"
+        name="description"
+      >
+        <!-- WYSIWYG editor content -->
+      </div>
+      <small class="text-muted text-center">
+        Set a description to the product for better visibility.
+      </small>
+      <div
+        class="text-danger"
+        th:if="${#fields.hasErrors('description')}"
+        th:errors="*{description}"
+      ></div>
+    </div>
+  </div>
+</div>
+
+<div class="card card-flush py-4 mb-3">
+  <div class="card-body pt-0">
+    <h5 class="card-title fw-bold mb-4">Media</h5>
+
+    <section class="p-4 d-flex justify-content-center text-center w-100">
+      <div class="lightbox" data-mdb-lightbox-init>
+        <div class="row">
+          <div class="col-lg-4" th:each="mediaItem : ${product.media}">
+            <img
+              th:src="@{'/uploads/' + ${mediaItem}}"
+              th:data-mdb-img="@{'/uploads/' + ${mediaItem}}"
+              alt="Table Full of Spices"
+              class="w-100"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Input file để tải ảnh mới -->
+    <div id="dnd-accept-formats" class="file-upload-wrapper">
+      <input
+        id="dnd-multiple-files"
+        type="file"
+        name="mediaFiles"
+        class="file-upload-input"
+        data-mdb-multiple="true"
+        data-mdb-accepted-extensions="image/*, .pdf"
+        data-mdb-file-upload-init
+      />
+    </div>
+
+    <small class="text-muted text-center">
+      Set the product media gallery.
+    </small>
+    <div
+      class="text-danger"
+      th:if="${#fields.hasErrors('mediaFiles')}"
+      th:errors="*{mediaFiles}"
+    ></div>
+  </div>
+</div>

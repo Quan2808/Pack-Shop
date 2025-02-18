@@ -89,6 +89,60 @@ public class ProductManageController {
         }
     }
 
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        try {
+            ProductDTO product = productService.getProduct(id);
+            List<CategoryDTO> categories = categoryService.getAllCategories();
+
+            model.addAttribute("product", product);
+            model.addAttribute("categories", categories);
+
+            return ViewRenderer.renderView(model,
+                    CATALOG_PATH + "/products/edit/index",
+                    "Edit Product");
+        } catch (Exception e) {
+            log.error("Error fetching product for editing: {}", id, e);
+            return "redirect:/dashboard/catalog/products";
+        }
+    }
+
+    @PostMapping("/edit/{id}/submit")
+    public String updateProduct(@PathVariable Long id,
+            @ModelAttribute("product") @Valid ProductDTO productDTO,
+            BindingResult bindingResult,
+            Model model) {
+        log.info("Received request to update product {}: {}", id, productDTO);
+
+        if (bindingResult.hasErrors()) {
+            log.error("Validation failed for product update: {}", productDTO);
+
+            List<CategoryDTO> categories = categoryService.getAllCategories();
+            model.addAttribute("categories", categories);
+            model.addAttribute("error", "Failed to update product. Please fix the errors below.");
+
+            return ViewRenderer.renderView(model,
+                    CATALOG_PATH + "/products/edit/index",
+                    "Edit Product");
+        }
+
+        try {
+            productService.updateProduct(id, productDTO);
+            log.info("Product updated successfully: {}", productDTO.getName());
+            return "redirect:/dashboard/catalog/products";
+        } catch (Exception e) {
+            log.error("Error updating product: {}", productDTO, e);
+
+            List<CategoryDTO> categories = categoryService.getAllCategories();
+            model.addAttribute("categories", categories);
+            model.addAttribute("error", "Failed to update product. Please try again.");
+
+            return ViewRenderer.renderView(model,
+                    CATALOG_PATH + "/products/edit/index",
+                    "Edit Product");
+        }
+    }
+
     @GetMapping("/delete/{id}")
     public String deleteProduct(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Received request to delete product with ID: {}", id);

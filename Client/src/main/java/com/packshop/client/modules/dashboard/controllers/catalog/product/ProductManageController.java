@@ -38,8 +38,14 @@ public class ProductManageController {
 
     @GetMapping()
     public String list(Model model) {
-        List<ProductDTO> products = productService.getAllProducts();
-        model.addAttribute("products", products);
+        try {
+            log.info("Fetching all products...");
+            List<ProductDTO> products = productService.getAllProducts();
+            model.addAttribute("products", products);
+        } catch (Exception e) {
+            log.error("Error fetching products", e);
+            model.addAttribute("errorMessage", "Failed to fetch products. Please try again.");
+        }
 
         return ViewRenderer.renderView(model,
                 CATALOG_PATH + "/products/list/index",

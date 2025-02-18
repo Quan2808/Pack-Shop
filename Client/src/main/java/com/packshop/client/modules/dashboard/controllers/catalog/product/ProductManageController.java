@@ -4,11 +4,13 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.catalog.CategoryDTO;
@@ -16,6 +18,7 @@ import com.packshop.client.dto.catalog.ProductDTO;
 import com.packshop.client.modules.dashboard.services.catalog.category.CategoryService;
 import com.packshop.client.modules.dashboard.services.catalog.product.ProductService;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
@@ -54,21 +57,32 @@ public class ProductManageController {
                 "Create Product");
     }
 
-    @PostMapping("/create")
-    public String createProduct(@ModelAttribute("product") ProductDTO productDTO, Model model) {
+    @PostMapping("/create/submit")
+    public String createProduct(@ModelAttribute("product") @Valid ProductDTO productDTO,
+            BindingResult bindingResult, Model model) {
         log.info("Received request to create product: {}", productDTO);
+
+        if (bindingResult.hasErrors()) {
+            log.error("Validation failed for product: {}", productDTO);
+
+            List<CategoryDTO> categories = categoryService.getAllCategories();
+            model.addAttribute("categories", categories);
+            model.addAttribute("error", "Failed to create product. Please fix the errors below.");
+            return ViewRenderer.renderView(model,
+                    CATALOG_PATH + "/products/create/index",
+                    "Create Product");
+        }
 
         try {
             productService.createProduct(productDTO);
             log.info("Product created successfully: {}", productDTO.getName());
-
             return "redirect:/dashboard/catalog/products";
         } catch (Exception e) {
             log.error("Error creating product: {}", productDTO, e);
 
-            // Xử lý lỗi khi tạo sản phẩm
+            List<CategoryDTO> categories = categoryService.getAllCategories();
+            model.addAttribute("categories", categories);
             model.addAttribute("error", "Failed to create product. Please try again.");
-            model.addAttribute("product", productDTO);
             return ViewRenderer.renderView(model,
                     CATALOG_PATH + "/products/create/index",
                     "Create Product");
@@ -76,14 +90,16 @@ public class ProductManageController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteProduct(@PathVariable Long id) {
+    public String deleteProduct(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Received request to delete product with ID: {}", id);
 
         try {
             productService.deleteProduct(id);
             log.info("Successfully deleted product with ID: {}", id);
+            redirectAttributes.addFlashAttribute("successMessage", "Product has been deleted successfully!");
         } catch (Exception e) {
             log.error("Error deleting product with ID: {}", id, e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete product. Please try again.");
         }
 
         return "redirect:/dashboard/catalog/products";

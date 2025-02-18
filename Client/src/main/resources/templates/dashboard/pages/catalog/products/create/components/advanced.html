@@ -14,6 +14,11 @@
         />
       </div>
       <small class="text-muted text-center">Enter the product SKU.</small>
+      <div
+        class="text-danger"
+        th:if="${#fields.hasErrors('sku')}"
+        th:errors="*{sku}"
+      ></div>
     </div>
 
     <div class="mb-4">
@@ -28,6 +33,11 @@
         />
       </div>
       <small class="text-muted text-center">Enter the product quantity.</small>
+      <div
+        class="text-danger"
+        th:if="${#fields.hasErrors('quantity')}"
+        th:errors="*{quantity}"
+      ></div>
     </div>
   </div>
 </div>
@@ -38,46 +48,67 @@
     <div class="row">
       <div class="col-lg-6">
         <div class="mb-4">
-          <label class="form-label fw-bold" for="style">Style</label>
+          <label class="form-label fw-bold" for="capacity">Capacity</label>
           <div data-mdb-input-init class="form-outline">
             <input
               type="text"
-              id="style"
-              name="productAttribute.style"
+              id="capacity"
+              th:field="*{capacity}"
               class="form-control"
-              placeholder="Enter product style"
+              placeholder=" Example: 20L"
             />
           </div>
-          <small class="text-muted text-center">Enter the product style.</small>
+          <small class="text-muted text-center"
+            >Enter the product capacity.</small
+          >
+          <div
+            class="text-danger"
+            th:if="${#fields.hasErrors('capacity')}"
+            th:errors="*{capacity}"
+          ></div>
         </div>
 
         <div class="mb-4">
-          <label class="form-label fw-bold" for="color">Color</label>
+          <label class="form-label fw-bold" for="weight">Weight</label>
           <div data-mdb-input-init class="form-outline">
             <input
               type="text"
-              id="color"
-              name="productAttribute.color"
+              id="weight"
+              th:field="*{weight}"
               class="form-control"
-              placeholder="Enter product color"
+              placeholder=" Example: 0.8 kg"
             />
           </div>
-          <small class="text-muted text-center">Enter the product color.</small>
+          <small class="text-muted text-center"
+            >Enter the product weight.</small
+          >
+          <div
+            class="text-danger"
+            th:if="${#fields.hasErrors('weight')}"
+            th:errors="*{weight}"
+          ></div>
         </div>
       </div>
       <div class="col-lg-6">
         <div class="mb-4">
-          <label class="form-label fw-bold" for="size">Size</label>
+          <label class="form-label fw-bold" for="dimensions">Dimensions</label>
           <div data-mdb-input-init class="form-outline">
             <input
               type="text"
-              id="size"
-              name="productAttribute.size"
+              id="dimensions"
+              th:field="*{dimensions}"
               class="form-control"
-              placeholder="Enter product size"
+              placeholder="Example: 30x40x10 cm"
             />
           </div>
-          <small class="text-muted text-center">Enter the product size.</small>
+          <small class="text-muted text-center"
+            >Enter the product dimensions.</small
+          >
+          <div
+            class="text-danger"
+            th:if="${#fields.hasErrors('dimensions')}"
+            th:errors="*{dimensions}"
+          ></div>
         </div>
 
         <div class="mb-4">
@@ -86,14 +117,19 @@
             <input
               type="text"
               id="material"
-              name="productAttribute.material"
+              th:field="*{material}"
               class="form-control"
-              placeholder="Enter product material"
+              placeholder="Example: Cotton"
             />
           </div>
           <small class="text-muted text-center"
             >Enter the product material.</small
           >
+          <div
+            class="text-danger"
+            th:if="${#fields.hasErrors('material')}"
+            th:errors="*{material}"
+          ></div>
         </div>
       </div>
     </div>

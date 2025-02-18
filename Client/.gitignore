@@ -1,0 +1,114 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.diff
+.mvn/
+mvnw
+mvnw.cmd
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# Spring Boot
+spring-boot-devtools/
+spring-boot-starter-logging/
+
+# Log files
+*.log
+
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+*.swn
+*.project
+*.classpath
+*.settings/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Files created by editors
+*.sublime-workspace
+*.sublime-project
+*.vscode/
+.vscode/
+
+# Build output
+*.class
+*.jar
+*.war
+*.ear
+*.db
+*.sqlite
+*.h2.db
+
+# Environment-specific files
+.env
+*.local
+
+# Other temporary files
+*.pid
+*.seed
+*.tmp
+*.swp
+*.swo
+
+# IDE specific
+*.nib
+*.suo
+*.user
+*.userosscache
+*.sln
+*.csproj
+*.dotCover
+*.nunit
+*.plg
+
+# Gradle wrapper files
+gradle-wrapper.jar
+gradle-wrapper.properties
+
+# IntelliJ IDEA
+*.iml
+*.ipr
+*.iws
+.idea/
+out/
+*.jar
+*.war
+*.ear
+
+# VS Code
+.vscode/
+
+# Other files
+*.pid
+*.seed
+*.log
+*.tmp
+*.tmp.*
+*.bak
+*.swp
+*.swo
+*.swn
+
+# Cache
+.cache/
+*.lock
+
+# Ignore uploaded files
+Client/src/main/resources/static/uploads/*
+# But keep the uploads directory
+!Client/src/main/resources/static/uploads/.gitkeep

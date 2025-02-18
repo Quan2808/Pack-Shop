@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="com.packshop.client.common.logging.CustomLogEncoder">
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <root level="ERROR">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <!-- Disable specific loggers that might be too verbose -->
+<!--    <logger name="org.apache.catalina" level="OFF" />-->
+<!--    <logger name="org.apache.coyote" level="OFF" />-->
+<!--    <logger name="org.apache.tomcat" level="OFF" />-->
+<!--    <logger name="org.springframework.web" level="OFF" />-->
+</configuration>

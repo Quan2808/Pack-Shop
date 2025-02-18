@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.utilities.FileStorageService;
 import com.packshop.client.dto.catalog.ProductDTO;
 import com.packshop.client.modules.dashboard.services.catalog.CatalogBaseService;
+import com.packshop.client.modules.dashboard.services.catalog.category.CategoryService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,10 +25,13 @@ public class ProductService extends CatalogBaseService {
     private final String API_BASE_URL = "http://localhost:8080/api/catalog/products";
     private static final String PRODUCTS_API_URL = "products";
     private final FileStorageService fileStorageService;
+    private final CategoryService categoryService;
 
-    public ProductService(RestTemplate restTemplate, ObjectMapper objectMapper, FileStorageService fileStorageService) {
+    public ProductService(RestTemplate restTemplate, ObjectMapper objectMapper, FileStorageService fileStorageService,
+            CategoryService categoryService) {
         super(restTemplate, objectMapper);
         this.fileStorageService = fileStorageService;
+        this.categoryService = categoryService;
     }
 
     public List<ProductDTO> getAllProducts() {
@@ -46,11 +50,11 @@ public class ProductService extends CatalogBaseService {
         ProductDTO apiProduct = new ProductDTO();
         BeanUtils.copyProperties(productDTO, apiProduct, "thumbnailFile", "mediaFiles");
 
-        // Handle thumbnail upload
-        apiProduct.setThumbnail(handleThumbnailUpload(productDTO.getThumbnailFile()));
+        String categoryName = categoryService.getCategoryNameById(productDTO.getCategoryId());
 
-        // Handle media files upload
-        apiProduct.setMedia(handleMediaFilesUpload(productDTO.getMediaFiles()));
+        apiProduct
+                .setThumbnail(handleThumbnailUpload(productDTO.getThumbnailFile(), categoryName, productDTO.getName()));
+        apiProduct.setMedia(handleMediaFilesUpload(productDTO.getMediaFiles(), categoryName, productDTO.getName()));
 
         ProductDTO createdProduct = postToApi(PRODUCTS_API_URL, apiProduct, ProductDTO.class);
 
@@ -66,10 +70,14 @@ public class ProductService extends CatalogBaseService {
         ProductDTO apiProduct = new ProductDTO();
         BeanUtils.copyProperties(productDTO, apiProduct, "thumbnailFile", "mediaFiles");
 
+        String categoryName = categoryService.getCategoryNameById(productDTO.getCategoryId());
+
         // Handle thumbnail update
         if (productDTO.getThumbnailFile() != null && !productDTO.getThumbnailFile().isEmpty()) {
             fileStorageService.deleteFile(existingProduct.getThumbnail());
-            apiProduct.setThumbnail(handleThumbnailUpload(productDTO.getThumbnailFile()));
+            apiProduct
+                    .setThumbnail(
+                            handleThumbnailUpload(productDTO.getThumbnailFile(), categoryName, productDTO.getName()));
         } else {
             // Keep existing thumbnail if no new file is uploaded
             apiProduct.setThumbnail(existingProduct.getThumbnail());
@@ -79,7 +87,7 @@ public class ProductService extends CatalogBaseService {
         if (productDTO.getMediaFiles() != null && !productDTO.getMediaFiles().isEmpty()) {
             // Delete old media files if they exist
             fileStorageService.deleteFiles(existingProduct.getMedia());
-            apiProduct.setMedia(handleMediaFilesUpload(productDTO.getMediaFiles()));
+            apiProduct.setMedia(handleMediaFilesUpload(productDTO.getMediaFiles(), categoryName, productDTO.getName()));
         } else {
             // Keep existing media files if no new files are uploaded
             apiProduct.setMedia(existingProduct.getMedia());
@@ -117,19 +125,21 @@ public class ProductService extends CatalogBaseService {
         }
     }
 
-    private String handleThumbnailUpload(MultipartFile file) throws IOException {
+    private String handleThumbnailUpload(MultipartFile file, String categoryName, String productName)
+            throws IOException {
         if (file != null && !file.isEmpty()) {
-            return fileStorageService.storeFile(file);
+            return fileStorageService.storeFile(file, categoryName, productName, true);
         }
         return null;
     }
 
-    private List<String> handleMediaFilesUpload(List<MultipartFile> files) throws IOException {
+    private List<String> handleMediaFilesUpload(List<MultipartFile> files, String categoryName, String productName)
+            throws IOException {
         List<String> mediaPaths = new ArrayList<>();
         if (files != null && !files.isEmpty()) {
             for (MultipartFile mediaFile : files) {
                 if (!mediaFile.isEmpty()) {
-                    mediaPaths.add(fileStorageService.storeFile(mediaFile));
+                    mediaPaths.add(fileStorageService.storeFile(mediaFile, categoryName, productName, false));
                 }
             }
         }

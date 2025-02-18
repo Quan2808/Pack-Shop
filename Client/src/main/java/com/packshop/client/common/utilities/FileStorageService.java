@@ -17,96 +17,91 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class FileStorageService {
 
-    private Path rootLocation;
+    private final Path rootLocation;
+
+    public FileStorageService() {
+        String projectDir = System.getProperty("user.dir");
+        this.rootLocation = Paths.get(projectDir, "src", "main", "resources", "static", "uploads");
+        init();
+    }
 
     @PostConstruct
     public void init() {
         try {
-            // Get the absolute path to the resources directory
-            String projectDir = System.getProperty("user.dir");
-            rootLocation = Paths.get(projectDir, "src", "main", "resources", "static", "uploads");
-
-            // Create directory if it doesn't exist
             if (!Files.exists(rootLocation)) {
                 Files.createDirectories(rootLocation);
             }
-
             log.info("File storage location initialized at: {}", rootLocation);
         } catch (IOException e) {
             throw new RuntimeException("Could not initialize storage location", e);
         }
     }
 
-    public String storeFile(MultipartFile file) throws IOException {
-        try {
-            if (file.isEmpty()) {
-                throw new IllegalArgumentException("Failed to store empty file");
-            }
+    public String storeFile(MultipartFile file, String categoryName, String productName, boolean isThumbnail)
+            throws IOException {
+        if (file.isEmpty()) {
 
-            // Generate unique filename
-            @SuppressWarnings("null")
-            String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
-            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String fileName = UUID.randomUUID().toString() + fileExtension;
-
-            // Resolve the full path
-            Path destinationFile = rootLocation.resolve(fileName).normalize().toAbsolutePath();
-
-            // Validate the destination path
-            if (!destinationFile.getParent().equals(rootLocation.toAbsolutePath())) {
-                throw new IllegalArgumentException("Cannot store file outside current directory");
-            }
-
-            // Save the file
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-            }
-
-            log.info("Stored file: {} at {}", fileName, destinationFile);
-            return fileName;
-
-        } catch (IOException e) {
-            throw new IOException("Failed to store file", e);
+            throw new IllegalArgumentException("Failed to store empty file");
         }
+
+        @SuppressWarnings("null")
+        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String fileName = UUID.randomUUID().toString() + fileExtension;
+
+        // Define the directory structure
+        Path categoryDir = rootLocation.resolve(categoryName);
+        Path productDir = categoryDir.resolve(productName);
+        Path targetDir = isThumbnail ? productDir : productDir.resolve("media");
+
+        if (!Files.exists(targetDir)) {
+            Files.createDirectories(targetDir);
+        }
+
+        Path destinationFile = targetDir.resolve(fileName).normalize().toAbsolutePath();
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        log.info("Stored file: {} at {}", fileName, destinationFile);
+        return categoryName + "/" + productName + (isThumbnail ? "/" : "/media/") + fileName;
     }
 
-    public void deleteFile(String fileName) {
-        if (fileName != null && !fileName.isEmpty()) {
+    public void deleteFile(String filePath) {
+        if (filePath != null && !filePath.isEmpty()) {
             try {
-                Path file = rootLocation.resolve(fileName);
+                Path file = rootLocation.resolve(filePath);
                 Files.deleteIfExists(file);
-                log.info("Deleted file: {}", fileName);
+                log.info("Deleted file: {}", filePath);
             } catch (IOException e) {
-                log.error("Error deleting file: {}", fileName, e);
+                log.error("Error deleting file: {}", filePath, e);
             }
         }
     }
 
-    public void deleteFiles(List<String> fileNames) {
-        if (fileNames != null) {
-            fileNames.forEach(this::deleteFile);
+    public void deleteFiles(List<String> filePaths) {
+        if (filePaths != null) {
+            filePaths.forEach(this::deleteFile);
         }
     }
 
-    public Resource loadFileAsResource(String fileName) {
+    public Resource loadFileAsResource(String filePath) {
         try {
-            Path filePath = rootLocation.resolve(fileName).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
+            Path file = rootLocation.resolve(filePath).normalize();
+            Resource resource = new UrlResource(file.toUri());
             if (resource.exists()) {
                 return resource;
             } else {
-                throw new RuntimeException("File not found: " + fileName);
+                throw new RuntimeException("File not found: " + filePath);
             }
         } catch (MalformedURLException e) {
-            throw new RuntimeException("File not found: " + fileName, e);
+            throw new RuntimeException("File not found: " + filePath, e);
         }
     }
 }

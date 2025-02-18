@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.catalog.CategoryDTO;
@@ -89,14 +90,16 @@ public class ProductManageController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteProduct(@PathVariable Long id) {
+    public String deleteProduct(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Received request to delete product with ID: {}", id);
 
         try {
             productService.deleteProduct(id);
             log.info("Successfully deleted product with ID: {}", id);
+            redirectAttributes.addFlashAttribute("successMessage", "Product has been deleted successfully!");
         } catch (Exception e) {
             log.error("Error deleting product with ID: {}", id, e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete product. Please try again.");
         }
 
         return "redirect:/dashboard/catalog/products";

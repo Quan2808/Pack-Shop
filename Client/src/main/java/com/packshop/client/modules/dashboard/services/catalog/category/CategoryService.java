@@ -22,11 +22,26 @@ public class CategoryService extends CatalogBaseService {
         return getAllFromApi(CATEGORIES_API_URL, CategoryDTO[].class);
     }
 
+    public CategoryDTO getCategory(Long id) {
+        return getFromApi(CATEGORIES_API_URL, id, CategoryDTO.class);
+    }
+
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         return postToApi(CATEGORIES_API_URL, categoryDTO, CategoryDTO.class);
     }
 
     public void updateCategory(Long id, CategoryDTO categoryDTO) {
         putToApi(CATEGORIES_API_URL, categoryDTO, id);
+    }
+
+    public String getCategoryNameById(Long categoryId) {
+        if (categoryId == null)
+            return null;
+        try {
+            CategoryDTO category = getFromApi(CATEGORIES_API_URL, categoryId, CategoryDTO.class);
+            return category != null ? category.getName() : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

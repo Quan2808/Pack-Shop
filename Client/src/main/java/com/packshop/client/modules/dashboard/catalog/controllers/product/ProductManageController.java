@@ -1,4 +1,4 @@
-package com.packshop.client.modules.dashboard.controllers.catalog.product;
+package com.packshop.client.modules.dashboard.catalog.controllers.product;
 
 import java.util.List;
 
@@ -15,8 +15,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.catalog.CategoryDTO;
 import com.packshop.client.dto.catalog.ProductDTO;
-import com.packshop.client.modules.dashboard.services.catalog.category.CategoryService;
-import com.packshop.client.modules.dashboard.services.catalog.product.ProductService;
+import com.packshop.client.modules.dashboard.catalog.services.category.CategoryService;
+import com.packshop.client.modules.dashboard.catalog.services.product.ProductService;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;

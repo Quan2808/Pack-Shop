@@ -1,4 +1,4 @@
-package com.packshop.client.modules.dashboard.controllers;
+package com.packshop.client.modules.dashboard.home.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

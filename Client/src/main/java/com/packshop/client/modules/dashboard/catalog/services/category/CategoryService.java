@@ -1,4 +1,4 @@
-package com.packshop.client.modules.dashboard.services.catalog.category;
+package com.packshop.client.modules.dashboard.catalog.services.category;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.dto.catalog.CategoryDTO;
-import com.packshop.client.modules.dashboard.services.catalog.CatalogBaseService;
+import com.packshop.client.modules.dashboard.catalog.services.CatalogBaseService;
 
 @Service
 public class CategoryService extends CatalogBaseService {

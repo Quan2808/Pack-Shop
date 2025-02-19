@@ -1,4 +1,4 @@
-package com.packshop.client.modules.dashboard.services.catalog.product;
+package com.packshop.client.modules.dashboard.catalog.services.product;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,8 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.utilities.FileStorageService;
 import com.packshop.client.dto.catalog.ProductDTO;
-import com.packshop.client.modules.dashboard.services.catalog.CatalogBaseService;
-import com.packshop.client.modules.dashboard.services.catalog.category.CategoryService;
+import com.packshop.client.modules.dashboard.catalog.services.CatalogBaseService;
+import com.packshop.client.modules.dashboard.catalog.services.category.CategoryService;
 
 import lombok.extern.slf4j.Slf4j;
 

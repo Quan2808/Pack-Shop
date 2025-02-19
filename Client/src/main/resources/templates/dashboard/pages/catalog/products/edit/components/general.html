@@ -50,10 +50,9 @@
         data-mdb-wysiwyg-init
         class="wysiwyg"
         th:field="*{description}"
+        th:utext="*{description}"
         name="description"
-      >
-        <!-- WYSIWYG editor content -->
-      </div>
+      ></div>
       <small class="text-muted text-center">
         Set a description to the product for better visibility.
       </small>

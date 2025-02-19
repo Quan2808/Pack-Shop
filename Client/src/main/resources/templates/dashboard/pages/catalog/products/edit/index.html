@@ -96,7 +96,9 @@
   <!-- Same scripts as create -->
   <script src="/plugins/file-upload/file-upload.min.js"></script>
   <script src="/plugins/wysiwyg/wysiwyg.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <div
+    th:replace="~{dashboard/pages/catalog/products/components/toast-notifications}"
+  ></div>
 
   <script>
     // Same WYSIWYG initialization as create

@@ -81,40 +81,28 @@
     </div>
   </div>
 
-  <section class="w-100 p-4">
-    <div
-      id="datatable-clickable-rows"
-      data-mdb-clickable-rows="true"
-      data-mdb-selectable="true"
-      data-mdb-multi="true"
-    ></div>
-
-    <!-- Modal -->
-    <div
-      class="modal fade"
-      tabindex="-1"
-      aria-hidden="true"
-      id="modal-clickable-rows"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="modal-header-clickable-rows"></h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-mdb-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div
-            class="modal-body mt-4 mb-5"
-            id="modal-body-clickable-rows"
-          ></div>
+  <!-- Modal -->
+  <div
+    class="modal fade"
+    tabindex="-1"
+    aria-hidden="true"
+    id="modal-catalog-table"
+  >
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="modal-header-catalog-table"></h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-mdb-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
+        <div class="modal-body" id="modal-body-catalog-table"></div>
       </div>
     </div>
-  </section>
+  </div>
 
   <!-- Delete Confirmation Modal -->
   <div
@@ -176,11 +164,9 @@
   <script>
     (() => {
       const table = document.getElementById("catalog-table");
-      const modal = document.getElementById("modal-clickable-rows");
-      const modalBody = document.getElementById("modal-body-clickable-rows");
-      const modalHeader = document.getElementById(
-        "modal-header-clickable-rows"
-      );
+      const modal = document.getElementById("modal-catalog-table");
+      const modalBody = document.getElementById("modal-body-catalog-table");
+      const modalHeader = document.getElementById("modal-header-catalog-table");
 
       const modalInstance = new mdb.Modal(modal);
 
@@ -188,42 +174,62 @@
         document.getElementById("categories-data").textContent
       );
 
-      const columns = [
-        { label: "Tên danh mục", field: "name" },
-        { label: "Số sản phẩm", field: "productCount" },
-        { label: "Thao tác", field: "actions", sort: false },
-      ];
-
-      const rows = categories.map((category, i) => ({
-        name: category.name,
-        productCount: category.products.length,
-        actions: `
-      <a role="button" class="view-category-button text-primary" data-mdb-index="${i}">
-        <i class="fa fa-eye"></i>
-      </a>
-    `,
-      }));
-
       table.addEventListener("rowClicked.mdb.datatable", (e) => {
         const { index } = e;
         const category = categories[index];
 
-        modalHeader.innerText = `Danh mục: ${category.name}`;
-        modalBody.innerHTML = `
-      <p><strong>Số sản phẩm:</strong> ${category.products.length}</p>
-      <ul>
+        modalHeader.innerText = `Category: ${category.name}`;
+
+        if (category.products.length > 0) {
+          modalBody.innerHTML = `
+    <table class="table align-middle mb-0 bg-white">
+      <thead class="bg-light">
+        <tr>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
         ${category.products
           .map(
             (product) => `
-          <li>
-            <strong>${product.name}</strong> - $${product.price} 
-            <br> Tồn kho: ${product.quantity}
-          </li>
-        `
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img
+                      src="/uploads/${product.thumbnail}"
+                      alt="${product.name}"
+                      style="width: 45px; height: 45px"
+                      class="rounded-circle"
+                    />
+                    <div class="ms-3">
+                      <p class="fw-bold mb-1" th:text="${product.name}">
+                        Product Name
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td>${product.quantity}</td>
+                <td>$${product.price}</td>
+                <td>
+                  ${
+                    product.status === "PUBLISHED"
+                      ? `<span class="badge rounded-pill badge-success">PUBLISHED</span>`
+                      : `<span class="badge rounded-pill badge-danger">INACTIVE</span>`
+                  }
+                </td>
+              </tr>
+            `
           )
           .join("")}
-      </ul>
-    `;
+      </tbody>
+    </table>
+  `;
+        } else {
+          modalBody.innerHTML = `<p class="text-center text-muted">No matching results found</p>`;
+        }
 
         modalInstance.show();
       });

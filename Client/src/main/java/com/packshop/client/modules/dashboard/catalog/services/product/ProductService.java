@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProductService extends CatalogBaseService {
 
-    private final String API_BASE_URL = "http://localhost:8080/api/catalog/products";
     private static final String PRODUCTS_API_URL = "products";
     private final FileStorageService fileStorageService;
     private final CategoryService categoryService;
@@ -103,7 +102,7 @@ public class ProductService extends CatalogBaseService {
 
         // Delete the product from the API first
         try {
-            restTemplate.delete(API_BASE_URL + "/{id}", id);
+            deleteFromApi(PRODUCTS_API_URL, id);
         } catch (Exception e) {
             log.error("Failed to delete product from API, skipping file deletion", e);
         }

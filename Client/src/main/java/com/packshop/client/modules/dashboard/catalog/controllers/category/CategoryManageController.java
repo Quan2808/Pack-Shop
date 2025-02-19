@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.catalog.CategoryDTO;
 import com.packshop.client.modules.dashboard.catalog.services.category.CategoryService;
-import com.packshop.client.modules.dashboard.catalog.services.product.ProductService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,11 +21,9 @@ public class CategoryManageController {
 
     private static final String CATALOG_PATH = "dashboard/pages/catalog";
 
-    private final ProductService productService;
     private final CategoryService categoryService;
 
-    public CategoryManageController(ProductService productService, CategoryService categoryService) {
-        this.productService = productService;
+    public CategoryManageController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
 

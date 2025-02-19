@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.catalog.CategoryDTO;
 import com.packshop.client.modules.dashboard.catalog.services.category.CategoryService;
@@ -35,6 +36,11 @@ public class CategoryManageController {
             log.info("Fetching all categories with products...");
             List<CategoryDTO> categories = categoryService.getAllCategories();
             model.addAttribute("categories", categories);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String messagesJson = objectMapper.writeValueAsString(categories);
+
+            model.addAttribute("categoriesData", messagesJson);
         } catch (Exception e) {
             log.error("Error fetching categories", e);
             model.addAttribute("errorMessage", "Failed to fetch categories. Please try again.");

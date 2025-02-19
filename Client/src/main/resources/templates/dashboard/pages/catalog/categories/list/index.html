@@ -32,6 +32,7 @@
     <div class="card-body pt-0">
       <div
         data-mdb-datatable-init
+        data-mdb-clickable-rows="true"
         data-mdb-hover="true"
         class="catalog-table"
         id="catalog-table"
@@ -53,6 +54,7 @@
               <td class="text-end">
                 <div class="d-flex justify-content-end">
                   <button
+                    role="button"
                     data-mdb-ripple-init
                     class="call-btn btn btn-outline-primary btn-floating btn-sm"
                     th:onclick="'location.href=\'/dashboard/catalog/categories/edit/' + ${category.id} + '\''"
@@ -78,6 +80,41 @@
       </div>
     </div>
   </div>
+
+  <section class="w-100 p-4">
+    <div
+      id="datatable-clickable-rows"
+      data-mdb-clickable-rows="true"
+      data-mdb-selectable="true"
+      data-mdb-multi="true"
+    ></div>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      tabindex="-1"
+      aria-hidden="true"
+      id="modal-clickable-rows"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modal-header-clickable-rows"></h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-mdb-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div
+            class="modal-body mt-4 mb-5"
+            id="modal-body-clickable-rows"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Delete Confirmation Modal -->
   <div
@@ -130,24 +167,66 @@
     th:replace="~{dashboard/pages/catalog/products/components/toast-notifications}"
   ></div>
 
+  <script
+    type="application/json"
+    id="categories-data"
+    th:utext="${categoriesData}"
+  ></script>
+
   <script>
-    // Existing delete modal code
-    let selectedCategoryId = null;
+    (() => {
+      const table = document.getElementById("catalog-table");
+      const modal = document.getElementById("modal-clickable-rows");
+      const modalBody = document.getElementById("modal-body-clickable-rows");
+      const modalHeader = document.getElementById(
+        "modal-header-clickable-rows"
+      );
 
-    function showDeleteModal(button) {
-      const categoryId = button.getAttribute("data-category-id");
-      const categoryName = button.getAttribute("data-category-name");
+      const modalInstance = new mdb.Modal(modal);
 
-      selectedCategoryId = categoryId;
+      const categories = JSON.parse(
+        document.getElementById("categories-data").textContent
+      );
 
-      const confirmText = document.getElementById("deleteConfirmText");
-      confirmText.textContent = `Are you sure you want to delete the category "${categoryName}"? This action cannot be undone.`;
-    }
+      const columns = [
+        { label: "Tên danh mục", field: "name" },
+        { label: "Số sản phẩm", field: "productCount" },
+        { label: "Thao tác", field: "actions", sort: false },
+      ];
 
-    function confirmDelete() {
-      if (selectedCategoryId) {
-        window.location.href = `/dashboard/catalog/categories/delete/${selectedCategoryId}`;
-      }
-    }
+      const rows = categories.map((category, i) => ({
+        name: category.name,
+        productCount: category.products.length,
+        actions: `
+      <a role="button" class="view-category-button text-primary" data-mdb-index="${i}">
+        <i class="fa fa-eye"></i>
+      </a>
+    `,
+      }));
+
+      table.addEventListener("rowClicked.mdb.datatable", (e) => {
+        const { index } = e;
+        const category = categories[index];
+
+        modalHeader.innerText = `Danh mục: ${category.name}`;
+        modalBody.innerHTML = `
+      <p><strong>Số sản phẩm:</strong> ${category.products.length}</p>
+      <ul>
+        ${category.products
+          .map(
+            (product) => `
+          <li>
+            <strong>${product.name}</strong> - $${product.price} 
+            <br> Tồn kho: ${product.quantity}
+          </li>
+        `
+          )
+          .join("")}
+      </ul>
+    `;
+
+        modalInstance.show();
+      });
+    })();
   </script>
 </th:block>

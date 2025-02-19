@@ -73,7 +73,7 @@ public class ProductManageController {
 
             List<CategoryDTO> categories = categoryService.getAllCategories();
             model.addAttribute("categories", categories);
-            model.addAttribute("error", "Failed to create product. Please fix the errors below.");
+            model.addAttribute("errorMessage", "Failed to create product. Please fix the errors below.");
             return ViewRenderer.renderView(model,
                     CATALOG_PATH + "/products/create/index",
                     "Create Product");
@@ -88,7 +88,7 @@ public class ProductManageController {
 
             List<CategoryDTO> categories = categoryService.getAllCategories();
             model.addAttribute("categories", categories);
-            model.addAttribute("error", "Failed to create product. Please try again.");
+            model.addAttribute("errorMessage", "Failed to create product. Please try again.");
             return ViewRenderer.renderView(model,
                     CATALOG_PATH + "/products/create/index",
                     "Create Product");
@@ -109,15 +109,17 @@ public class ProductManageController {
                     "Edit Product");
         } catch (Exception e) {
             log.error("Error fetching product for editing: {}", id, e);
-            return "redirect:/dashboard/catalog/products";
+            model.addAttribute("errorMessage",
+                    "An error occurred while fetching the product details for editing. Please try again later.");
+            // return "redirect:/dashboard/catalog/products";
+            return list(model);
         }
     }
 
     @PostMapping("/edit/{id}/submit")
     public String updateProduct(@PathVariable Long id,
             @ModelAttribute("product") @Valid ProductDTO productDTO,
-            BindingResult bindingResult,
-            Model model) {
+            BindingResult bindingResult, Model model) {
         log.info("Received request to update product {}: {}", id, productDTO);
 
         if (bindingResult.hasErrors()) {
@@ -125,7 +127,7 @@ public class ProductManageController {
 
             List<CategoryDTO> categories = categoryService.getAllCategories();
             model.addAttribute("categories", categories);
-            model.addAttribute("error", "Failed to update product. Please fix the errors below.");
+            model.addAttribute("errorMessage", "Failed to update product. Please fix the errors below.");
 
             return ViewRenderer.renderView(model,
                     CATALOG_PATH + "/products/edit/index",
@@ -141,7 +143,7 @@ public class ProductManageController {
 
             List<CategoryDTO> categories = categoryService.getAllCategories();
             model.addAttribute("categories", categories);
-            model.addAttribute("error", "Failed to update product. Please try again.");
+            model.addAttribute("errorMessage", "Failed to update product. Please try again.");
 
             return ViewRenderer.renderView(model,
                     CATALOG_PATH + "/products/edit/index",

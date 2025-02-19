@@ -49,7 +49,7 @@ public class ProductManageController {
 
         return ViewRenderer.renderView(model,
                 CATALOG_PATH + "/products/list/index",
-                "Product List");
+                "Products List");
     }
 
     @GetMapping("/create")

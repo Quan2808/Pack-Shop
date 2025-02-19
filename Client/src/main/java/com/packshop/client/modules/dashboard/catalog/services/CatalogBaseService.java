@@ -90,4 +90,12 @@ public abstract class CatalogBaseService {
         }
     }
 
+    protected void deleteFromApi(String apiUrl, Long id) {
+        try {
+            restTemplate.delete(CATALOG_API_URL + apiUrl + "/" + id);
+        } catch (Exception e) {
+            log.error("Failed to delete data from API {}/{}", apiUrl, id, e);
+            throw new CatalogException("Failed to delete data with id: " + id, e);
+        }
+    }
 }

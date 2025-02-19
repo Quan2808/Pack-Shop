@@ -7,7 +7,6 @@
     <div class="card-header py-4">
       <div class="d-flex justify-content-between align-items-center">
         <div class="p-2">
-          <!-- Search Product -->
           <div class="form-outline">
             <div data-mdb-input-init class="form-outline">
               <input type="text" class="form-control" id="catalog-search" />
@@ -17,15 +16,14 @@
         </div>
 
         <div class="d-flex align-items-center">
-          <!-- Add Product Button -->
           <a
-            href="/dashboard/catalog/products/create"
+            href="/dashboard/catalog/categories/create"
             role="button"
             aria-pressed="true"
             class="btn btn-success"
             data-mdb-ripple-init
           >
-            Add Product
+            Add Category
           </a>
         </div>
       </div>
@@ -41,42 +39,33 @@
         <table class="table table-striped table-bordered" id="products-table">
           <thead>
             <tr>
-              <th class="th-sm">Product</th>
+              <th class="th-sm">Category</th>
               <th class="th-sm" data-mdb-sort="false">
                 <div class="text-end">Action</div>
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr th:each="product : ${categories}">
+            <tr th:each="category : ${categories}">
               <td>
-                <div class="d-flex align-items-center">
-                  <p class="fw-bold mb-1" th:text="${product.name}">
-                    Product Name
-                  </p>
-                </div>
+                <p class="fw-bold" th:text="${category.name}">Category Name</p>
               </td>
               <td class="text-end">
-                <!-- Added text-end class here -->
                 <div class="d-flex justify-content-end">
-                  <!-- Added wrapper div with justify-content-end -->
-                  <!-- Edit Button -->
                   <button
-                    data-mdb-ripple-init=""
+                    data-mdb-ripple-init
                     class="call-btn btn btn-outline-primary btn-floating btn-sm"
-                    th:onclick="'location.href=\'/dashboard/catalog/products/edit/' + ${product.id} + '\''"
+                    th:onclick="'location.href=\'/dashboard/catalog/categories/edit/' + ${category.id} + '\''"
                   >
                     <i class="fa-solid fa-pen"></i>
                   </button>
-
-                  <!-- Delete Button -->
                   <button
                     data-mdb-ripple-init
                     class="message-btn btn ms-2 btn-danger btn-floating btn-sm"
                     data-mdb-modal-init
                     data-mdb-target="#deleteModal"
-                    th:data-product-id="${product.id}"
-                    th:data-product-name="${product.name}"
+                    th:data-category-id="${category.id}"
+                    th:data-category-name="${category.name}"
                     onclick="showDeleteModal(this)"
                   >
                     <i class="fa-regular fa-trash-can"></i>
@@ -106,7 +95,7 @@
             style="font-size: 50px; margin-bottom: 30px"
           ></i>
           <p id="deleteConfirmText">
-            Are you sure you want to delete this product? This action cannot be
+            Are you sure you want to delete this category? This action cannot be
             undone.
           </p>
         </div>
@@ -143,21 +132,21 @@
 
   <script>
     // Existing delete modal code
-    let selectedProductId = null;
+    let selectedCategoryId = null;
 
     function showDeleteModal(button) {
-      const productId = button.getAttribute("data-product-id");
-      const productName = button.getAttribute("data-product-name");
+      const categoryId = button.getAttribute("data-category-id");
+      const categoryName = button.getAttribute("data-category-name");
 
-      selectedProductId = productId;
+      selectedCategoryId = categoryId;
 
       const confirmText = document.getElementById("deleteConfirmText");
-      confirmText.textContent = `Are you sure you want to delete the product "${productName}"? This action cannot be undone.`;
+      confirmText.textContent = `Are you sure you want to delete the category "${categoryName}"? This action cannot be undone.`;
     }
 
     function confirmDelete() {
-      if (selectedProductId) {
-        window.location.href = `/dashboard/catalog/products/delete/${selectedProductId}`;
+      if (selectedCategoryId) {
+        window.location.href = `/dashboard/catalog/categories/delete/${selectedCategoryId}`;
       }
     }
   </script>

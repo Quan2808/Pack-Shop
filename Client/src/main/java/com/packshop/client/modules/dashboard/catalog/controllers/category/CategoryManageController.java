@@ -32,7 +32,7 @@ public class CategoryManageController {
     @GetMapping()
     public String list(Model model) {
         try {
-            log.info("Fetching all categories...");
+            log.info("Fetching all categories with products...");
             List<CategoryDTO> categories = categoryService.getAllCategories();
             model.addAttribute("categories", categories);
         } catch (Exception e) {
@@ -42,6 +42,6 @@ public class CategoryManageController {
 
         return ViewRenderer.renderView(model,
                 CATALOG_PATH + "/categories/list/index",
-                "Product List");
+                "Categories List");
     }
 }

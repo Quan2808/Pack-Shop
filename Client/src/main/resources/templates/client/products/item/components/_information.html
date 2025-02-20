@@ -1,3 +1,25 @@
 <section class="mb-5">
-  <h3 class="fw-bold mb-5">Information</h3>
+  <h3
+    class="fw-bold mb-4 text-center"
+    data-mdb-animation-init
+    data-mdb-animation="fade-in-down"
+  >
+    Information
+  </h3>
+
+  <div
+    class="card shadow-2-strong"
+    data-mdb-animation-init
+    data-mdb-animation="fade-in-up"
+  >
+    <div class="card-body">
+      <h5 class="card-title fw-bold text-primary">Product Details</h5>
+      <p class="card-text text-muted" th:utext="${product.description}">
+        <!-- Nếu description rỗng, hiển thị mặc định -->
+        <span th:unless="${product.description != null}"
+          >No description available for this product.</span
+        >
+      </p>
+    </div>
+  </div>
 </section>

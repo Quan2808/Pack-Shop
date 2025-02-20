@@ -1,12 +1,13 @@
 package com.packshop.client.modules.dashboard.catalog.controllers.product;
 
-import com.packshop.client.common.utilities.ViewRenderer;
-import com.packshop.client.dto.catalog.CategoryDTO;
-import com.packshop.client.dto.catalog.ProductDTO;
-import com.packshop.client.modules.dashboard.catalog.services.category.CategoryService;
-import com.packshop.client.modules.dashboard.catalog.services.product.ProductService;
-import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.catalog.CatalogException;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,11 +18,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+import com.packshop.client.common.utilities.ViewRenderer;
+import com.packshop.client.dto.catalog.CategoryDTO;
+import com.packshop.client.dto.catalog.ProductDTO;
+import com.packshop.client.modules.dashboard.catalog.services.category.CategoryManageService;
+import com.packshop.client.modules.dashboard.catalog.services.product.ProductManageService;
 
-import javax.xml.catalog.CatalogException;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @Slf4j
@@ -34,10 +38,10 @@ public class ProductManageController {
     private static final String ERROR_UPDATE_FAILED = "Failed to update product. Please try again.";
     private static final String ERROR_NOT_FOUND = "Product not found.";
 
-    private final ProductService productService;
-    private final CategoryService categoryService;
+    private final ProductManageService productService;
+    private final CategoryManageService categoryService;
 
-    public ProductManageController(ProductService productService, CategoryService categoryService) {
+    public ProductManageController(ProductManageService productService, CategoryManageService categoryService) {
         this.productService = productService;
         this.categoryService = categoryService;
     }
@@ -47,7 +51,18 @@ public class ProductManageController {
         try {
             log.info("Fetching all products...");
             List<ProductDTO> products = productService.getAllProducts();
+
+            Map<Long, String> categoryNames = new HashMap<>();
+            for (ProductDTO product : products) {
+                Long categoryId = product.getCategoryId();
+                if (!categoryNames.containsKey(categoryId)) {
+                    String categoryName = categoryService.getCategoryNameById(categoryId);
+                    categoryNames.put(categoryId, categoryName != null ? categoryName : "Unknown Category");
+                }
+            }
+
             model.addAttribute("products", products);
+            model.addAttribute("categoryNames", categoryNames);
         } catch (Exception e) {
             log.error("Error fetching products", e);
             model.addAttribute("errorMessage", "Failed to fetch products. Please try again.");
@@ -120,6 +135,7 @@ public class ProductManageController {
 
             model.addAttribute("product", product);
             populateCategories(model);
+
             return ViewRenderer.renderView(model, CATALOG_PATH + "/products/edit/index", "Edit Product");
         } catch (Exception e) {
             log.error("Unexpected error fetching product for editing: {}", id, e);
@@ -144,6 +160,7 @@ public class ProductManageController {
         }
 
         try {
+
             productService.updateProduct(id, productDTO);
             log.info("Product updated successfully: {}", productDTO.getName());
             return REDIRECT_TO_LIST;

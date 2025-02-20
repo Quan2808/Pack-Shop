@@ -4,30 +4,34 @@
   class="carousel slide carousel-fade"
   data-mdb-ride="carousel"
 >
+  <!-- Carousel items -->
   <div class="carousel-inner mb-5">
-    <div class="carousel-item active">
+    <!-- Thumbnail là item mặc định (active) -->
+    <div class="carousel-item active ratio ratio-1x1">
       <img
-        src="https://mdbcdn.b-cdn.net/img/Photos/Slides/img%20(88).webp"
+        th:src="@{'/uploads/' + ${product.thumbnail}}"
+        th:alt="${product.name}"
         class="d-block w-100"
-        alt="..."
+        alt="Product Thumbnail"
       />
     </div>
-    <div class="carousel-item">
-      <img
-        src="https://mdbcdn.b-cdn.net/img/Photos/Slides/img%20(121).webp"
-        class="d-block w-100"
-        alt="..."
-      />
-    </div>
-    <div class="carousel-item">
-      <img
-        src="https://mdbcdn.b-cdn.net/img/Photos/Slides/img%20(31).webp"
-        class="d-block w-100"
-        alt="..."
-      />
-    </div>
+
+    <!-- Các ảnh từ media -->
+    <th:block th:each="mediaUrl, iterStat : ${product.media}">
+      <div
+        th:classappend="${iterStat.first} ? 'carousel-item ratio ratio-1x1 active' : 'carousel-item ratio ratio-1x1'"
+      >
+        <img
+          th:src="@{'/uploads/' + ${mediaUrl}}"
+          th:alt="${product.name} + ' - Image ' + ${iterStat.count}"
+          class="d-block w-100"
+          alt="Product Media"
+        />
+      </div>
+    </th:block>
   </div>
 
+  <!-- Nút điều hướng -->
   <button
     data-mdb-button-init
     class="carousel-control-prev"
@@ -49,7 +53,9 @@
     <span class="visually-hidden">Next</span>
   </button>
 
+  <!-- Indicators (thumbnail nhỏ) -->
   <div class="carousel-indicators" style="margin-bottom: -20px">
+    <!-- Thumbnail indicator -->
     <button
       type="button"
       data-mdb-button-init
@@ -57,39 +63,32 @@
       data-mdb-slide-to="0"
       class="active"
       aria-current="true"
-      aria-label="Slide 1"
+      th:aria-label="'Slide 1'"
       style="width: 100px"
     >
       <img
+        th:src="@{'/uploads/' + ${product.thumbnail}}"
+        th:alt="${product.name}"
         class="d-block w-100 img-fluid"
-        src="https://mdbcdn.b-cdn.net/img/Photos/Others/Carousel-thumbs/img%20(88).webp"
       />
     </button>
-    <button
-      type="button"
-      data-mdb-button-init
-      data-mdb-target="#carouselExampleIndicators"
-      data-mdb-slide-to="1"
-      aria-label="Slide 2"
-      style="width: 100px"
-    >
-      <img
-        class="d-block w-100 img-fluid"
-        src="https://mdbcdn.b-cdn.net/img/Photos/Others/Carousel-thumbs/img%20(121).webp"
-      />
-    </button>
-    <button
-      type="button"
-      data-mdb-button-init
-      data-mdb-target="#carouselExampleIndicators"
-      data-mdb-slide-to="2"
-      aria-label="Slide 3"
-      style="width: 100px"
-    >
-      <img
-        class="d-block w-100 img-fluid"
-        src="https://mdbcdn.b-cdn.net/img/Photos/Others/Carousel-thumbs/img%20(31).webp"
-      />
-    </button>
+
+    <!-- Indicators cho media -->
+    <th:block th:each="mediaUrl, iterStat : ${product.media}">
+      <button
+        type="button"
+        data-mdb-button-init
+        data-mdb-target="#carouselExampleIndicators"
+        th:data-mdb-slide-to="${iterStat.count}"
+        th:aria-label="'Slide ' + ${iterStat.count + 1}"
+        style="width: 100px"
+      >
+        <img
+          th:src="@{'/uploads/' + ${mediaUrl}}"
+          th:alt="${product.name} + ' - Image ' + ${iterStat.count}"
+          class="d-block w-100 img-fluid"
+        />
+      </button>
+    </th:block>
   </div>
 </div>

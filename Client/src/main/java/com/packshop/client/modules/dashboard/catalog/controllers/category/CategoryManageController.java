@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.exceptions.CatalogException;
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.catalog.CategoryDTO;
-import com.packshop.client.modules.dashboard.catalog.services.category.CategoryService;
+import com.packshop.client.modules.dashboard.catalog.services.category.CategoryManageService;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +32,10 @@ public class CategoryManageController {
     private static final String ERROR_UPDATE_FAILED = "Failed to update category. Please try again.";
     private static final String ERROR_NOT_FOUND = "Category not found.";
 
-    private final CategoryService categoryService;
+    private final CategoryManageService categoryService;
     private final ObjectMapper objectMapper;
 
-    public CategoryManageController(CategoryService categoryService, ObjectMapper objectMapper) {
+    public CategoryManageController(CategoryManageService categoryService, ObjectMapper objectMapper) {
         this.categoryService = categoryService;
         this.objectMapper = objectMapper;
     }

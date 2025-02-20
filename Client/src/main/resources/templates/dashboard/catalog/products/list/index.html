@@ -58,7 +58,7 @@
               <th class="th-sm">SKU</th>
               <th class="th-sm">Quantity</th>
               <th class="th-sm">Price</th>
-              <th class="th-sm">Rating</th>
+              <th class="th-sm">Category</th>
               <th class="th-sm" data-mdb-sort="false">Status</th>
               <th class="th-sm" data-mdb-sort="false">
                 <div class="text-end">Action</div>
@@ -71,7 +71,7 @@
                 <div class="d-flex align-items-center">
                   <img
                     th:src="@{'/uploads/' + ${product.thumbnail}}"
-                    alt="Product Image"
+                    th:alt="${product.name}"
                     style="width: 45px; height: 45px"
                     class="rounded-circle"
                   />
@@ -85,7 +85,7 @@
               <td th:text="${product.sku}">SKU12345</td>
               <td th:text="${product.quantity}">100</td>
               <td th:text="${product.price}">$0.00</td>
-              <td>5.0</td>
+              <td th:text="${categoryNames[product.categoryId]}"></td>
 
               <td>
                 <span
@@ -175,9 +175,7 @@
   <script src="/plugins/datatables/datatables.bundle.js"></script>
   <script src="/plugins/custom/catalog/list.js"></script>
 
-  <div
-    th:replace="~{dashboard/catalog/products/components/toast-notifications}"
-  ></div>
+  <div th:replace="~{fragments\common\_toasts}"></div>
 
   <script>
     // Existing delete modal code

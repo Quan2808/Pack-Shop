@@ -1,4 +1,4 @@
-package com.packshop.client.common.logging;
+package com.packshop.api.common.logging;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.pattern.PatternLayoutEncoderBase;
@@ -7,7 +7,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-public class CustomLogEncoder extends PatternLayoutEncoderBase<ILoggingEvent> {
+
+public class CustomLogEncoder  extends PatternLayoutEncoderBase<ILoggingEvent> {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
             .withZone(ZoneId.systemDefault());
 

@@ -1,4 +1,4 @@
-package com.packshop.client.modules.client.controllers;
+package com.packshop.client.modules.client.home.controllers;
 
 import java.util.Arrays;
 import java.util.List;

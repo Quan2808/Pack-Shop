@@ -1,4 +1,4 @@
-package com.packshop.client.modules.dashboard.services.catalog.product;
+package com.packshop.client.modules.dashboard.catalog.services.product;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,8 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.utilities.FileStorageService;
 import com.packshop.client.dto.catalog.ProductDTO;
-import com.packshop.client.modules.dashboard.services.catalog.CatalogBaseService;
-import com.packshop.client.modules.dashboard.services.catalog.category.CategoryService;
+import com.packshop.client.modules.dashboard.catalog.services.CatalogBaseService;
+import com.packshop.client.modules.dashboard.catalog.services.category.CategoryService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProductService extends CatalogBaseService {
 
-    private final String API_BASE_URL = "http://localhost:8080/api/catalog/products";
     private static final String PRODUCTS_API_URL = "products";
     private final FileStorageService fileStorageService;
     private final CategoryService categoryService;
@@ -99,17 +98,22 @@ public class ProductService extends CatalogBaseService {
 
     @Transactional
     public void deleteProduct(Long id) {
+        log.info("Deleting product with ID: {}", id);
         ProductDTO product = getProduct(id);
 
-        // Delete the product from the API first
-        try {
-            restTemplate.delete(API_BASE_URL + "/{id}", id);
-        } catch (Exception e) {
-            log.error("Failed to delete product from API, skipping file deletion", e);
+        if (product == null) {
+            log.warn("Product not found with ID: {}", id);
+            return;
         }
 
-        // After successful API deletion, delete associated files
-        deleteProductFiles(product);
+        try {
+            deleteFromApi(PRODUCTS_API_URL, id);
+            deleteProductFiles(product);
+            log.info("Product deleted successfully: {}", id);
+        } catch (Exception e) {
+            log.error("Failed to delete product with ID: {}", id, e);
+            throw e;
+        }
     }
 
     private void deleteProductFiles(ProductDTO product) {

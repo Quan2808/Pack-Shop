@@ -13,8 +13,8 @@
     </root>
 
     <!-- Disable specific loggers that might be too verbose -->
-<!--    <logger name="org.apache.catalina" level="OFF" />-->
-<!--    <logger name="org.apache.coyote" level="OFF" />-->
-<!--    <logger name="org.apache.tomcat" level="OFF" />-->
-<!--    <logger name="org.springframework.web" level="OFF" />-->
+    <logger name="org.apache.catalina" level="OFF" />
+    <logger name="org.apache.coyote" level="OFF" />
+    <logger name="org.apache.tomcat" level="OFF" />
+    <logger name="org.springframework.web" level="OFF" />
 </configuration>

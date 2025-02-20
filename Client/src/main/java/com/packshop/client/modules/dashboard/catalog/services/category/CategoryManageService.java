@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.packshop.client.common.services.CatalogBaseService;
 import com.packshop.client.dto.catalog.CategoryDTO;
-import com.packshop.client.modules.dashboard.catalog.services.CatalogBaseService;
 
 import lombok.extern.slf4j.Slf4j;
 

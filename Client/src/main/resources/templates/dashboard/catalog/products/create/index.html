@@ -50,14 +50,15 @@
           </ul>
         </div>
         <div>
-          <button
+          <a
             type="button"
             class="btn btn-light"
             data-mdb-ripple-init
             data-mdb-ripple-color="dark"
+            href="/dashboard/catalog/products"
           >
             Cancel
-          </button>
+          </a>
           <button type="submit" class="btn btn-success" data-mdb-ripple-init>
             Save
           </button>
@@ -95,9 +96,7 @@
   <script src="/plugins/file-upload/file-upload.min.js"></script>
   <script src="/plugins/wysiwyg/wysiwyg.min.js"></script>
 
-  <div
-    th:replace="~{dashboard/catalog/products/components/toast-notifications}"
-  ></div>
+  <div th:replace="~{fragments\common\_toasts}"></div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {

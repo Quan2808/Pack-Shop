@@ -19,7 +19,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.catalog.CatalogException;
 
@@ -47,7 +50,18 @@ public class ProductManageController {
         try {
             log.info("Fetching all products...");
             List<ProductDTO> products = productService.getAllProducts();
+
+            Map<Long, String> categoryNames = new HashMap<>();
+            for (ProductDTO product : products) {
+                Long categoryId = product.getCategoryId();
+                if (!categoryNames.containsKey(categoryId)) {
+                    String categoryName = categoryService.getCategoryNameById(categoryId);
+                    categoryNames.put(categoryId, categoryName != null ? categoryName : "Unknown Category");
+                }
+            }
+
             model.addAttribute("products", products);
+            model.addAttribute("categoryNames", categoryNames);
         } catch (Exception e) {
             log.error("Error fetching products", e);
             model.addAttribute("errorMessage", "Failed to fetch products. Please try again.");
@@ -120,6 +134,16 @@ public class ProductManageController {
 
             model.addAttribute("product", product);
             populateCategories(model);
+
+            if (product.getMedia() != null && !product.getMedia().isEmpty()) {
+                List<String> mediaPaths = product.getMedia().stream()
+                        .map(path -> "/uploads/" + path)
+                        .collect(Collectors.toList());
+                model.addAttribute("media", mediaPaths);
+            } else {
+                model.addAttribute("media", Collections.emptyList());
+            }
+
             return ViewRenderer.renderView(model, CATALOG_PATH + "/products/edit/index", "Edit Product");
         } catch (Exception e) {
             log.error("Unexpected error fetching product for editing: {}", id, e);
@@ -144,6 +168,7 @@ public class ProductManageController {
         }
 
         try {
+
             productService.updateProduct(id, productDTO);
             log.info("Product updated successfully: {}", productDTO.getName());
             return REDIRECT_TO_LIST;

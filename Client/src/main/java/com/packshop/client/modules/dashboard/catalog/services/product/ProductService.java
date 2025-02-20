@@ -74,9 +74,8 @@ public class ProductService extends CatalogBaseService {
         // Handle thumbnail update
         if (productDTO.getThumbnailFile() != null && !productDTO.getThumbnailFile().isEmpty()) {
             fileStorageService.deleteFile(existingProduct.getThumbnail());
-            apiProduct
-                    .setThumbnail(
-                            handleThumbnailUpload(productDTO.getThumbnailFile(), categoryName, productDTO.getName()));
+            apiProduct.setThumbnail(
+                    handleThumbnailUpload(productDTO.getThumbnailFile(), categoryName, productDTO.getName()));
         } else {
             // Keep existing thumbnail if no new file is uploaded
             apiProduct.setThumbnail(existingProduct.getThumbnail());
@@ -84,12 +83,22 @@ public class ProductService extends CatalogBaseService {
 
         // Handle media files update
         if (productDTO.getMediaFiles() != null && !productDTO.getMediaFiles().isEmpty()) {
-            // Delete old media files if they exist
-            fileStorageService.deleteFiles(existingProduct.getMedia());
-            apiProduct.setMedia(handleMediaFilesUpload(productDTO.getMediaFiles(), categoryName, productDTO.getName()));
+            // Check if there are any non-empty files in the list
+            boolean hasNonEmptyFiles = productDTO.getMediaFiles().stream()
+                    .anyMatch(file -> file != null && !file.isEmpty());
+
+            if (hasNonEmptyFiles) {
+                // Only delete old media files if new ones are being uploaded
+                fileStorageService.deleteFiles(existingProduct.getMedia());
+                apiProduct.setMedia(
+                        handleMediaFilesUpload(productDTO.getMediaFiles(), categoryName, productDTO.getName()));
+            } else {
+                // If no new files are being uploaded, keep the existing media
+                apiProduct.setMedia(productDTO.getMedia());
+            }
         } else {
-            // Keep existing media files if no new files are uploaded
-            apiProduct.setMedia(existingProduct.getMedia());
+            // If mediaFiles is null or empty, preserve the existing media paths
+            apiProduct.setMedia(productDTO.getMedia());
         }
 
         putToApi(PRODUCTS_API_URL, apiProduct, id);
@@ -140,9 +149,9 @@ public class ProductService extends CatalogBaseService {
     private List<String> handleMediaFilesUpload(List<MultipartFile> files, String categoryName, String productName)
             throws IOException {
         List<String> mediaPaths = new ArrayList<>();
-        if (files != null && !files.isEmpty()) {
+        if (files != null) {
             for (MultipartFile mediaFile : files) {
-                if (!mediaFile.isEmpty()) {
+                if (mediaFile != null && !mediaFile.isEmpty()) {
                     mediaPaths.add(fileStorageService.storeFile(mediaFile, categoryName, productName, false));
                 }
             }

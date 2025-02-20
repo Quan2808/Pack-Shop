@@ -1,11 +1,11 @@
 package com.packshop.client.dto.catalog;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +24,10 @@ public class ProductDTO {
     private String name;
 
     private String thumbnail;
+
+    @NotBlank(message = "Status cannot be empty")
     private String status;
+
     private String description;
 
     private List<String> media;
@@ -36,27 +39,27 @@ public class ProductDTO {
     @NotBlank(message = "SKU cannot be empty")
     private String sku;
 
-    @Min(value = 0, message = "Quantity must be greater than or equal to 0")
     @NotNull(message = "Quantity cannot be null")
+    @Min(value = 0, message = "Quantity must be greater than or equal to 0")
     private Integer quantity;
 
     @NotNull(message = "Category cannot be null")
     private Long categoryId;
 
-    @Size(min = 2, max = 50, message = "Material should be between 2 and 50 characters")
     @NotNull(message = "Material cannot be null")
+    @Size(min = 2, max = 50, message = "Material must be between 2 and 50 characters")
     private String material;
 
-    @Size(min = 2, max = 100, message = "Dimensions should be between 2 and 100 characters")
     @NotNull(message = "Dimensions cannot be null")
+    @Size(min = 2, max = 100, message = "Dimensions must be between 2 and 100 characters")
     private String dimensions;
 
-    @Size(min = 2, max = 50, message = "Capacity should be between 2 and 50 characters")
     @NotNull(message = "Capacity cannot be null")
+    @Size(min = 2, max = 50, message = "Capacity must be between 2 and 50 characters")
     private String capacity;
 
-    @DecimalMin(value = "0.0", inclusive = true, message = "Weight must be greater than or equal to 0")
     @NotNull(message = "Weight cannot be null")
+    @Size(min = 2, max = 50, message = "Weight must be between 2 and 50 characters")
     private String weight;
 
     // Add fields for file upload

@@ -9,9 +9,9 @@
           type="text"
           id="sku"
           name="sku"
+          th:field="*{sku}"
           class="form-control"
           placeholder="SKU Number"
-          th:field="*{sku}"
         />
       </div>
       <small class="text-muted text-center">Enter the product SKU.</small>
@@ -29,9 +29,9 @@
           type="number"
           id="qty"
           name="quantity"
+          th:field="*{quantity}"
           class="form-control"
           placeholder="0"
-          th:field="*{quantity}"
         />
       </div>
       <small class="text-muted text-center">Enter the product quantity.</small>
@@ -57,11 +57,13 @@
               id="capacity"
               th:field="*{capacity}"
               class="form-control"
-              placeholder=" Example: 20L"
+              placeholder="Example: 20L"
+              pattern="\d+(\.\d+)?\s*(L|ml|g|kg)?"
+              title="Please enter capacity in the format: number followed by unit (e.g., 20L, 500ml)"
             />
           </div>
           <small class="text-muted text-center"
-            >Enter the product capacity.</small
+            >Enter the product capacity (e.g., 20L, 500ml).</small
           >
           <div
             class="text-danger"
@@ -78,11 +80,13 @@
               id="weight"
               th:field="*{weight}"
               class="form-control"
-              placeholder=" Example: 0.8 kg"
+              placeholder="Example: 0.8 kg"
+              pattern="\d+(\.\d+)?\s*(kg|g|lb|oz)?"
+              title="Please enter weight in the format: number followed by unit (e.g., 0.8 kg, 500g)"
             />
           </div>
           <small class="text-muted text-center"
-            >Enter the product weight.</small
+            >Enter the product weight (e.g., 0.8 kg, 500g).</small
           >
           <div
             class="text-danger"
@@ -101,10 +105,12 @@
               th:field="*{dimensions}"
               class="form-control"
               placeholder="Example: 30x40x10 cm"
+              pattern="\d+x\d+x\d+\s*(cm|mm|m|in)?"
+              title="Please enter dimensions in the format: width x height x depth (e.g., 30x40x10 cm)"
             />
           </div>
           <small class="text-muted text-center"
-            >Enter the product dimensions.</small
+            >Enter the product dimensions (e.g., 30x40x10 cm).</small
           >
           <div
             class="text-danger"
@@ -122,10 +128,12 @@
               th:field="*{material}"
               class="form-control"
               placeholder="Example: Cotton"
+              pattern="[A-Za-z\s]+"
+              title="Please enter material using letters only (e.g., Cotton, Polyester)"
             />
           </div>
           <small class="text-muted text-center"
-            >Enter the product material.</small
+            >Enter the product material (e.g., Cotton, Polyester).</small
           >
           <div
             class="text-danger"

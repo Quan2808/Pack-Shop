@@ -76,11 +76,24 @@ public class FileStorageService {
     public void deleteFile(String filePath) {
         if (filePath != null && !filePath.isEmpty()) {
             try {
-                Path file = rootLocation.resolve(filePath);
-                Files.deleteIfExists(file);
-                log.info("Deleted file: {}", filePath);
+                Path file = rootLocation.resolve(filePath).normalize();
+                if (Files.exists(file)) {
+                    Files.delete(file);
+                    log.info("Deleted file: {}", filePath);
+
+                    Path parent = file.getParent();
+                    while (parent != null && !parent.equals(rootLocation)) {
+                        try {
+                            Files.delete(parent);
+                            log.info("Deleted empty directory: {}", parent);
+                            parent = parent.getParent();
+                        } catch (IOException e) {
+                            break;
+                        }
+                    }
+                }
             } catch (IOException e) {
-                log.error("Error deleting file: {}", filePath, e);
+                log.error("Error deleting file or directory: {}", filePath, e);
             }
         }
     }

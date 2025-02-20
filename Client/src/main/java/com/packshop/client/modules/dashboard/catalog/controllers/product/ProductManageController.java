@@ -28,7 +28,7 @@ import javax.xml.catalog.CatalogException;
 @RequestMapping("/dashboard/catalog/products")
 public class ProductManageController {
 
-    private static final String CATALOG_PATH = "dashboard/pages/catalog";
+    private static final String CATALOG_PATH = "dashboard/catalog";
     private static final String REDIRECT_TO_LIST = "redirect:/dashboard/catalog/products";
     private static final String ERROR_CREATE_FAILED = "Failed to create product. Please try again.";
     private static final String ERROR_UPDATE_FAILED = "Failed to update product. Please try again.";

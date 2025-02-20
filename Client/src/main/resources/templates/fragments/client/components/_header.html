@@ -1,0 +1,104 @@
+<header>
+  <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary">
+    <div class="container">
+      <a class="navbar-brand me-2" href="/">
+        <img
+          src="/images/logos/logo.png"
+          height="60"
+          alt="Pack Shop"
+          loading="lazy"
+          style="margin-top: -1px"
+        />
+      </a>
+
+      <button
+        data-mdb-collapse-init
+        class="navbar-toggler"
+        type="button"
+        data-mdb-target="#navbar_collapse"
+        aria-controls="navbar_collapse"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbar_collapse">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a
+              class="nav-link text-uppercase fw-bold"
+              th:classappend="${view.contains('/home') ? 'nav-active' : ''}"
+              href="/"
+              >Home</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link text-uppercase fw-bold"
+              th:classappend="${view.contains('/static/introduce') ? 'nav-active' : ''}"
+              href="/introduce"
+              >Introduce</a
+            >
+          </li>
+          <li class="nav-item text-uppercase fw-bold dropdown">
+            <a
+              data-mdb-dropdown-init
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbar_product"
+              role="button"
+              aria-expanded="false"
+              th:classappend="${view.contains('product') ? 'nav-active' : ''}"
+            >
+              Product
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbar_product">
+              <li>
+                <a class="dropdown-item" href="/products">All Products</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#">Category 1</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#">Category 2</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#">Category 3</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link text-uppercase fw-bold"
+              th:classappend="${view.contains('/static/contact') ? 'nav-active' : ''}"
+              href="/contact"
+              >Contact</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link text-uppercase fw-bold"
+              th:classappend="${view.contains('/account') ? 'nav-active' : ''}"
+              href="/account/authentication"
+              >Account
+            </a>
+          </li>
+        </ul>
+
+        <div class="d-flex align-items-center">
+          <div class="grid ps-3 pe-3">
+            <div class="g-col-6"><i class="fas fa-envelope"></i> Email</div>
+            <div class="g-col-6"><small>contact@example.com</small></div>
+          </div>
+          <div class="grid ps-3 pe-3">
+            <div class="g-col-6"><i class="fas fa-phone"></i> Hotline</div>
+            <div class="g-col-6">
+              <small>(+84) 123 456 789 (Vietnam)</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

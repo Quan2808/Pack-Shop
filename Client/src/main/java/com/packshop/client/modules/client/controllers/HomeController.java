@@ -58,13 +58,13 @@ public class HomeController {
         model.addAttribute("slides", slides);
         model.addAttribute("services", services);
         model.addAttribute("banners", banners);
-        return ViewRenderer.renderView(model, "client/pages/home/index", "Home");
+        return ViewRenderer.renderView(model, "client/home/index", "Home");
     }
 
     // Introduce and Contact Pages
     @GetMapping("/{page}")
     public String renderStaticPage(@PathVariable("page") String page, Model model) {
-        String templateName = "client/pages/static/" + page + "/index";
+        String templateName = "client/static/" + page + "/index";
         String title;
 
         switch (page) {
@@ -97,7 +97,7 @@ public class HomeController {
     // Service Pages
     @GetMapping("/services/{serviceName}")
     public String renderServicePage(@PathVariable("serviceName") String serviceName, Model model) {
-        String templateName = "client/pages/static/services/" + serviceName;
+        String templateName = "client/static/services/" + serviceName;
         String title;
 
         switch (serviceName) {
@@ -121,7 +121,7 @@ public class HomeController {
     // Legal Pages
     @GetMapping("/legal/{legalName}")
     public String renderLegalPage(@PathVariable("legalName") String legalName, Model model) {
-        String templateName = "client/pages/static/legal/" + legalName;
+        String templateName = "client/static/legal/" + legalName;
         String title;
 
         switch (legalName) {

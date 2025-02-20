@@ -1,0 +1,151 @@
+<div th:fragment="content" class="container">
+  <!-- Begin Breadcrumb -->
+  <div
+    th:replace="~{fragments/client/components/_breadcrumb :: breadcrumb(item='Services')}"
+  ></div>
+  <!-- End Breadcrumb -->
+
+  <div class="row">
+    <div class="col-12 col-md-3">
+      <!-- Begin navs -->
+      <div th:replace="~{client/static/services/components/_nav.html}"></div>
+      <!-- End navs -->
+    </div>
+
+    <div class="col-12 col-md-9">
+      <section>
+        <h3 class="fw-bold mb-5">Frequently Asked Questions</h3>
+        <div class="row align-items-stretch">
+          <figure class="w-100">
+            <blockquote class="blockquote mb-0">
+              <p class="mb-3">
+                When looking to order custom bags and backpacks, customers often
+                have questions regarding products, designs, materials,
+                production methods, and warranties. Below is a compilation of
+                common inquiries we receive at our company along with their
+                answers.
+              </p>
+            </blockquote>
+          </figure>
+        </div>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">
+              How can I contact you to inquire about and place an order?
+            </p>
+            <p class="mb-3">Customers can reach us through:</p>
+            <ul class="list-unstyled">
+              <ul>
+                <li><span class="fw-bold">Head Office:</span> Vietnam.</li>
+                <li><span class="fw-bold">Contact Office:</span> Vietnam.</li>
+                <li><span class="fw-bold">Email:</span> contact@example.com</li>
+                <li>
+                  <span class="fw-bold">Phone:</span> (+84) 123 456 789
+                  (Vietnam)
+                </li>
+              </ul>
+            </ul>
+          </blockquote>
+        </figure>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">How do we choose a design?</p>
+            <p class="mb-3">
+              Customers can select from existing samples available on our
+              website or choose any design and then customize it according to
+              their needs and intended use.
+            </p>
+          </blockquote>
+        </figure>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">How do we select materials?</p>
+            <p class="mb-3">
+              You will be advised and given the option to choose the most
+              suitable materials for your product design from the catalogue we
+              provide.
+            </p>
+          </blockquote>
+        </figure>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">How long does it take to make a sample?</p>
+            <p class="mb-3">
+              The average time to produce a sample is 5 to 7 days. For more
+              complex designs with multiple steps, the sample production time
+              may take longer.
+            </p>
+          </blockquote>
+        </figure>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">What is the minimum order quantity?</p>
+            <p class="mb-3">We only accept orders of 100 pieces or more.</p>
+          </blockquote>
+        </figure>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">What does the price depend on?</p>
+            <p class="mb-3">
+              Pricing depends on the materials, design, and quantity of the
+              order. The larger the order, the better the pricing.
+            </p>
+          </blockquote>
+        </figure>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">How is the deposit and payment handled?</p>
+            <p class="mb-3">
+              Customers are required to pay a deposit of 30% to 50% of the order
+              value. After receiving the products, customers can check and
+              complete the remaining payment.
+            </p>
+          </blockquote>
+        </figure>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">
+              How long does it take to complete the order?
+            </p>
+            <p class="mb-3">
+              The order completion time ranges from 7 to 20 days, depending on
+              the design and quantity of the order.
+            </p>
+          </blockquote>
+        </figure>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">What are the shipping methods?</p>
+            <p class="mb-3">
+              Our company ships nationwide with free delivery in Ho Chi Minh
+              City. We also offer shipping services abroad if customers require.
+            </p>
+          </blockquote>
+        </figure>
+
+        <figure class="w-100">
+          <blockquote class="blockquote mb-0">
+            <p class="mb-3 fw-bold">
+              Can I exchange or return a defective product?
+            </p>
+            <p class="mb-3">
+              We conduct strict inspections of all products before delivery, so
+              the chances of defects are minimal. However, if any issues arise,
+              we will promptly address them and offer exchanges or returns if
+              the product does not meet the agreed-upon standards.
+            </p>
+          </blockquote>
+        </figure>
+      </section>
+    </div>
+  </div>
+</div>

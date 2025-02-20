@@ -1,0 +1,16 @@
+<div th:fragment="content" class="container">
+  <div class="row mb-5">
+    <!-- Begin Breadcrumb -->
+    <div class="col-md-6 col-12">
+      <div
+        th:replace="~{fragments/client/components/_breadcrumb :: breadcrumb('Account')}"
+      ></div>
+    </div>
+    <!-- End Breadcrumb -->
+    <!-- Begin Form -->
+    <div class="col-md-6 col-12 mt-md-5">
+      <div th:replace="~{client/account/authentication/components/_form}"></div>
+    </div>
+    <!-- End Form -->
+  </div>
+</div>

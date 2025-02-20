@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/dashboard/catalog/categories")
 public class CategoryManageController {
 
-    private static final String CATALOG_PATH = "dashboard/pages/catalog";
+    private static final String CATALOG_PATH = "dashboard/catalog";
     private static final String REDIRECT_TO_LIST = "redirect:/dashboard/catalog/categories";
     private static final String ERROR_CREATE_FAILED = "Failed to create category. Please try again.";
     private static final String ERROR_UPDATE_FAILED = "Failed to update category. Please try again.";

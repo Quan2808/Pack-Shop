@@ -4,8 +4,8 @@ import org.springframework.ui.Model;
 
 public class ViewRenderer {
 
-    private static final String CLIENT_LAYOUT = "client/fragments/_layout";
-    private static final String DASHBOARD_LAYOUT = "dashboard/fragments/_layout";
+    private static final String CLIENT_LAYOUT = "fragments/client/_layout";
+    private static final String DASHBOARD_LAYOUT = "fragments/dashboard/_layout";
 
     public static String renderView(Model model, String templateName, String title) {
         model.addAttribute("view", templateName);

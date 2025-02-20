@@ -30,7 +30,7 @@ public class CategoryManageController {
     @GetMapping()
     public String list(Model model) {
         try {
-            log.info("Fetching all categories with products...");
+            log.info("Fetching all categories...");
             List<CategoryDTO> categories = categoryService.getAllCategories();
             model.addAttribute("categories", categories);
 

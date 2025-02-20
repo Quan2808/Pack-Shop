@@ -14,26 +14,32 @@
         <div class="row">
           <div class="col-12">
             <div class="text-center">
+              <!-- Hiển thị mã trạng thái -->
               <h2
                 class="d-flex justify-content-center align-items-center gap-2 mb-4"
               >
                 <span
                   class="display-1 fw-bold"
-                  th:text="${statusCode.toString().charAt(0)}"
+                  th:text="${statusCode.toString().length() > 0 ? statusCode.toString().charAt(0) : '0'}"
                 ></span>
                 <i
                   class="fa-solid fa-circle-exclamation fa-beat text-danger"
                 ></i>
                 <span
                   class="display-1 fw-bold bsb-flip-h"
-                  th:text="${statusCode.toString().charAt(2)}"
+                  th:text="${statusCode.toString().length() > 2 ? statusCode.toString().charAt(2) : '0'}"
                 ></span>
               </h2>
 
-              <h3 class="h2 mb-5" th:text="${errorMessage}"></h3>
+              <!-- Tiêu đề lỗi -->
+              <h3 class="h1 mb-3" th:text="${errorTitle}"></h3>
+
+              <!-- Thông điệp lỗi -->
+              <p class="lead mb-5 text-muted" th:text="${errorMessage}"></p>
+
+              <!-- Nút quay lại -->
               <a
                 href="/"
-                type="button"
                 class="btn btn-link px-5 fs-6 m-0"
                 data-mdb-ripple-init
                 data-mdb-ripple-color="dark"

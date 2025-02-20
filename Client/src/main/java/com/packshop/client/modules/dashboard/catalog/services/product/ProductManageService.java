@@ -36,7 +36,12 @@ public class ProductManageService extends CatalogBaseService {
 
     public List<ProductDTO> getAllProducts() {
         log.debug("Fetching all products from catalog");
-        return getAllFromApi(PRODUCTS_API_URL, ProductDTO[].class);
+        try {
+            return getAllFromApi(PRODUCTS_API_URL, ProductDTO[].class);
+        } catch (Exception e) {
+            log.error("Failed to fetch all products: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     public ProductDTO getProduct(Long id) {

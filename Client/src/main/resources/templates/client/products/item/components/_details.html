@@ -1,41 +1,94 @@
-<h4 class="fw-bold">Product name</h4>
-<hr class="hr hr-blurry" />
-<h5 class="fw-bold">
+<h4 class="fw-bold" th:text="${product.name}">Product name</h4>
+<hr class="hr hr-blurry mb-4" />
+
+<h5 class="fw-bold mb-4">
   <span class="text-danger">Price: </span>
-  <span class="text-info"> 123,456 <i class="fa-solid fa-dong-sign"></i> </span>
+  <span class="text-info">
+    <span th:text="${product.price}">123,456</span>
+    <i class="fa-solid fa-dong-sign"></i>
+  </span>
 </h5>
 
-<button
-  type="button"
-  class="btn btn-outline-primary btn-rounded"
-  data-mdb-ripple-init
-  data-mdb-ripple-color="dark"
->
-  Add to cart
-</button>
-<button
-  type="button"
-  class="btn btn-outline-primary btn-rounded"
-  data-mdb-ripple-init
-  data-mdb-ripple-color="dark"
->
-  Buy now
-</button>
+<div class="mb-4">
+  <button
+    type="button"
+    class="btn btn-outline-primary btn-rounded me-2"
+    data-mdb-ripple-init
+    data-mdb-ripple-color="dark"
+  >
+    Add to cart
+  </button>
+  <button
+    type="button"
+    class="btn btn-primary btn-rounded"
+    data-mdb-ripple-init
+    data-mdb-ripple-color="light"
+  >
+    Buy now
+  </button>
+</div>
 
-<div class="card border border-info shadow-0 mb-3 mt-3">
+<div
+  class="card border border-info shadow-0 mb-4"
+  data-mdb-animation-init
+  data-mdb-animation="fade-in-up"
+>
   <div class="card-body text-info">
     <ul class="list-unstyled">
       <li>
-        <i class="fa-solid fa-circle-check fa-lg me-1"></i>
+        <i class="fa-solid fa-circle-check fa-lg me-2"></i>
         100% genuine products
       </li>
       <li>
-        <i class="fa-solid fa-user-shield fa-lg me-1"></i>
+        <i class="fa-solid fa-user-shield fa-lg me-2"></i>
         Dedicated shopping consultation. Hotline: (+84) 123 456 789 (Vietnam)
       </li>
       <li>
-        <i class="fa-solid fa-truck fa-lg me-1"></i>
+        <i class="fa-solid fa-truck fa-lg me-2"></i>
         Free shipping for orders over 499,000 VND
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div
+  class="card shadow-2-strong mb-5"
+  data-mdb-animation-init
+  data-mdb-animation="fade-in-up"
+>
+  <div class="card-header bg-light">
+    <h5 class="fw-bold mb-0 text-primary">Specifications</h5>
+  </div>
+  <div class="card-body">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item d-flex align-items-center">
+        <i class="fa-solid fa-screwdriver-wrench fa-lg me-3 text-info"></i>
+        <span class="fw-semibold me-2">Material:</span>
+        <span th:text="${product.material != null ? product.material : 'N/A'}"
+          >N/A</span
+        >
+      </li>
+      <li class="list-group-item d-flex align-items-center">
+        <i class="fa-solid fa-ruler-combined fa-lg me-3 text-info"></i>
+        <span class="fw-semibold me-2">Dimensions:</span>
+        <span
+          th:text="${product.dimensions != null ? product.dimensions : 'N/A'}"
+          >N/A</span
+        >
+      </li>
+      <li class="list-group-item d-flex align-items-center">
+        <i class="fa-solid fa-box-open fa-lg me-3 text-info"></i>
+        <span class="fw-semibold me-2">Capacity:</span>
+        <span th:text="${product.capacity != null ? product.capacity : 'N/A'}"
+          >N/A</span
+        >
+      </li>
+      <li class="list-group-item d-flex align-items-center">
+        <i class="fa-solid fa-weight-hanging fa-lg me-3 text-info"></i>
+        <span class="fw-semibold me-2">Weight:</span>
+        <span th:text="${product.weight != null ? product.weight : 'N/A'}"
+          >N/A</span
+        >
       </li>
     </ul>
   </div>

@@ -71,7 +71,7 @@
                 <div class="d-flex align-items-center">
                   <img
                     th:src="@{'/uploads/' + ${product.thumbnail}}"
-                    alt="Product Image"
+                    th:alt="${product.name}"
                     style="width: 45px; height: 45px"
                     class="rounded-circle"
                   />

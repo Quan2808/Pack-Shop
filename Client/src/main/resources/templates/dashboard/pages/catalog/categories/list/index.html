@@ -17,11 +17,12 @@
 
         <div class="d-flex align-items-center">
           <a
-            href="/dashboard/catalog/categories/create"
-            role="button"
-            aria-pressed="true"
-            class="btn btn-success"
+            type="button"
+            data-mdb-button-init
             data-mdb-ripple-init
+            class="btn btn-success"
+            data-mdb-modal-init
+            data-mdb-target="#createCategoryModal"
           >
             Add Category
           </a>
@@ -57,7 +58,10 @@
                     role="button"
                     data-mdb-ripple-init
                     class="call-btn btn btn-outline-primary btn-floating btn-sm"
-                    th:onclick="'location.href=\'/dashboard/catalog/categories/edit/' + ${category.id} + '\''"
+                    data-mdb-modal-init
+                    data-mdb-target="#editCategoryModal"
+                    th:attr="data-category-id=${category.id}, data-category-name=${category.name}"
+                    onclick="showEditModal(this)"
                   >
                     <i class="fa-solid fa-pen"></i>
                   </button>
@@ -81,7 +85,7 @@
     </div>
   </div>
 
-  <!-- Modal -->
+  <!-- Products List Modal -->
   <div
     class="modal fade"
     tabindex="-1"
@@ -103,6 +107,16 @@
       </div>
     </div>
   </div>
+
+  <!-- Create Category Modal -->
+  <div
+    th:replace="~{dashboard/pages/catalog/categories/list/components/create}"
+  ></div>
+
+  <!-- Edit Category Modal -->
+  <div
+    th:replace="~{dashboard/pages/catalog/categories/list/components/edit}"
+  ></div>
 
   <!-- Delete Confirmation Modal -->
   <div
@@ -174,6 +188,12 @@
         document.getElementById("categories-data").textContent
       );
 
+      document.querySelectorAll(".call-btn, .message-btn").forEach((button) => {
+        button.addEventListener("click", (e) => {
+          e.stopPropagation();
+        });
+      });
+
       table.addEventListener("rowClicked.mdb.datatable", (e) => {
         const { index } = e;
         const category = categories[index];
@@ -205,9 +225,7 @@
                       class="rounded-circle"
                     />
                     <div class="ms-3">
-                      <p class="fw-bold mb-1" th:text="${product.name}">
-                        Product Name
-                      </p>
+                      <p class="fw-bold mb-1">${product.name}</p>
                     </div>
                   </div>
                 </td>
@@ -234,5 +252,22 @@
         modalInstance.show();
       });
     })();
+  </script>
+
+  <script>
+    function showEditModal(button) {
+      const categoryId = button.getAttribute("data-category-id");
+      const categoryName = button.getAttribute("data-category-name");
+
+      const modal = document.getElementById("editCategoryModal");
+      const idInput = modal.querySelector("#id");
+      const nameInput = modal.querySelector("#name");
+
+      idInput.value = categoryId;
+      nameInput.value = categoryName;
+
+      const modalInstance = new mdb.Modal(modal);
+      modalInstance.show();
+    }
   </script>
 </th:block>

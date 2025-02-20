@@ -4,8 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.xml.catalog.CatalogException;
-
+import com.packshop.client.common.exceptions.CatalogException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,7 +14,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -80,12 +78,12 @@ public abstract class CatalogBaseService {
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("API returned non-success status: {} for POST to {}", response.getStatusCode(), apiUrl);
-                throw new CatalogException("API error: " + response.getStatusCode().value());
+                throw new CatalogException("API error", response.getStatusCode().value());
             }
             return response.getBody();
         } catch (HttpClientErrorException e) {
             log.error("Client error from API {}: {}", apiUrl, e.getStatusCode());
-            throw new CatalogException("Client error: " + e.getStatusText(), e);
+            throw new CatalogException("Client error: " + e.getStatusText(), e.getStatusCode().value(), e);
         } catch (Exception e) {
             log.error("Unexpected error when posting to API {}: {}", apiUrl, e.getMessage(), e);
             throw new CatalogException("An unexpected error occurred", e);

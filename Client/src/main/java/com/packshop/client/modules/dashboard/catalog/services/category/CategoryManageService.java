@@ -19,11 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @CacheConfig(cacheNames = "categories")
-public class CategoryService extends CatalogBaseService {
+public class CategoryManageService extends CatalogBaseService {
 
     private static final String CATEGORIES_API_URL = "categories";
 
-    public CategoryService(RestTemplate restTemplate, ObjectMapper objectMapper) {
+    public CategoryManageService(RestTemplate restTemplate, ObjectMapper objectMapper) {
         super(restTemplate, objectMapper);
     }
 

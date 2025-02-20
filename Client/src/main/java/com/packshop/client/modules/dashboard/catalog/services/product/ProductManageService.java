@@ -14,20 +14,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.utilities.FileStorageService;
 import com.packshop.client.dto.catalog.ProductDTO;
 import com.packshop.client.modules.dashboard.catalog.services.CatalogBaseService;
-import com.packshop.client.modules.dashboard.catalog.services.category.CategoryService;
+import com.packshop.client.modules.dashboard.catalog.services.category.CategoryManageService;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class ProductService extends CatalogBaseService {
+public class ProductManageService extends CatalogBaseService {
 
     private static final String PRODUCTS_API_URL = "products";
     private final FileStorageService fileStorageService;
-    private final CategoryService categoryService;
+    private final CategoryManageService categoryService;
 
-    public ProductService(RestTemplate restTemplate, ObjectMapper objectMapper, FileStorageService fileStorageService,
-            CategoryService categoryService) {
+    public ProductManageService(RestTemplate restTemplate, ObjectMapper objectMapper,
+            FileStorageService fileStorageService,
+            CategoryManageService categoryService) {
         super(restTemplate, objectMapper);
         this.fileStorageService = fileStorageService;
         this.categoryService = categoryService;

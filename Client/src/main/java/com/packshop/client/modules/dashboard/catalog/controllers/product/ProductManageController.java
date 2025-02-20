@@ -1,12 +1,13 @@
 package com.packshop.client.modules.dashboard.catalog.controllers.product;
 
-import com.packshop.client.common.utilities.ViewRenderer;
-import com.packshop.client.dto.catalog.CategoryDTO;
-import com.packshop.client.dto.catalog.ProductDTO;
-import com.packshop.client.modules.dashboard.catalog.services.category.CategoryService;
-import com.packshop.client.modules.dashboard.catalog.services.product.ProductService;
-import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.catalog.CatalogException;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,14 +18,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.packshop.client.common.utilities.ViewRenderer;
+import com.packshop.client.dto.catalog.CategoryDTO;
+import com.packshop.client.dto.catalog.ProductDTO;
+import com.packshop.client.modules.dashboard.catalog.services.category.CategoryManageService;
+import com.packshop.client.modules.dashboard.catalog.services.product.ProductManageService;
 
-import javax.xml.catalog.CatalogException;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @Slf4j
@@ -37,10 +38,10 @@ public class ProductManageController {
     private static final String ERROR_UPDATE_FAILED = "Failed to update product. Please try again.";
     private static final String ERROR_NOT_FOUND = "Product not found.";
 
-    private final ProductService productService;
-    private final CategoryService categoryService;
+    private final ProductManageService productService;
+    private final CategoryManageService categoryService;
 
-    public ProductManageController(ProductService productService, CategoryService categoryService) {
+    public ProductManageController(ProductManageService productService, CategoryManageService categoryService) {
         this.productService = productService;
         this.categoryService = categoryService;
     }
@@ -134,15 +135,6 @@ public class ProductManageController {
 
             model.addAttribute("product", product);
             populateCategories(model);
-
-            if (product.getMedia() != null && !product.getMedia().isEmpty()) {
-                List<String> mediaPaths = product.getMedia().stream()
-                        .map(path -> "/uploads/" + path)
-                        .collect(Collectors.toList());
-                model.addAttribute("media", mediaPaths);
-            } else {
-                model.addAttribute("media", Collections.emptyList());
-            }
 
             return ViewRenderer.renderView(model, CATALOG_PATH + "/products/edit/index", "Edit Product");
         } catch (Exception e) {

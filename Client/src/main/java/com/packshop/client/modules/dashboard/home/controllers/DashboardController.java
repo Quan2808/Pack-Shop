@@ -9,7 +9,7 @@ import com.packshop.client.common.utilities.ViewRenderer;
 @Controller
 @RequestMapping("/dashboard")
 public class DashboardController {
-    String BASE_PATH = "dashboard/pages";
+    String BASE_PATH = "dashboard";
 
     @RequestMapping
     public String home(Model model) {

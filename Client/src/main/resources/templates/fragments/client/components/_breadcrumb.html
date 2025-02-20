@@ -1,0 +1,26 @@
+<div th:fragment="breadcrumb(item)">
+  <div class="pt-5 pb-5">
+    <h1 th:text="${title}" class="fw-bold"></h1>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item fw-bold">
+          <a class="text-warning" href="/">Home</a>
+        </li>
+        <li
+          class="breadcrumb-item fw-bold"
+          th:if="${item}"
+          th:text="${item}"
+        ></li>
+        <li
+          class="breadcrumb-item active"
+          aria-current="page"
+          th:text="${title}"
+        ></li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- <div
+  th:replace="fragments/client/components/_breadcrumb :: breadcrumb(item='@{item.item}')"
+></div> -->

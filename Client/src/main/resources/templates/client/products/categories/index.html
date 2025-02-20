@@ -1,0 +1,11 @@
+<div th:fragment="content" class="container">
+  <!-- Begin Breadcrumb -->
+  <div
+    th:replace="~{fragments/client/components/_breadcrumb :: breadcrumb(item='Category')}"
+  ></div>
+  <!-- End Breadcrumb -->
+
+  <!-- Begin Product List -->
+  <div th:replace="~{client/products/categories/components/_prduct-list}"></div>
+  <!-- End Product List -->
+</div>

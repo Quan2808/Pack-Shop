@@ -12,6 +12,6 @@ public class AccountController {
 
     @GetMapping("/authentication")
     public String authentication(Model model) {
-        return ViewRenderer.renderView(model, "client/pages/account/authentication/index", "Authentication");
+        return ViewRenderer.renderView(model, "client/account/authentication/index", "Authentication");
     }
 }

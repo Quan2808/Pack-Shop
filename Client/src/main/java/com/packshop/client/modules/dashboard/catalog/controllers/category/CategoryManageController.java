@@ -126,19 +126,19 @@ public class CategoryManageController {
         }
     }
 
-    @PostMapping("/edit/{id}/submit")
-    public String updateCategory(@PathVariable Long id,
+    @PostMapping("/edit/submit")
+    public String updateCategory(
             @ModelAttribute("category") @Valid CategoryDTO categoryDTO,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
-        if (id == null || id <= 0) {
-            log.warn("Invalid category ID: {}", id);
+        if (categoryDTO.getId() == null || categoryDTO.getId() <= 0) {
+            log.warn("Invalid category ID: {}", categoryDTO.getId());
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid category ID.");
             return REDIRECT_TO_LIST;
         }
 
-        log.info("Received request to update category {}: {}", id, categoryDTO);
+        log.info("Received request to update category {}: {}", categoryDTO.getId(), categoryDTO);
 
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed for category update: {}", categoryDTO);
@@ -147,7 +147,7 @@ public class CategoryManageController {
         }
 
         try {
-            categoryService.updateCategory(id, categoryDTO);
+            categoryService.updateCategory(categoryDTO.getId(), categoryDTO);
             log.info("Category updated successfully: {}", categoryDTO.getName());
             redirectAttributes.addFlashAttribute("successMessage", "Category updated successfully!");
             return REDIRECT_TO_LIST;

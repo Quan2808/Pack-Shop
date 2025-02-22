@@ -25,6 +25,26 @@
     <!-- Main Content Area -->
     <th:block th:replace="~{${view}::content}"></th:block>
 
+    <div
+      class="fixed-action-btn"
+      th:if="${session.isAdmin}"
+      data-mdb-ripple-init
+      data-mdb-popover-init
+      data-mdb-placement="left"
+      data-mdb-trigger="hover"
+      data-mdb-content="Go to Dashboard"
+    >
+      <a
+        class="btn btn-floating text-white btn-lg"
+        data-mdb-ripple-init
+        style="background-color: #f5a623"
+        href="/dashboard"
+        target="_blank"
+      >
+        <i class="fas fa-pencil-alt"></i>
+      </a>
+    </div>
+
     <!-- Include Footer Section -->
     <div th:replace="~{fragments/client/components/_footer}"></div>
 

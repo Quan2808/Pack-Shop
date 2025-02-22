@@ -1,4 +1,4 @@
-package com.packshop.client.modules.dashboard.catalog.services.product;
+package com.packshop.client.modules.dashboard.catalog.services;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.services.CatalogBaseService;
 import com.packshop.client.common.utilities.FileStorageService;
 import com.packshop.client.dto.catalog.ProductDTO;
-import com.packshop.client.modules.dashboard.catalog.services.category.CategoryManageService;
 
 import lombok.extern.slf4j.Slf4j;
 

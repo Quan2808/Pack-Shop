@@ -1,4 +1,4 @@
-package com.packshop.client.modules.dashboard.catalog.services.category;
+package com.packshop.client.modules.dashboard.catalog.services;
 
 import java.util.List;
 

@@ -2,6 +2,7 @@ package com.packshop.client.modules.client.catalog.controllers;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/products")
 public class ProductController {
+    @Autowired
+    private ViewRenderer viewRenderer;
 
     private final ProductService productService;
     private static final String REDIRECT_TO_LIST = "redirect:/products";
@@ -38,13 +41,13 @@ public class ProductController {
             log.error("Error fetching products", e);
             model.addAttribute("errorMessage", "Failed to fetch products. Please try again.");
         }
-        return ViewRenderer.renderView(model, "client/products/categories/index", "All Products");
+        return viewRenderer.renderView(model, "client/products/categories/index", "All Products");
     }
 
     // Get by category
     // @GetMapping("/{category}")
     // public String productsByCategory(Model model) {
-    // return ViewRenderer.renderView(model, "client/products/categories/index",
+    // return viewRenderer.renderView(model, "client/products/categories/index",
     // "All Products");
     // }
 
@@ -54,7 +57,7 @@ public class ProductController {
             log.info("Fetching product with ID: {}", id);
             ProductDTO product = productService.getProduct(id);
             model.addAttribute("product", product);
-            return ViewRenderer.renderView(model, "client/products/item/index", product.getName()); //
+            return viewRenderer.renderView(model, "client/products/item/index", product.getName()); //
         } catch (Exception e) {
             log.error("Error fetching product with ID: {}", id, e);
             redirectAttributes.addFlashAttribute("errorMessage", ERROR_NOT_FOUND);
@@ -64,6 +67,6 @@ public class ProductController {
 
     @GetMapping("/example")
     public String exp(Model model) {
-        return ViewRenderer.renderView(model, "client/products/item/index", "Product Name");
+        return viewRenderer.renderView(model, "client/products/item/index", "Product Name");
     }
 }

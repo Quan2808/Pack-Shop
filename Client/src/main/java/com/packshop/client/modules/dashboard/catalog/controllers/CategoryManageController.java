@@ -1,7 +1,8 @@
-package com.packshop.client.modules.dashboard.catalog.controllers.category;
+package com.packshop.client.modules.dashboard.catalog.controllers;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.exceptions.CatalogException;
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.catalog.CategoryDTO;
-import com.packshop.client.modules.dashboard.catalog.services.category.CategoryManageService;
+import com.packshop.client.modules.dashboard.catalog.services.CategoryManageService;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/dashboard/catalog/categories")
 public class CategoryManageController {
+    @Autowired
+    private ViewRenderer viewRenderer;
 
     private static final String CATALOG_PATH = "dashboard/catalog";
     private static final String REDIRECT_TO_LIST = "redirect:/dashboard/catalog/categories";
@@ -54,14 +57,14 @@ public class CategoryManageController {
             log.error("Error fetching categories", e);
             model.addAttribute("errorMessage", "Failed to fetch categories. Please try again.");
         }
-        return ViewRenderer.renderView(model, CATALOG_PATH + "/categories/list/index", "Categories List");
+        return viewRenderer.renderView(model, CATALOG_PATH + "/categories/list/index", "Categories List");
     }
 
     @GetMapping("/create")
     public String showCreateCategoryForm(Model model) {
         log.info("Showing create category form...");
         model.addAttribute("category", new CategoryDTO());
-        return ViewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index", "Create Category");
+        return viewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index", "Create Category");
     }
 
     @PostMapping("/create/submit")
@@ -74,7 +77,7 @@ public class CategoryManageController {
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed for category: {}", categoryDTO);
             model.addAttribute("errorMessage", "Failed to create category. Please fix the errors below.");
-            return ViewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index", "Create Category");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index", "Create Category");
         }
 
         try {
@@ -97,7 +100,7 @@ public class CategoryManageController {
         } catch (Exception e) {
             log.error("Unexpected error creating category: {}", categoryDTO.getName(), e);
             model.addAttribute("errorMessage", ERROR_CREATE_FAILED);
-            return ViewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index", "Create Category");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index", "Create Category");
         }
     }
 
@@ -117,7 +120,7 @@ public class CategoryManageController {
                 return REDIRECT_TO_LIST;
             }
             model.addAttribute("category", category);
-            return ViewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index", "Edit Category");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index", "Edit Category");
         } catch (Exception e) {
             log.error("Error fetching category with ID: {}", id, e);
             redirectAttributes.addFlashAttribute("errorMessage",
@@ -143,7 +146,7 @@ public class CategoryManageController {
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed for category update: {}", categoryDTO);
             model.addAttribute("errorMessage", "Failed to update category. Please fix the errors below.");
-            return ViewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index", "Edit Category");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index", "Edit Category");
         }
 
         try {
@@ -154,7 +157,7 @@ public class CategoryManageController {
         } catch (Exception e) {
             log.error("Error updating category: {}", categoryDTO.getName(), e);
             model.addAttribute("errorMessage", ERROR_UPDATE_FAILED);
-            return ViewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index", "Edit Category");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index", "Edit Category");
         }
     }
 

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,9 +14,12 @@ import com.packshop.client.common.utilities.ViewRenderer;
 
 @Controller
 public class HomeController {
+    @Autowired
+    private ViewRenderer viewRenderer;
 
     @GetMapping()
     public String home(Model model) {
+
         List<Map<String, String>> services = List.of(
                 Map.of(
                         "title", "The Leading Company in Quality and Trusted Backpack and Handbag Manufacturing",
@@ -58,7 +62,7 @@ public class HomeController {
         model.addAttribute("slides", slides);
         model.addAttribute("services", services);
         model.addAttribute("banners", banners);
-        return ViewRenderer.renderView(model, "client/home/index", "Home");
+        return viewRenderer.renderView(model, "client/home/index", "Home");
     }
 
     // Introduce and Contact Pages
@@ -91,7 +95,7 @@ public class HomeController {
                 throw new IllegalArgumentException("Invalid page name: " + page);
         }
 
-        return ViewRenderer.renderView(model, templateName, title);
+        return viewRenderer.renderView(model, templateName, title);
     }
 
     // Service Pages
@@ -115,7 +119,7 @@ public class HomeController {
                 throw new IllegalArgumentException("Invalid service name: " + serviceName);
         }
 
-        return ViewRenderer.renderView(model, templateName, title);
+        return viewRenderer.renderView(model, templateName, title);
     }
 
     // Legal Pages
@@ -135,6 +139,6 @@ public class HomeController {
                 throw new IllegalArgumentException("Invalid legal name: " + legalName);
         }
 
-        return ViewRenderer.renderView(model, templateName, title);
+        return viewRenderer.renderView(model, templateName, title);
     }
 }

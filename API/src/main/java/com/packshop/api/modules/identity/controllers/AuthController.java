@@ -1,6 +1,7 @@
 package com.packshop.api.modules.identity.controllers;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.packshop.api.common.exceptions.ResourceNotFoundException;
 import com.packshop.api.modules.identity.dto.AuthRegisterRequest;
@@ -28,10 +23,15 @@ import com.packshop.api.modules.identity.services.UserService;
 import com.packshop.api.modules.identity.utilities.JwtUtil;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/auth")
+@Slf4j
 public class AuthController {
+
+    private static final String BEARER_PREFIX = "Bearer ";
+    private static final String TOKEN_INVALID_MESSAGE = "Invalid or missing token";
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -49,127 +49,109 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest authRequest) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+
+        User user = getUserByUsername(authRequest.getUsername());
         String token = jwtUtil.generateToken(authRequest.getUsername());
         String refreshToken = jwtUtil.generateRefreshToken(authRequest.getUsername());
 
-        User user = userRepository.findByUsername(authRequest.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        AuthResponse response = new AuthResponse();
-        response.setToken(token);
-        response.setRefreshToken(refreshToken);
-        response.setUsername(user.getUsername());
-        response.setFullName(user.getFullName());
-        response.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
-        response.setMessage("Login successful");
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(buildAuthResponse(user, token, refreshToken, "Login successful"));
     }
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRegisterRequest authRequest) {
-        User user = new User();
-        user.setUsername(authRequest.getUsername());
-        user.setPassword(authRequest.getPassword());
-        user.setEmail(authRequest.getEmail());
-        user.setFullName(authRequest.getFullName());
+        User user = User.builder()
+                .username(authRequest.getUsername())
+                .password(authRequest.getPassword())
+                .email(authRequest.getEmail())
+                .fullName(authRequest.getFullName())
+                .build();
 
         User savedUser = userService.save(user);
-
-        AuthResponse response = new AuthResponse();
-        response.setUsername(savedUser.getUsername());
-        response.setFullName(savedUser.getFullName());
-        response.setRoles(savedUser.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
-        response.setMessage("User registered successfully");
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(buildAuthResponse(savedUser, null, null, "User registered successfully"));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refreshToken(@RequestHeader("Authorization") String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            AuthResponse response = new AuthResponse();
-            response.setMessage("No refresh token provided");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        String refreshToken = extractToken(authHeader);
+        if (refreshToken == null) {
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, "No refresh token provided");
         }
 
-        String refreshToken = authHeader.substring(7);
         String username = jwtUtil.extractUsername(refreshToken);
         if (!jwtUtil.validateToken(refreshToken, username)) {
-            AuthResponse response = new AuthResponse();
-            response.setMessage("Invalid refresh token");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
         }
 
+        User user = getUserByUsername(username);
         String newAccessToken = jwtUtil.generateToken(username);
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        AuthResponse response = new AuthResponse();
-        response.setToken(newAccessToken);
-        response.setRefreshToken(refreshToken);
-        response.setUsername(username);
-        response.setFullName(user.getFullName());
-        response.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
-        response.setMessage("Token refreshed successfully");
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(buildAuthResponse(user, newAccessToken, refreshToken, "Token refreshed successfully"));
     }
 
     @PutMapping("/update-password")
     public ResponseEntity<AuthResponse> updatePassword(
             @RequestHeader("Authorization") String authHeader,
             @RequestBody Map<String, String> passwordRequest) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            AuthResponse response = new AuthResponse();
-            response.setMessage("Invalid or missing token");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        String token = extractToken(authHeader);
+        if (token == null) {
+            return buildErrorResponse(HttpStatus.UNAUTHORIZED, TOKEN_INVALID_MESSAGE);
         }
 
-        String token = authHeader.substring(7);
         String username = jwtUtil.extractUsername(token);
-
         if (!jwtUtil.validateToken(token, username)) {
-            AuthResponse response = new AuthResponse();
-            response.setMessage("Invalid token");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
 
-        String newPassword = passwordRequest.get("newPassword");
-        if (newPassword == null || newPassword.trim().isEmpty()) {
-            AuthResponse response = new AuthResponse();
-            response.setMessage("New password is required");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        String newPassword = passwordRequest.getOrDefault("newPassword", "").trim();
+        if (newPassword.isEmpty()) {
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, "New password is required");
         }
 
         User updatedUser = userService.updatePassword(username, newPassword);
-        AuthResponse response = new AuthResponse();
-        response.setUsername(updatedUser.getUsername());
-        response.setFullName(updatedUser.getFullName());
-        response.setRoles(updatedUser.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
-        response.setMessage("Password updated successfully");
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(buildAuthResponse(updatedUser, null, null, "Password updated successfully"));
     }
 
     @GetMapping("/me")
     public ResponseEntity<AuthResponse> getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            AuthResponse response = new AuthResponse();
-            response.setMessage("Not authenticated");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
 
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username)
+        User user = getUserByUsername(authentication.getName());
+        return ResponseEntity.ok(buildAuthResponse(user, null, null, "User info retrieved successfully"));
+    }
+
+    // Helper methods
+    private User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
 
-        AuthResponse response = new AuthResponse();
-        response.setUsername(username);
-        response.setFullName(user.getFullName());
-        response.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
-        response.setMessage("User info retrieved successfully");
+    private String extractToken(String authHeader) {
+        return (authHeader != null && authHeader.startsWith(BEARER_PREFIX))
+                ? authHeader.substring(BEARER_PREFIX.length())
+                : null;
+    }
 
-        return ResponseEntity.ok(response);
+    private AuthResponse buildAuthResponse(User user, String token, String refreshToken, String message) {
+        Set<String> roles = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+
+        return AuthResponse.builder()
+                .token(token)
+                .refreshToken(refreshToken)
+                .username(user.getUsername())
+                .fullName(user.getFullName())
+                .roles(roles)
+                .message(message)
+                .build();
+    }
+
+    private ResponseEntity<AuthResponse> buildErrorResponse(HttpStatus status, String message) {
+        return ResponseEntity.status(status)
+                .body(AuthResponse.builder()
+                        .message(message)
+                        .build());
     }
 }

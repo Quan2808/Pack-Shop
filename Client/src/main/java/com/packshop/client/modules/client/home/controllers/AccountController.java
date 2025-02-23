@@ -52,11 +52,7 @@ public class AccountController {
             if (roles != null && response.getRoles().contains("ADMIN")) {
                 session.setAttribute("isAdmin", true);
             }
-
             log.info("Login successful for user: {}", response);
-            log.info("User role: {}", response.getRoles());
-            log.info("Token for user {}: {}", response.getUsername(), response.getToken());
-
             redirectAttributes.addFlashAttribute("successMessage", "You have been successfully logged in.");
             return "redirect:/";
         } catch (Exception e) {

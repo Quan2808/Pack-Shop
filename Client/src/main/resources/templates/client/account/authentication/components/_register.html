@@ -1,0 +1,57 @@
+<form th:action="@{/account/register}" method="post">
+  <!-- Name input -->
+  <div data-mdb-input-init class="form-outline mb-4">
+    <input
+      type="text"
+      id="registerName"
+      name="username"
+      class="form-control"
+      required
+    />
+    <label class="form-label" for="registerName">Username</label>
+  </div>
+
+  <!-- Email input -->
+  <div data-mdb-input-init class="form-outline mb-4">
+    <input
+      type="email"
+      id="registerEmail"
+      name="email"
+      class="form-control"
+      required
+    />
+    <label class="form-label" for="registerEmail">Email</label>
+  </div>
+
+  <!-- Password input -->
+  <div data-mdb-input-init class="form-outline mb-4">
+    <input
+      type="password"
+      id="registerPassword"
+      name="password"
+      class="form-control"
+      required
+    />
+    <label class="form-label" for="registerPassword">Password</label>
+  </div>
+
+  <!-- Checkbox -->
+  <div class="form-check d-flex justify-content-center mb-4">
+    <input
+      class="form-check-input me-2"
+      type="checkbox"
+      value=""
+      id="registerCheck"
+      checked
+      aria-describedby="registerCheckHelpText"
+      required
+    />
+    <label class="form-check-label" for="registerCheck">
+      I have read and agree to
+      <a href="/legal/term-of-service">the terms</a>
+    </label>
+  </div>
+
+  <!-- Submit button -->
+  <button type="submit" class="btn btn-primary btn-block mb-4">Sign up</button>
+</form>

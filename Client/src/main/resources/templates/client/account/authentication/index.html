@@ -1,3 +1,7 @@
+<th:block th:fragment="viewStyles">
+  <link href="/plugins/file-upload/file-upload.min.css" rel="stylesheet" />
+</th:block>
+
 <div th:fragment="content" class="container">
   <div class="row mb-5">
     <!-- Begin Breadcrumb -->
@@ -8,13 +12,19 @@
     </div>
     <!-- End Breadcrumb -->
     <!-- Begin Form -->
-    <div class="col-md-6 col-12 mt-md-5">
-      <div th:replace="~{client/account/authentication/components/_form}"></div>
-    </div>
+    <section class="d-flex justify-content-center">
+      <div class="col-md-9 col-12">
+        <div
+          th:replace="~{client/account/authentication/components/_form}"
+        ></div>
+      </div>
+    </section>
     <!-- End Form -->
   </div>
 </div>
 
 <th:block th:fragment="viewScripts">
   <div th:replace="~{fragments\common\_toasts}"></div>
+  <script src="/plugins/file-upload/file-upload.min.js"></script>
+  <script src="/plugins/inputmask/inputmask.min.js"></script>
 </th:block>

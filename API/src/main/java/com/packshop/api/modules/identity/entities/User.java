@@ -61,7 +61,9 @@ public class User {
     private String fullName;
 
     @Column(name = "phone_number")
-    @Pattern(regexp = "^\\+?[0-9]{9,15}$", message = "Phone number must be valid (9-15 digits)")
+    // @Pattern(regexp = "^\\+?[0-9]{9,15}$", message = "Phone number must be valid
+    // (9-15 digits)")
+    @Pattern(regexp = "^\\(\\+84\\)\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{3}$", message = "Phone number must be in the format (+84) 123 456 789")
     private String phoneNumber;
 
     @Column(name = "avatar_url")

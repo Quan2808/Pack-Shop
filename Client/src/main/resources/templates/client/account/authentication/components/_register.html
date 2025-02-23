@@ -1,0 +1,194 @@
+<form
+  th:action="@{/account/register}"
+  th:object="${registerRequest}"
+  method="post"
+>
+  <div class="row">
+    <!-- Thumbnail Section -->
+    <div class="col-lg-4">
+      <div class="card mb-4">
+        <div class="card-body text-center">
+          <h5 class="card-title fw-bold mb-4">Profile Picture</h5>
+          <div id="dnd-accept-formats" class="file-upload-wrapper">
+            <input
+              type="file"
+              class="file-upload-input"
+              name="thumbnailFile"
+              data-mdb-accepted-extensions="image/png, image/jpeg, image/jpg"
+              data-mdb-file-upload-init
+              data-mdb-default-msg="Drag & drop your profile picture or click to upload"
+            />
+          </div>
+          <small class="text-muted">
+            Upload a profile picture. Accepted formats: PNG, JPG, JPEG.
+          </small>
+        </div>
+      </div>
+
+      <!-- Checkbox: Hiển thị trên PC -->
+      <div class="form-check d-lg-flex justify-content-center mb-4 d-none">
+        <input
+          class="form-check-input me-2"
+          type="checkbox"
+          id="registerCheckPC"
+          checked
+          required
+        />
+        <label class="form-check-label" for="registerCheckPC">
+          I have read and agree to
+          <a href="/legal/term-of-service">the terms</a>
+        </label>
+      </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-body">
+          <!-- Name -->
+          <div class="row align-items-center mb-3">
+            <div class="col-sm-3">
+              <label for="fullName" class="mb-0">Name</label>
+            </div>
+            <div class="col-sm-9">
+              <div class="form-outline" data-mdb-input-init>
+                <input
+                  type="text"
+                  id="fullName"
+                  th:field="*{fullName}"
+                  placeholder="Enter your name"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Username -->
+          <div class="row align-items-center mb-3">
+            <div class="col-sm-3">
+              <label for="username" class="mb-0">Username</label>
+            </div>
+            <div class="col-sm-9">
+              <div class="form-outline" data-mdb-input-init>
+                <input
+                  type="text"
+                  id="username"
+                  th:field="*{username}"
+                  placeholder="Choose a username"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Password -->
+          <div class="row align-items-center mb-3">
+            <div class="col-sm-3">
+              <label for="password" class="mb-0">Password</label>
+            </div>
+            <div class="col-sm-9">
+              <div class="form-outline" data-mdb-input-init>
+                <input
+                  type="password"
+                  id="password"
+                  th:field="*{password}"
+                  placeholder="Create a password"
+                  class="form-control"
+                  minlength="8"
+                  pattern=".{8,}"
+                  title="Password must be at least 8 characters long"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Email -->
+          <div class="row align-items-center mb-3">
+            <div class="col-sm-3">
+              <label for="email" class="mb-0">Email</label>
+            </div>
+            <div class="col-sm-9">
+              <div class="form-outline" data-mdb-input-init>
+                <input
+                  type="email"
+                  id="email"
+                  th:field="*{email}"
+                  placeholder="your.email@example.com"
+                  class="form-control"
+                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                  title="Please enter a valid email (e.g., your.email@example.com)"
+                />
+              </div>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Phone -->
+          <div class="row align-items-center mb-3">
+            <div class="col-sm-3">
+              <label for="phone" class="mb-0">Phone</label>
+            </div>
+            <div class="col-sm-9">
+              <div class="form-outline" data-mdb-input-init>
+                <input
+                  type="text"
+                  id="phone"
+                  class="form-control"
+                  data-mdb-input-mask-init
+                  data-mdb-input-mask="(+84) 999 999 999"
+                  placeholder="(+84) 123 456 789"
+                />
+              </div>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Thêm script MDB -->
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>
+
+          <!-- Address -->
+          <div class="row align-items-center mb-3">
+            <div class="col-sm-3">
+              <label for="formAddress" class="mb-0">Address</label>
+            </div>
+            <div class="col-sm-9">
+              <div class="form-outline" data-mdb-input-init>
+                <input
+                  type="text"
+                  id="formAddress"
+                  placeholder="Enter your address"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checkbox: Hiển thị trên màn hình nhỏ -->
+      <div class="form-check d-lg-none d-flex justify-content-center mb-4">
+        <input
+          class="form-check-input me-2"
+          type="checkbox"
+          id="registerCheckMobile"
+          checked
+          required
+        />
+        <label class="form-check-label" for="registerCheckMobile">
+          I have read and agree to
+          <a href="/legal/term-of-service">the terms</a>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center">
+    <button type="submit" class="btn btn-primary btn-block mb-4 w-50">
+      Sign up
+    </button>
+  </div>
+</form>

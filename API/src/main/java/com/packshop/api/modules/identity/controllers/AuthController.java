@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -48,29 +47,23 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest authRequest) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-            String token = jwtUtil.generateToken(authRequest.getUsername());
-            String refreshToken = jwtUtil.generateRefreshToken(authRequest.getUsername());
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+        String token = jwtUtil.generateToken(authRequest.getUsername());
+        String refreshToken = jwtUtil.generateRefreshToken(authRequest.getUsername());
 
-            User user = userRepository.findByUsername(authRequest.getUsername())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = userRepository.findByUsername(authRequest.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-            AuthResponse response = new AuthResponse();
-            response.setToken(token);
-            response.setRefreshToken(refreshToken);
-            response.setUsername(user.getUsername());
-            response.setFullName(user.getFullName());
-            response.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
-            response.setMessage("Login successful");
+        AuthResponse response = new AuthResponse();
+        response.setToken(token);
+        response.setRefreshToken(refreshToken);
+        response.setUsername(user.getUsername());
+        response.setFullName(user.getFullName());
+        response.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+        response.setMessage("Login successful");
 
-            return ResponseEntity.ok(response);
-        } catch (AuthenticationException e) {
-            AuthResponse response = new AuthResponse();
-            response.setMessage("Invalid username or password");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")

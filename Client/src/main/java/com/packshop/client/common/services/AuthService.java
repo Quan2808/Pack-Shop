@@ -76,10 +76,27 @@ public class AuthService {
 
         try {
             ResponseEntity<AuthResponse> response = restTemplate.postForEntity(url, request, AuthResponse.class);
-            return response.getBody();
+            AuthResponse authResponse = response.getBody();
+            if (authResponse == null) {
+                log.error("Registration failed: Empty response from API");
+                return new AuthResponse(null, null, null, null, null, "Registration failed: No response from server");
+            }
+            log.debug("Registration response: {}", authResponse);
+            return authResponse;
         } catch (HttpClientErrorException e) {
-            log.error("Registration failed: {}", e.getResponseBodyAsString());
-            throw new RuntimeException(e.getResponseBodyAs(AuthResponse.class).getMessage());
+            log.error("Registration failed with status {}: {}", e.getStatusCode(), e.getResponseBodyAsString());
+            AuthResponse errorResponse = e.getResponseBodyAs(AuthResponse.class);
+            if (errorResponse != null && errorResponse.getMessage() != null) {
+                return errorResponse; // Trả về AuthResponse từ API với message lỗi
+            }
+            // Fallback khi không có body hoặc parse thất bại
+            String errorMessage = e.getResponseBodyAsString().isEmpty()
+                    ? "Registration failed: Invalid input"
+                    : "Registration failed: " + e.getResponseBodyAsString();
+            return new AuthResponse(null, null, null, null, null, errorMessage);
+        } catch (Exception e) {
+            log.error("Registration failed due to unexpected error: {}", e.getMessage());
+            return new AuthResponse(null, null, null, null, null, "Registration failed: " + e.getMessage());
         }
     }
 

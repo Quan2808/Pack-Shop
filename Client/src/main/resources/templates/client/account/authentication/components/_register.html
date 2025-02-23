@@ -1,4 +1,8 @@
-<form th:action="@{/account/register}" method="post">
+<form
+  th:action="@{/account/register}"
+  th:object="${registerRequest}"
+  method="post"
+>
   <!-- Name input -->
   <div data-mdb-input-init class="form-outline mb-4">
     <input
@@ -6,9 +10,11 @@
       id="registerName"
       name="username"
       class="form-control"
+      th:field="*{username}"
       required
     />
     <label class="form-label" for="registerName">Username</label>
+    <div class="text-danger" th:errors="*{username}"></div>
   </div>
 
   <!-- Email input -->
@@ -18,9 +24,25 @@
       id="registerEmail"
       name="email"
       class="form-control"
+      th:field="*{email}"
       required
     />
     <label class="form-label" for="registerEmail">Email</label>
+    <div class="text-danger" th:errors="*{email}"></div>
+  </div>
+
+  <!-- Full Name input -->
+  <div data-mdb-input-init class="form-outline mb-4">
+    <input
+      type="fullName"
+      id="registerFullName"
+      name="fullName"
+      class="form-control"
+      th:field="*{fullName}"
+      required
+    />
+    <label class="form-label" for="registerFullName">Full Name</label>
+    <div class="text-danger" th:errors="*{fullName}"></div>
   </div>
 
   <!-- Password input -->
@@ -30,9 +52,11 @@
       id="registerPassword"
       name="password"
       class="form-control"
+      th:field="*{password}"
       required
     />
     <label class="form-label" for="registerPassword">Password</label>
+    <div class="text-danger" th:errors="*{password}"></div>
   </div>
 
   <!-- Checkbox -->

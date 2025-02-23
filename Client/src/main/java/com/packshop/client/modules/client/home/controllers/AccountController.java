@@ -1,32 +1,35 @@
 package com.packshop.client.modules.client.home.controllers;
 
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.packshop.client.common.services.AuthService;
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.identity.AuthRegisterRequest;
 import com.packshop.client.dto.identity.AuthRequest;
 import com.packshop.client.dto.identity.AuthResponse;
-
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Set;
 
 @Controller
 @RequestMapping("/account")
 @Slf4j
 public class AccountController {
+
+    private static final String AUTH_VIEW = "client/account/authentication/index";
+    private static final String REDIRECT_HOME = "redirect:/";
+    private static final String REDIRECT_AUTH = "redirect:/account/authentication";
+    private static final String LOGIN_SUCCESS_MSG = "Login successful";
+    private static final String REGISTER_SUCCESS_MSG = "User registered successfully";
+    private static final String LOGOUT_SUCCESS_MSG = "You have been logged out.";
+    private static final String REFRESH_SUCCESS_MSG = "Session refreshed successfully.";
+    private static final String SESSION_EXPIRED_MSG = "Session expired. Please login again.";
 
     @Autowired
     private ViewRenderer viewRenderer;
@@ -41,7 +44,7 @@ public class AccountController {
     public String authentication(Model model) {
         model.addAttribute("loginRequest", new AuthRequest());
         model.addAttribute("registerRequest", new AuthRegisterRequest());
-        return viewRenderer.renderView(model, "client/account/authentication/index", "Authentication");
+        return viewRenderer.renderView(model, AUTH_VIEW, "Authentication");
     }
 
     @PostMapping("/login")
@@ -49,63 +52,34 @@ public class AccountController {
             HttpSession session, RedirectAttributes redirectAttributes) {
         log.debug("Login attempt for user: {}", request.getUsername());
 
-        if (result.hasErrors()) {
-            log.warn("Validation failed for login request: {}", request);
-            String errorMessage = result.getFieldErrors().stream()
-                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                    .reduce((msg1, msg2) -> msg1 + "; " + msg2)
-                    .orElse("Validation failed");
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            return "redirect:/account/authentication";
+        if (hasValidationErrors(result, redirectAttributes)) {
+            return REDIRECT_AUTH;
         }
 
         AuthResponse response = authService.login(request.getUsername(), request.getPassword());
-        log.debug("Login response message: {}", response.getMessage());
-
-        if ("Login successful".equals(response.getMessage())) {
-            session.setAttribute("token", response.getToken());
-            session.setAttribute("refreshToken", response.getRefreshToken());
-            session.setAttribute("username", response.getUsername());
-            session.setAttribute("fullName", response.getFullName());
-            session.setAttribute("roles", response.getRoles());
-
-            Set<String> roles = response.getRoles();
-            if (roles != null && roles.contains("ADMIN")) {
-                session.setAttribute("isAdmin", true);
-            }
-            log.info("Login successful for user: {}", request.getUsername());
-            redirectAttributes.addFlashAttribute("successMessage", response.getMessage());
-            return "redirect:/";
-        } else {
-            log.warn("Login failed for user: {} - {}", request.getUsername(), response.getMessage());
-            redirectAttributes.addFlashAttribute("errorMessage", response.getMessage());
-            return "redirect:/account/authentication";
-        }
+        return handleAuthResponse(response, session, redirectAttributes, request.getUsername(), LOGIN_SUCCESS_MSG);
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam String username, @RequestParam String email,
-            @RequestParam String password, @RequestParam String fullName,
-            RedirectAttributes redirectAttributes) {
-        log.debug("Register attempt for user: {}", username);
-        try {
-            authService.register(username, email, password, fullName);
-            log.info("User registered: {}", username);
-            redirectAttributes.addFlashAttribute("successMessage", "Registration successful. Please login.");
-            return "redirect:/account/authentication";
-        } catch (Exception e) {
-            log.warn("Registration failed for user: {} - {}", username, e.getMessage());
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/account/authentication";
+    public String register(@ModelAttribute("registerRequest") @Valid AuthRegisterRequest request,
+            BindingResult result, RedirectAttributes redirectAttributes) {
+        log.debug("Register attempt for user: {}", request.getUsername());
+
+        if (hasValidationErrors(result, redirectAttributes)) {
+            return REDIRECT_AUTH;
         }
+
+        AuthResponse response = authService.register(request.getUsername(), request.getEmail(),
+                request.getPassword(), request.getFullName());
+        return handleAuthResponse(response, null, redirectAttributes, request.getUsername(), REGISTER_SUCCESS_MSG);
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
         log.info("User logged out: {}", session.getAttribute("username"));
         session.invalidate();
-        redirectAttributes.addFlashAttribute("successMessage", "You have been logged out.");
-        return "redirect:/account/authentication";
+        redirectAttributes.addFlashAttribute("successMessage", LOGOUT_SUCCESS_MSG);
+        return REDIRECT_AUTH;
     }
 
     @PostMapping("/refresh")
@@ -114,21 +88,67 @@ public class AccountController {
         if (refreshToken == null) {
             log.warn("No refresh token found in session");
             redirectAttributes.addFlashAttribute("errorMessage", "Please login again.");
-            return "redirect:/account/authentication";
+            return REDIRECT_AUTH;
         }
 
-        try {
-            AuthResponse response = authService.refreshToken(refreshToken);
+        AuthResponse response = authService.refreshToken(refreshToken);
+        if ("Token refreshed successfully".equals(response.getMessage())) {
             session.setAttribute("token", response.getToken());
             session.setAttribute("refreshToken", response.getRefreshToken());
             log.info("Token refreshed for user: {}", session.getAttribute("username"));
-            redirectAttributes.addFlashAttribute("successMessage", "Session refreshed successfully.");
-            return "redirect:/";
-        } catch (Exception e) {
-            log.warn("Refresh token failed: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("successMessage", REFRESH_SUCCESS_MSG);
+            return REDIRECT_HOME;
+        } else {
+            log.warn("Refresh token failed: {}", response.getMessage());
             session.invalidate();
-            redirectAttributes.addFlashAttribute("errorMessage", "Session expired. Please login again.");
-            return "redirect:/account/authentication";
+            redirectAttributes.addFlashAttribute("errorMessage", SESSION_EXPIRED_MSG);
+            return REDIRECT_AUTH;
+        }
+    }
+
+    private boolean hasValidationErrors(BindingResult result, RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            String errorMessage = result.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .reduce((msg1, msg2) -> msg1 + "; " + msg2)
+                    .orElse("Validation failed");
+            log.warn("Validation failed: {}", errorMessage);
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            return true;
+        }
+        return false;
+    }
+
+    private String handleAuthResponse(AuthResponse response, HttpSession session,
+            RedirectAttributes redirectAttributes, String username, String successMsg) {
+        log.debug("Response message: {}", response.getMessage());
+
+        if (successMsg.equals(response.getMessage())) {
+            if (session != null && LOGIN_SUCCESS_MSG.equals(successMsg)) {
+                storeSessionAttributes(session, response);
+            }
+            log.info("{} for user: {}", successMsg, username);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    REGISTER_SUCCESS_MSG.equals(successMsg) ? "Registration successful. Please login."
+                            : response.getMessage());
+            return REDIRECT_HOME;
+        } else {
+            log.warn("Failed for user: {} - {}", username, response.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", response.getMessage());
+            return REDIRECT_AUTH;
+        }
+    }
+
+    private void storeSessionAttributes(HttpSession session, AuthResponse response) {
+        session.setAttribute("token", response.getToken());
+        session.setAttribute("refreshToken", response.getRefreshToken());
+        session.setAttribute("username", response.getUsername());
+        session.setAttribute("fullName", response.getFullName());
+        session.setAttribute("roles", response.getRoles());
+
+        Set<String> roles = response.getRoles();
+        if (roles != null && roles.contains("ADMIN")) {
+            session.setAttribute("isAdmin", true);
         }
     }
 }

@@ -64,6 +64,8 @@ public class AuthController {
                 .password(authRequest.getPassword())
                 .email(authRequest.getEmail())
                 .fullName(authRequest.getFullName())
+                .phoneNumber(authRequest.getPhoneNumber())
+                .avatarUrl(authRequest.getAvatarUrl())
                 .build();
 
         User savedUser = userService.save(user);
@@ -121,7 +123,6 @@ public class AuthController {
         return ResponseEntity.ok(buildAuthResponse(user, null, null, "User info retrieved successfully"));
     }
 
-    // Helper methods
     private User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -139,11 +140,15 @@ public class AuthController {
                 .collect(Collectors.toSet());
 
         return AuthResponse.builder()
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .phoneNumber(user.getPhoneNumber())
+                .avatarUrl(user.getAvatarUrl())
+                .roles(roles)
                 .token(token)
                 .refreshToken(refreshToken)
-                .username(user.getUsername())
-                .fullName(user.getFullName())
-                .roles(roles)
                 .message(message)
                 .build();
     }

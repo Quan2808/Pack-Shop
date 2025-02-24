@@ -4,11 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 
-import com.packshop.client.common.services.AuthService;
 import com.packshop.client.dto.identity.AuthResponse;
+import com.packshop.client.modules.client.home.services.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+
 @Component
 public class ViewRenderer {
 

@@ -24,7 +24,7 @@ public class AdminInitializer {
     private static final String ADMIN_PASSWORD = "admin";
     private static final String ADMIN_EMAIL = "admin@example.com";
     private static final String ADMIN_FULL_NAME = "Administrator";
-    private static final String ADMIN_PHONE_NUMBER = "+1234567890";
+    private static final String ADMIN_PHONE_NUMBER = "(+84) 123 456 789";
     private static final String ADMIN_AVATAR_URL = "https://example.com/avatar/admin.png";
 
     @Bean

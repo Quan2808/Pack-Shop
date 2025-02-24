@@ -1,21 +1,26 @@
 package com.packshop.client.modules.client.home.controllers;
 
-import com.packshop.client.common.services.AuthService;
-import com.packshop.client.common.utilities.ViewRenderer;
-import com.packshop.client.dto.identity.AuthRegisterRequest;
-import com.packshop.client.dto.identity.AuthRequest;
-import com.packshop.client.dto.identity.AuthResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Set;
+import com.packshop.client.common.utilities.ViewRenderer;
+import com.packshop.client.dto.identity.AuthRegisterRequest;
+import com.packshop.client.dto.identity.AuthRequest;
+import com.packshop.client.dto.identity.AuthResponse;
+import com.packshop.client.modules.client.home.services.AuthService;
+
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("/account")

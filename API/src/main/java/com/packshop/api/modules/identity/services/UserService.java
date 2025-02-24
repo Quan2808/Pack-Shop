@@ -54,6 +54,10 @@ public class UserService implements UserDetailsService {
             throw new DuplicateResourceException(
                     "Email '" + user.getEmail() + "' already exists");
         }
+        if (userRepository.findByPhoneNumber(user.getPhoneNumber()).isPresent()) {
+            throw new DuplicateResourceException(
+                    "Phone number '" + user.getPhoneNumber() + "' already exists");
+        }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 

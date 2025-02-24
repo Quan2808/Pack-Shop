@@ -1,5 +1,6 @@
 package com.packshop.client.modules.client.home.controllers;
 
+import java.io.IOException;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,21 +62,21 @@ public class AccountController {
             return REDIRECT_AUTH;
         }
 
-        AuthResponse response = authService.login(request.getUsername(), request.getPassword());
+        AuthResponse response = authService.login(request);
         return handleAuthResponse(response, session, redirectAttributes, request.getUsername(), LOGIN_SUCCESS_MSG);
     }
 
     @PostMapping("/register")
     public String register(@ModelAttribute("registerRequest") @Valid AuthRegisterRequest request,
-            BindingResult result, RedirectAttributes redirectAttributes) {
+            BindingResult result, RedirectAttributes redirectAttributes) throws IOException {
         log.debug("Register attempt for user: {}", request.getUsername());
 
         if (hasValidationErrors(result, redirectAttributes)) {
+            redirectAttributes.addFlashAttribute("registerRequest", request);
             return REDIRECT_AUTH;
         }
 
-        AuthResponse response = authService.register(request.getUsername(), request.getEmail(),
-                request.getPassword(), request.getFullName());
+        AuthResponse response = authService.register(request);
         return handleAuthResponse(response, null, redirectAttributes, request.getUsername(), REGISTER_SUCCESS_MSG);
     }
 
@@ -128,7 +129,7 @@ public class AccountController {
             RedirectAttributes redirectAttributes, String username, String successMsg) {
         log.debug("Response message: {}", response.getMessage());
 
-        if (successMsg.equals(response.getMessage())) {
+        if (response.getMessage() != null && successMsg.equals(response.getMessage())) {
             if (session != null && LOGIN_SUCCESS_MSG.equals(successMsg)) {
                 storeSessionAttributes(session, response);
             }
@@ -146,11 +147,15 @@ public class AccountController {
     }
 
     private void storeSessionAttributes(HttpSession session, AuthResponse response) {
+        session.setAttribute("userid", response.getUserId());
+        session.setAttribute("username", response.getUsername());
+        session.setAttribute("email", response.getEmail());
+        session.setAttribute("fullName", response.getFullName());
+        session.setAttribute("phoneNumber", response.getPhoneNumber());
+        session.setAttribute("avatarUrl", response.getAvatarUrl());
+        session.setAttribute("roles", response.getRoles());
         session.setAttribute("token", response.getToken());
         session.setAttribute("refreshToken", response.getRefreshToken());
-        session.setAttribute("username", response.getUsername());
-        session.setAttribute("fullName", response.getFullName());
-        session.setAttribute("roles", response.getRoles());
 
         Set<String> roles = response.getRoles();
         if (roles != null && roles.contains("ADMIN")) {

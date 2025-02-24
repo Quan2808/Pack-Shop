@@ -2,6 +2,7 @@
   th:action="@{/account/register}"
   th:object="${registerRequest}"
   method="post"
+  enctype="multipart/form-data"
 >
   <div class="row">
     <!-- Thumbnail Section -->
@@ -13,8 +14,9 @@
             <input
               type="file"
               class="file-upload-input"
-              name="thumbnailFile"
-              data-mdb-accepted-extensions="image/png, image/jpeg, image/jpg"
+              name="avatarFile"
+              th:field="*{avatarFile}"
+              data-mdb-accepted-extensions="image/*, .pdf"
               data-mdb-file-upload-init
               data-mdb-default-msg="Drag & drop your profile picture or click to upload"
             />
@@ -137,6 +139,7 @@
                 <input
                   type="text"
                   id="phone"
+                  th:field="*{phoneNumber}"
                   class="form-control"
                   data-mdb-input-mask-init
                   data-mdb-input-mask="(+84) 999 999 999"

@@ -1,5 +1,8 @@
 package com.packshop.client.modules.client.home.services;
 
+import java.io.IOException;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -8,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.packshop.client.common.utilities.FileStorageService;
 import com.packshop.client.dto.identity.AuthRegisterRequest;
 import com.packshop.client.dto.identity.AuthRequest;
 import com.packshop.client.dto.identity.AuthResponse;
@@ -20,19 +25,17 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class AuthService {
 
-    private final RestTemplate restTemplate;
     private static final String IDENTITY_API_URL = "http://localhost:8080/api/auth";
+    private final RestTemplate restTemplate;
+    private final FileStorageService fileStorageService;
 
-    public AuthService(RestTemplate restTemplate) {
+    public AuthService(RestTemplate restTemplate, FileStorageService fileStorageService) {
+        this.fileStorageService = fileStorageService;
         this.restTemplate = restTemplate;
     }
 
-    public AuthResponse login(String username, String password) {
+    public AuthResponse login(AuthRequest authRequest) {
         String url = IDENTITY_API_URL + "/login";
-        AuthRequest authRequest = new AuthRequest();
-        authRequest.setUsername(username);
-        authRequest.setPassword(password);
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<AuthRequest> request = new HttpEntity<>(authRequest, headers);
@@ -68,17 +71,20 @@ public class AuthService {
         }
     }
 
-    public AuthResponse register(String username, String email, String password, String fullName) {
+    public AuthResponse register(AuthRegisterRequest authRequest) throws IOException {
         String url = IDENTITY_API_URL + "/register";
-        AuthRegisterRequest authRequest = new AuthRegisterRequest();
-        authRequest.setUsername(username);
-        authRequest.setEmail(email);
-        authRequest.setPassword(password);
-        authRequest.setFullName(fullName);
+
+        // Tạo một bản sao của authRequest để gửi API, không chứa avatarFile
+        AuthRegisterRequest apiRequest = new AuthRegisterRequest();
+        BeanUtils.copyProperties(authRequest, apiRequest, "avatarFile"); // Sao chép các field trừ avatarFile
+
+        // Xử lý upload avatar nếu có
+        String avatarUrl = handleAvatarUpload(authRequest.getAvatarFile(), authRequest.getUsername());
+        apiRequest.setAvatarUrl(avatarUrl); // Gán URL của avatar sau khi upload
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<AuthRegisterRequest> request = new HttpEntity<>(authRequest, headers);
+        HttpEntity<AuthRegisterRequest> request = new HttpEntity<>(apiRequest, headers);
 
         try {
             ResponseEntity<AuthResponse> response = restTemplate.postForEntity(url, request, AuthResponse.class);
@@ -97,7 +103,6 @@ public class AuthService {
             if (errorResponse != null && errorResponse.getMessage() != null) {
                 return errorResponse;
             }
-
             String errorMessage = e.getResponseBodyAsString().isEmpty()
                     ? "Registration failed: Invalid input"
                     : "Registration failed: " + e.getResponseBodyAsString();
@@ -141,5 +146,14 @@ public class AuthService {
             log.error("Refresh token failed: {}", e.getResponseBodyAsString());
             throw new RuntimeException(e.getResponseBodyAs(AuthResponse.class).getMessage());
         }
+    }
+
+    private String handleAvatarUpload(MultipartFile file, String username)
+            throws IOException {
+        if (file != null && !file.isEmpty()) {
+            String path = "user/" + username;
+            return fileStorageService.storeFile(file, path);
+        }
+        return null;
     }
 }

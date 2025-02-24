@@ -146,7 +146,7 @@ public class ProductManageService extends CatalogBaseService {
     private String handleThumbnailUpload(MultipartFile file, String categoryName, String productName)
             throws IOException {
         if (file != null && !file.isEmpty()) {
-            String path = categoryName + "/" + productName; // Thumbnail path
+            String path = "products/" + categoryName + "/" + productName; // Thumbnail path
             return fileStorageService.storeFile(file, path);
         }
         return null;
@@ -156,7 +156,7 @@ public class ProductManageService extends CatalogBaseService {
             throws IOException {
         List<String> mediaPaths = new ArrayList<>();
         if (files != null) {
-            String mediaPath = categoryName + "/" + productName; // Media files path
+            String mediaPath = "products/" + categoryName + "/" + productName; // Media files path
             for (MultipartFile mediaFile : files) {
                 if (mediaFile != null && !mediaFile.isEmpty()) {
                     mediaPaths.add(fileStorageService.storeFile(mediaFile, mediaPath));

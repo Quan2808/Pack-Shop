@@ -133,6 +133,27 @@ public class AuthService {
         }
     }
 
+    public AuthResponse updateProfile(String token, AuthRegisterRequest request) throws IOException {
+        String url = IDENTITY_API_URL + "/profile/update";
+        AuthRegisterRequest apiRequest = new AuthRegisterRequest();
+        BeanUtils.copyProperties(request, apiRequest, "avatarFile", "password");
+
+        String avatarUrl = handleAvatarUpload(request.getAvatarFile(), request.getUsername());
+        apiRequest.setAvatarUrl(avatarUrl);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        HttpEntity<AuthRegisterRequest> httpRequest = new HttpEntity<>(apiRequest, headers);
+
+        ResponseEntity<AuthResponse> response = restTemplate.postForEntity(url, httpRequest, AuthResponse.class);
+        AuthResponse authResponse = response.getBody();
+        if (authResponse == null) {
+            throw new IOException("Update failed: No response from server");
+        }
+        return authResponse;
+    }
+
     public AuthResponse refreshToken(String refreshToken) {
         String url = IDENTITY_API_URL + "/refresh";
         HttpHeaders headers = new HttpHeaders();

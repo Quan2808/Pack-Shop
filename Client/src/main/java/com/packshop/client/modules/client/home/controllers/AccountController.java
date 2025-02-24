@@ -112,6 +112,58 @@ public class AccountController {
         }
     }
 
+    @GetMapping("/profile")
+    public String profile(HttpSession session, Model model) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return REDIRECT_AUTH;
+        }
+
+        AuthResponse userInfo = authService.getCurrentUser(token);
+
+        // Tạo AuthRegisterRequest và điền dữ liệu từ userInfo
+        AuthRegisterRequest updateProfileRequest = new AuthRegisterRequest();
+        updateProfileRequest.setFullName(userInfo.getFullName());
+        updateProfileRequest.setUsername(userInfo.getUsername());
+        updateProfileRequest.setEmail(userInfo.getEmail());
+        updateProfileRequest.setPhoneNumber(userInfo.getPhoneNumber());
+        updateProfileRequest.setAvatarUrl(userInfo.getAvatarUrl());
+
+        model.addAttribute("isLoggedIn", true);
+        model.addAttribute("userInfo", userInfo);
+        model.addAttribute("user", session);
+        model.addAttribute("updateProfileRequest", updateProfileRequest); // Truyền đối tượng đã điền dữ liệu
+
+        log.info("User info: {}", userInfo);
+        return viewRenderer.renderView(model, "client/account/profile/index", "Profile");
+    }
+
+    @PostMapping(value = "/profile/update")
+    public String updateProfile(@ModelAttribute("authRegisterRequest") AuthRegisterRequest request,
+            BindingResult result, HttpSession session, RedirectAttributes redirectAttributes) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return REDIRECT_AUTH;
+        }
+
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.authRegisterRequest",
+                    result);
+            redirectAttributes.addFlashAttribute("authRegisterRequest", request);
+            return "redirect:/account/profile";
+        }
+
+        try {
+            authService.updateProfile(token, request);
+            redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully");
+            return "redirect:/account/profile";
+        } catch (IOException e) {
+            log.error("Failed to update profile for user: {}", request.getUsername(), e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update profile: " + e.getMessage());
+            return "redirect:/account/profile";
+        }
+    }
+
     private boolean hasValidationErrors(BindingResult result, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             String errorMessage = result.getFieldErrors().stream()

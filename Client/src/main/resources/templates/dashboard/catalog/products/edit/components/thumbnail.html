@@ -8,7 +8,7 @@
         name="thumbnailFile"
         th:field="*{thumbnailFile}"
         data-mdb-accepted-extensions="image/*, .pdf"
-        th:data-mdb-default-file="@{'/uploads/' + ${product.thumbnail}}"
+        th:data-mdb-default-file="@{${product.thumbnail}}"
         data-mdb-file-upload-init
       />
     </div>

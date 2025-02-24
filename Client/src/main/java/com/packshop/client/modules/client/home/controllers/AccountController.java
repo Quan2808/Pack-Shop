@@ -3,6 +3,7 @@ package com.packshop.client.modules.client.home.controllers;
 import java.io.IOException;
 import java.util.Set;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +40,9 @@ public class AccountController {
 
     @Autowired
     private ViewRenderer viewRenderer;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     private final AuthService authService;
 
@@ -121,18 +125,12 @@ public class AccountController {
 
         AuthResponse userInfo = authService.getCurrentUser(token);
 
-        // Tạo AuthRegisterRequest và điền dữ liệu từ userInfo
-        AuthRegisterRequest updateProfileRequest = new AuthRegisterRequest();
-        updateProfileRequest.setFullName(userInfo.getFullName());
-        updateProfileRequest.setUsername(userInfo.getUsername());
-        updateProfileRequest.setEmail(userInfo.getEmail());
-        updateProfileRequest.setPhoneNumber(userInfo.getPhoneNumber());
-        updateProfileRequest.setAvatarUrl(userInfo.getAvatarUrl());
+        AuthRegisterRequest updateProfileRequest = modelMapper.map(userInfo, AuthRegisterRequest.class);
 
         model.addAttribute("isLoggedIn", true);
         model.addAttribute("userInfo", userInfo);
         model.addAttribute("user", session);
-        model.addAttribute("updateProfileRequest", updateProfileRequest); // Truyền đối tượng đã điền dữ liệu
+        model.addAttribute("updateProfileRequest", updateProfileRequest);
 
         log.info("User info: {}", userInfo);
         return viewRenderer.renderView(model, "client/account/profile/index", "Profile");

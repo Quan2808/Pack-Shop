@@ -131,7 +131,8 @@ public class AccountController {
             redirectAttributes.addFlashAttribute("successMessage",
                     REGISTER_SUCCESS_MSG.equals(successMsg) ? "Registration successful. Please login."
                             : response.getMessage());
-            return REDIRECT_HOME;
+
+            return LOGIN_SUCCESS_MSG.equals(successMsg) ? REDIRECT_HOME : REDIRECT_AUTH;
         } else {
             log.warn("Failed for user: {} - {}", username, response.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", response.getMessage());

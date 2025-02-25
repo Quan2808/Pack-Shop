@@ -63,7 +63,8 @@ public class User {
     @Column(name = "phone_number", unique = true)
     // @Pattern(regexp = "^\\+?[0-9]{9,15}$", message = "Phone number must be valid
     // (9-15 digits)")
-    @Pattern(regexp = "^\\(\\+84\\)\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{3}$", message = "Phone number must be in the format (+84) 123 456 789")
+    @Pattern(regexp = "^\\(\\+84\\)\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{3}$",
+            message = "Phone number must be in the format (+84) 123 456 789")
     private String phoneNumber;
 
     @Column(name = "avatar_url")
@@ -80,6 +81,7 @@ public class User {
     private Set<Order> orders;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 }

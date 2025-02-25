@@ -2,9 +2,7 @@ package com.packshop.client.modules.client.home.controllers;
 
 import java.io.IOException;
 import java.util.Set;
-
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,13 +11,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.identity.AuthRegisterRequest;
 import com.packshop.client.dto.identity.AuthRequest;
 import com.packshop.client.dto.identity.AuthResponse;
 import com.packshop.client.modules.client.home.services.AuthService;
-
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -38,16 +34,15 @@ public class AccountController {
     private static final String REFRESH_SUCCESS_MSG = "Session refreshed successfully.";
     private static final String SESSION_EXPIRED_MSG = "Session expired. Please login again.";
 
-    @Autowired
-    private ViewRenderer viewRenderer;
-
-    @Autowired
-    private ModelMapper modelMapper;
-
+    private final ViewRenderer viewRenderer;
+    private final ModelMapper modelMapper;
     private final AuthService authService;
 
-    public AccountController(AuthService authService) {
+    public AccountController(AuthService authService, ViewRenderer viewRenderer,
+            ModelMapper modelMapper) {
         this.authService = authService;
+        this.viewRenderer = viewRenderer;
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping("/authentication")
@@ -58,8 +53,8 @@ public class AccountController {
     }
 
     @PostMapping("/login")
-    public String login(@ModelAttribute("loginRequest") @Valid AuthRequest request, BindingResult result,
-            HttpSession session, RedirectAttributes redirectAttributes) {
+    public String login(@ModelAttribute("loginRequest") @Valid AuthRequest request,
+            BindingResult result, HttpSession session, RedirectAttributes redirectAttributes) {
         log.debug("Login attempt for user: {}", request.getUsername());
 
         if (hasValidationErrors(result, redirectAttributes)) {
@@ -67,7 +62,8 @@ public class AccountController {
         }
 
         AuthResponse response = authService.login(request);
-        return handleAuthResponse(response, session, redirectAttributes, request.getUsername(), LOGIN_SUCCESS_MSG);
+        return handleAuthResponse(response, session, redirectAttributes, request.getUsername(),
+                LOGIN_SUCCESS_MSG);
     }
 
     @PostMapping("/register")
@@ -81,7 +77,8 @@ public class AccountController {
         }
 
         AuthResponse response = authService.register(request);
-        return handleAuthResponse(response, null, redirectAttributes, request.getUsername(), REGISTER_SUCCESS_MSG);
+        return handleAuthResponse(response, null, redirectAttributes, request.getUsername(),
+                REGISTER_SUCCESS_MSG);
     }
 
     @GetMapping("/logout")
@@ -125,7 +122,8 @@ public class AccountController {
 
         AuthResponse userInfo = authService.getCurrentUser(token);
 
-        AuthRegisterRequest updateProfileRequest = modelMapper.map(userInfo, AuthRegisterRequest.class);
+        AuthRegisterRequest updateProfileRequest =
+                modelMapper.map(userInfo, AuthRegisterRequest.class);
 
         model.addAttribute("isLoggedIn", true);
         model.addAttribute("userInfo", userInfo);
@@ -145,8 +143,8 @@ public class AccountController {
         }
 
         if (result.hasErrors()) {
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.authRegisterRequest",
-                    result);
+            redirectAttributes.addFlashAttribute(
+                    "org.springframework.validation.BindingResult.authRegisterRequest", result);
             redirectAttributes.addFlashAttribute("authRegisterRequest", request);
             return "redirect:/account/profile";
         }
@@ -157,17 +155,18 @@ public class AccountController {
             return "redirect:/account/profile";
         } catch (IOException e) {
             log.error("Failed to update profile for user: {}", request.getUsername(), e);
-            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update profile: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Failed to update profile: " + e.getMessage());
             return "redirect:/account/profile";
         }
     }
 
-    private boolean hasValidationErrors(BindingResult result, RedirectAttributes redirectAttributes) {
+    private boolean hasValidationErrors(BindingResult result,
+            RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             String errorMessage = result.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                    .reduce((msg1, msg2) -> msg1 + "; " + msg2)
-                    .orElse("Validation failed");
+                    .reduce((msg1, msg2) -> msg1 + "; " + msg2).orElse("Validation failed");
             log.warn("Validation failed: {}", errorMessage);
             redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
             return true;
@@ -185,7 +184,8 @@ public class AccountController {
             }
             log.info("{} for user: {}", successMsg, username);
             redirectAttributes.addFlashAttribute("successMessage",
-                    REGISTER_SUCCESS_MSG.equals(successMsg) ? "Registration successful. Please login."
+                    REGISTER_SUCCESS_MSG.equals(successMsg)
+                            ? "Registration successful. Please login."
                             : response.getMessage());
 
             return LOGIN_SUCCESS_MSG.equals(successMsg) ? REDIRECT_HOME : REDIRECT_AUTH;

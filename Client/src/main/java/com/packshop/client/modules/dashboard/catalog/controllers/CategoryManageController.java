@@ -1,7 +1,6 @@
 package com.packshop.client.modules.dashboard.catalog.controllers;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,13 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.packshop.client.common.exceptions.CatalogException;
+import com.packshop.client.common.exceptions.ApiException;
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.catalog.CategoryDTO;
 import com.packshop.client.modules.dashboard.catalog.services.CategoryManageService;
-
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,14 +28,17 @@ public class CategoryManageController {
 
     private static final String CATALOG_PATH = "dashboard/catalog";
     private static final String REDIRECT_TO_LIST = "redirect:/dashboard/catalog/categories";
-    private static final String ERROR_CREATE_FAILED = "Failed to create category. Please try again.";
-    private static final String ERROR_UPDATE_FAILED = "Failed to update category. Please try again.";
+    private static final String ERROR_CREATE_FAILED =
+            "Failed to create category. Please try again.";
+    private static final String ERROR_UPDATE_FAILED =
+            "Failed to update category. Please try again.";
     private static final String ERROR_NOT_FOUND = "Category not found.";
 
     private final CategoryManageService categoryService;
     private final ObjectMapper objectMapper;
 
-    public CategoryManageController(CategoryManageService categoryService, ObjectMapper objectMapper) {
+    public CategoryManageController(CategoryManageService categoryService,
+            ObjectMapper objectMapper) {
         this.categoryService = categoryService;
         this.objectMapper = objectMapper;
     }
@@ -57,35 +57,38 @@ public class CategoryManageController {
             log.error("Error fetching categories", e);
             model.addAttribute("errorMessage", "Failed to fetch categories. Please try again.");
         }
-        return viewRenderer.renderView(model, CATALOG_PATH + "/categories/list/index", "Categories List");
+        return viewRenderer.renderView(model, CATALOG_PATH + "/categories/list/index",
+                "Categories List");
     }
 
     @GetMapping("/create")
     public String showCreateCategoryForm(Model model) {
         log.info("Showing create category form...");
         model.addAttribute("category", new CategoryDTO());
-        return viewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index", "Create Category");
+        return viewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index",
+                "Create Category");
     }
 
     @PostMapping("/create/submit")
     public String createCategory(@ModelAttribute("category") @Valid CategoryDTO categoryDTO,
-            BindingResult bindingResult,
-            Model model,
-            RedirectAttributes redirectAttributes) {
+            BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         log.info("Received request to create category: {}", categoryDTO);
 
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed for category: {}", categoryDTO);
-            model.addAttribute("errorMessage", "Failed to create category. Please fix the errors below.");
-            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index", "Create Category");
+            model.addAttribute("errorMessage",
+                    "Failed to create category. Please fix the errors below.");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index",
+                    "Create Category");
         }
 
         try {
             categoryService.createCategory(categoryDTO);
             log.info("Category created successfully: {}", categoryDTO.getName());
-            redirectAttributes.addFlashAttribute("successMessage", "Category created successfully!");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Category created successfully!");
             return REDIRECT_TO_LIST;
-        } catch (CatalogException e) {
+        } catch (ApiException e) {
             if (e.getStatusCode() == 409) {
                 log.error("Category name already exists: {}", categoryDTO.getName(), e);
                 // model.addAttribute("errorMessage", "Category name '" + categoryDTO.getName()
@@ -100,12 +103,14 @@ public class CategoryManageController {
         } catch (Exception e) {
             log.error("Unexpected error creating category: {}", categoryDTO.getName(), e);
             model.addAttribute("errorMessage", ERROR_CREATE_FAILED);
-            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index", "Create Category");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/create/index",
+                    "Create Category");
         }
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+    public String showEditForm(@PathVariable Long id, Model model,
+            RedirectAttributes redirectAttributes) {
         if (id == null || id <= 0) {
             log.warn("Invalid category ID: {}", id);
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid category ID.");
@@ -120,7 +125,8 @@ public class CategoryManageController {
                 return REDIRECT_TO_LIST;
             }
             model.addAttribute("category", category);
-            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index", "Edit Category");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index",
+                    "Edit Category");
         } catch (Exception e) {
             log.error("Error fetching category with ID: {}", id, e);
             redirectAttributes.addFlashAttribute("errorMessage",
@@ -130,11 +136,8 @@ public class CategoryManageController {
     }
 
     @PostMapping("/edit/submit")
-    public String updateCategory(
-            @ModelAttribute("category") @Valid CategoryDTO categoryDTO,
-            BindingResult bindingResult,
-            Model model,
-            RedirectAttributes redirectAttributes) {
+    public String updateCategory(@ModelAttribute("category") @Valid CategoryDTO categoryDTO,
+            BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         if (categoryDTO.getId() == null || categoryDTO.getId() <= 0) {
             log.warn("Invalid category ID: {}", categoryDTO.getId());
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid category ID.");
@@ -145,19 +148,23 @@ public class CategoryManageController {
 
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed for category update: {}", categoryDTO);
-            model.addAttribute("errorMessage", "Failed to update category. Please fix the errors below.");
-            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index", "Edit Category");
+            model.addAttribute("errorMessage",
+                    "Failed to update category. Please fix the errors below.");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index",
+                    "Edit Category");
         }
 
         try {
             categoryService.updateCategory(categoryDTO.getId(), categoryDTO);
             log.info("Category updated successfully: {}", categoryDTO.getName());
-            redirectAttributes.addFlashAttribute("successMessage", "Category updated successfully!");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Category updated successfully!");
             return REDIRECT_TO_LIST;
         } catch (Exception e) {
             log.error("Error updating category: {}", categoryDTO.getName(), e);
             model.addAttribute("errorMessage", ERROR_UPDATE_FAILED);
-            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index", "Edit Category");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/categories/edit/index",
+                    "Edit Category");
         }
     }
 

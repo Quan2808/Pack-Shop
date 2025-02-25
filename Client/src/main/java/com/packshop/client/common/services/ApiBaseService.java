@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.packshop.client.common.exceptions.CatalogException;
+import com.packshop.client.common.exceptions.ApiException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -32,15 +32,15 @@ public abstract class ApiBaseService {
                     restTemplate.getForEntity(BASE_API_URL + apiUrl + "/" + id, responseType);
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("API error: {} for {}/{}", response.getStatusCode(), apiUrl, id);
-                throw new CatalogException("API error: " + response.getStatusCode().value());
+                throw new ApiException("API error: " + response.getStatusCode().value());
             }
             return response.getBody();
         } catch (HttpClientErrorException e) {
             log.error("Client error: {} for {}/{}", e.getStatusCode(), apiUrl, id);
-            throw new CatalogException("Client error: " + e.getStatusText(), e);
+            throw new ApiException("Client error: " + e.getStatusText(), e);
         } catch (Exception e) {
             log.error("Failed to fetch: {}/{}", apiUrl, id, e);
-            throw new CatalogException("Failed to fetch data with id: " + id, e);
+            throw new ApiException("Failed to fetch data with id: " + id, e);
         }
     }
 
@@ -50,16 +50,16 @@ public abstract class ApiBaseService {
                     restTemplate.exchange(BASE_API_URL + apiUrl, HttpMethod.GET, null, clazz);
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("API error: {} for {}", response.getStatusCode(), apiUrl);
-                throw new CatalogException("API error: " + response.getStatusCode().value());
+                throw new ApiException("API error: " + response.getStatusCode().value());
             }
             return response.getBody() != null ? Arrays.asList(response.getBody())
                     : Collections.emptyList();
         } catch (HttpClientErrorException e) {
             log.error("Client error: {} for {}", e.getStatusCode(), apiUrl);
-            throw new CatalogException("Client error: " + e.getStatusText(), e);
+            throw new ApiException("Client error: " + e.getStatusText(), e);
         } catch (Exception e) {
             log.error("Failed to fetch: {}", apiUrl, e);
-            throw new CatalogException("Failed to fetch data", e);
+            throw new ApiException("Failed to fetch data", e);
         }
     }
 
@@ -74,15 +74,15 @@ public abstract class ApiBaseService {
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("API error: {} for POST to {}", response.getStatusCode(), apiUrl);
-                throw new CatalogException("API error: " + response.getStatusCode().value());
+                throw new ApiException("API error: " + response.getStatusCode().value());
             }
             return response.getBody();
         } catch (HttpClientErrorException e) {
             log.error("Client error: {} for {}", e.getStatusCode(), apiUrl);
-            throw new CatalogException("Client error: " + e.getStatusText(), e);
+            throw new ApiException("Client error: " + e.getStatusText(), e);
         } catch (Exception e) {
             log.error("Unexpected error for POST to {}: {}", apiUrl, e.getMessage(), e);
-            throw new CatalogException("Unexpected error", e);
+            throw new ApiException("Unexpected error", e);
         }
     }
 
@@ -97,14 +97,14 @@ public abstract class ApiBaseService {
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("API error: {} for PUT to {}/{}", response.getStatusCode(), apiUrl, id);
-                throw new CatalogException("API error: " + response.getStatusCode().value());
+                throw new ApiException("API error: " + response.getStatusCode().value());
             }
         } catch (HttpClientErrorException e) {
             log.error("Client error: {} for {}/{}", e.getStatusCode(), apiUrl, id);
-            throw new CatalogException("Client error: " + e.getStatusText(), e);
+            throw new ApiException("Client error: " + e.getStatusText(), e);
         } catch (Exception e) {
             log.error("Failed to update: {}/{}", apiUrl, id, e);
-            throw new CatalogException("Failed to update data with id: " + id, e);
+            throw new ApiException("Failed to update data with id: " + id, e);
         }
     }
 
@@ -116,14 +116,14 @@ public abstract class ApiBaseService {
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("API error: {} for DELETE to {}/{}", response.getStatusCode(), apiUrl,
                         id);
-                throw new CatalogException("API error: " + response.getStatusCode().value());
+                throw new ApiException("API error: " + response.getStatusCode().value());
             }
         } catch (HttpClientErrorException e) {
             log.error("Client error: {} for {}/{}", e.getStatusCode(), apiUrl, id);
-            throw new CatalogException("Client error: " + e.getStatusText(), e);
+            throw new ApiException("Client error: " + e.getStatusText(), e);
         } catch (Exception e) {
             log.error("Failed to delete: {}/{}", apiUrl, id, e);
-            throw new CatalogException("Failed to delete data with id: " + id, e);
+            throw new ApiException("Failed to delete data with id: " + id, e);
         }
     }
 }

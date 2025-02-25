@@ -1,7 +1,6 @@
 package com.packshop.client.modules.client.catalog.controllers;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,15 +16,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/products")
 public class ProductController {
-    @Autowired
-    private ViewRenderer viewRenderer;
+
+    private final ViewRenderer viewRenderer;
 
     private final ProductService productService;
     private static final String REDIRECT_TO_LIST = "redirect:/products";
     private static final String ERROR_NOT_FOUND = "Product not found.";
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ViewRenderer viewRenderer) {
         this.productService = productService;
+        this.viewRenderer = viewRenderer;
     }
 
     @GetMapping

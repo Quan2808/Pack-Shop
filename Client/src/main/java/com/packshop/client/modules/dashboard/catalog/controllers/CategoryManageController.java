@@ -1,7 +1,6 @@
 package com.packshop.client.modules.dashboard.catalog.controllers;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,8 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/dashboard/catalog/categories")
 public class CategoryManageController {
-    @Autowired
-    private ViewRenderer viewRenderer;
+
 
     private static final String CATALOG_PATH = "dashboard/catalog";
     private static final String REDIRECT_TO_LIST = "redirect:/dashboard/catalog/categories";
@@ -36,11 +34,13 @@ public class CategoryManageController {
 
     private final CategoryManageService categoryService;
     private final ObjectMapper objectMapper;
+    private final ViewRenderer viewRenderer;
 
     public CategoryManageController(CategoryManageService categoryService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper, ViewRenderer viewRenderer) {
         this.categoryService = categoryService;
         this.objectMapper = objectMapper;
+        this.viewRenderer = viewRenderer;
     }
 
     @GetMapping

@@ -27,7 +27,7 @@ public class FileStorageService {
 
     public FileStorageService() {
         String projectDir = System.getProperty("user.dir");
-        this.rootLocation = Paths.get(projectDir, "src", "main", "resources", "static", "uploads");
+        this.rootLocation = Paths.get(projectDir, "src", "main", "resources", "static", "media");
         init();
     }
 
@@ -66,16 +66,17 @@ public class FileStorageService {
         }
 
         log.info("Stored file: {} at {}", fileName, destinationFile);
-        return "/uploads/" + path + "/" + fileName;
+        return "/media/" + path + "/" + fileName;
     }
 
     public void deleteFile(String filePath) {
         if (filePath != null && !filePath.isEmpty()) {
             try {
-                // Remove leading "/uploads/" if present, since it's already part of
+                // Remove leading "/media/" if present, since it's already part of
                 // rootLocation
-                String cleanedPath = filePath.startsWith("/uploads/") ? filePath.substring("/uploads/".length())
-                        : filePath;
+                String cleanedPath =
+                        filePath.startsWith("/media/") ? filePath.substring("/media/".length())
+                                : filePath;
                 Path file = rootLocation.resolve(cleanedPath).normalize();
 
                 if (Files.exists(file)) {
@@ -84,8 +85,8 @@ public class FileStorageService {
 
                     // Clean up empty parent directories
                     Path parent = file.getParent();
-                    while (parent != null && !parent.equals(rootLocation) && Files.isDirectory(parent)
-                            && isDirectoryEmpty(parent)) {
+                    while (parent != null && !parent.equals(rootLocation)
+                            && Files.isDirectory(parent) && isDirectoryEmpty(parent)) {
                         Files.delete(parent);
                         log.info("Deleted empty directory: {}", parent);
                         parent = parent.getParent();

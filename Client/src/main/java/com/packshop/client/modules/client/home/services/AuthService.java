@@ -16,9 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.exceptions.ApiException;
 import com.packshop.client.common.services.ApiBaseService;
 import com.packshop.client.common.utilities.FileStorageService;
-import com.packshop.client.dto.identity.AuthRegisterRequest;
 import com.packshop.client.dto.identity.AuthRequest;
 import com.packshop.client.dto.identity.AuthResponse;
+import com.packshop.client.dto.identity.SignupRequest;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -55,11 +55,11 @@ public class AuthService extends ApiBaseService {
         }
     }
 
-    public AuthResponse register(AuthRegisterRequest authRequest) throws IOException {
+    public AuthResponse register(SignupRequest authRequest) throws IOException {
         log.info("Registering user: {}", authRequest);
 
         // Tạo bản sao không chứa avatarFile
-        AuthRegisterRequest apiRequest = new AuthRegisterRequest();
+        SignupRequest apiRequest = new SignupRequest();
         BeanUtils.copyProperties(authRequest, apiRequest, "avatarFile");
 
         // Xử lý upload avatar nếu có
@@ -118,12 +118,11 @@ public class AuthService extends ApiBaseService {
         }
     }
 
-    public AuthResponse updateProfile(String token, AuthRegisterRequest request)
-            throws IOException {
+    public AuthResponse updateProfile(String token, SignupRequest request) throws IOException {
         log.info("Updating profile with request: {}", request);
 
         // Tạo bản sao không chứa avatarFile và password
-        AuthRegisterRequest apiRequest = new AuthRegisterRequest();
+        SignupRequest apiRequest = new SignupRequest();
         BeanUtils.copyProperties(request, apiRequest, "avatarFile", "password");
 
         // Xử lý upload avatar nếu có
@@ -134,7 +133,7 @@ public class AuthService extends ApiBaseService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(token);
-            HttpEntity<AuthRegisterRequest> entity = new HttpEntity<>(apiRequest, headers);
+            HttpEntity<SignupRequest> entity = new HttpEntity<>(apiRequest, headers);
 
             ResponseEntity<AuthResponse> response =
                     restTemplate.exchange(BASE_API_URL + AUTH_API_URL + "/profile/update",

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.packshop.api.common.exceptions.DuplicateResourceException;
+import com.packshop.api.common.exceptions.ResourceNotFoundException;
+import com.packshop.api.modules.identity.dto.UpdateAccountRequest;
 import com.packshop.api.modules.identity.entities.Role;
 import com.packshop.api.modules.identity.entities.User;
 import com.packshop.api.modules.identity.repositories.RoleRepository;
@@ -29,6 +32,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
     private static final String DEFAULT_ROLE = "USER";
 
@@ -54,6 +58,16 @@ public class UserService implements UserDetailsService {
         verifyOldPassword(user, oldPassword);
         ensureNewPasswordIsDifferent(user, newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateProfile(String username, UpdateAccountRequest profileRequest) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        modelMapper.map(profileRequest, user);
+
         return userRepository.save(user);
     }
 

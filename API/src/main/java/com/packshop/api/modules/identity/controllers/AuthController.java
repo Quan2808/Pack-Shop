@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.packshop.api.common.exceptions.ResourceNotFoundException;
-import com.packshop.api.modules.identity.dto.AuthRegisterRequest;
 import com.packshop.api.modules.identity.dto.AuthRequest;
 import com.packshop.api.modules.identity.dto.AuthResponse;
+import com.packshop.api.modules.identity.dto.SignupRequest;
+import com.packshop.api.modules.identity.dto.UpdateAccountRequest;
 import com.packshop.api.modules.identity.entities.Role;
 import com.packshop.api.modules.identity.entities.User;
 import com.packshop.api.modules.identity.repositories.UserRepository;
@@ -52,8 +53,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(
-            @Valid @RequestBody AuthRegisterRequest authRequest) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody SignupRequest authRequest) {
         User user = createUserFromRequest(authRequest);
         User savedUser = userService.save(user);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -97,6 +97,24 @@ public class AuthController {
         }
     }
 
+    @PutMapping("/update-profile")
+    public ResponseEntity<AuthResponse> updateProfile(
+            @RequestHeader("Authorization") String authHeader,
+            @Valid @RequestBody UpdateAccountRequest profileRequest) {
+        try {
+            String token = validateAndExtractToken(authHeader);
+            String username = jwtUtil.extractUsername(token);
+            User updatedUser = userService.updateProfile(username, profileRequest);
+            return ResponseEntity
+                    .ok(buildAuthResponse(updatedUser, null, null, "Profile updated successfully"));
+        } catch (SecurityException e) {
+            return buildErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
+        } catch (Exception e) {
+            log.error("Error updating profile", e);
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating profile");
+        }
+    }
+
     @GetMapping("/me")
     public ResponseEntity<AuthResponse> getCurrentUser(Authentication authentication) {
         if (!isAuthenticated(authentication)) {
@@ -112,7 +130,7 @@ public class AuthController {
                 .authenticate(new UsernamePasswordAuthenticationToken(username, password));
     }
 
-    private User createUserFromRequest(AuthRegisterRequest authRequest) {
+    private User createUserFromRequest(SignupRequest authRequest) {
         return User.builder().username(authRequest.getUsername())
                 .password(authRequest.getPassword()).email(authRequest.getEmail())
                 .fullName(authRequest.getFullName()).phoneNumber(authRequest.getPhoneNumber())

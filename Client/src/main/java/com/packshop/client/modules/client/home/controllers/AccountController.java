@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.packshop.client.common.utilities.ViewRenderer;
-import com.packshop.client.dto.identity.AuthRegisterRequest;
 import com.packshop.client.dto.identity.AuthRequest;
 import com.packshop.client.dto.identity.AuthResponse;
+import com.packshop.client.dto.identity.SignupRequest;
 import com.packshop.client.modules.client.home.services.AuthService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -48,7 +48,7 @@ public class AccountController {
     @GetMapping("/authentication")
     public String authentication(Model model) {
         model.addAttribute("loginRequest", new AuthRequest());
-        model.addAttribute("registerRequest", new AuthRegisterRequest());
+        model.addAttribute("registerRequest", new SignupRequest());
         return viewRenderer.renderView(model, AUTH_VIEW, "Authentication");
     }
 
@@ -67,7 +67,7 @@ public class AccountController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute("registerRequest") @Valid AuthRegisterRequest request,
+    public String register(@ModelAttribute("registerRequest") @Valid SignupRequest request,
             BindingResult result, RedirectAttributes redirectAttributes) throws IOException {
         log.debug("Register attempt for user: {}", request.getUsername());
 
@@ -122,8 +122,7 @@ public class AccountController {
 
         AuthResponse userInfo = authService.getCurrentUser(token);
 
-        AuthRegisterRequest updateProfileRequest =
-                modelMapper.map(userInfo, AuthRegisterRequest.class);
+        SignupRequest updateProfileRequest = modelMapper.map(userInfo, SignupRequest.class);
 
         model.addAttribute("isLoggedIn", true);
         model.addAttribute("userInfo", userInfo);
@@ -135,7 +134,7 @@ public class AccountController {
     }
 
     @PostMapping(value = "/profile/update")
-    public String updateProfile(@ModelAttribute("authRegisterRequest") AuthRegisterRequest request,
+    public String updateProfile(@ModelAttribute("authRegisterRequest") SignupRequest request,
             BindingResult result, HttpSession session, RedirectAttributes redirectAttributes) {
         String token = (String) session.getAttribute("token");
         if (token == null) {

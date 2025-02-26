@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.identity.AuthRequest;
 import com.packshop.client.dto.identity.AuthResponse;
@@ -162,10 +164,23 @@ public class AccountController {
                 redirectAttributes.addFlashAttribute("errorMessage", response.getMessage());
             }
             return "redirect:/account/profile";
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Failed to update profile for user: {}", session.getAttribute("username"), e);
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Failed to update profile: " + e.getMessage());
+            String errorMessage = e.getMessage();
+            if (e.getCause() instanceof HttpServerErrorException) {
+                HttpServerErrorException serverError = (HttpServerErrorException) e.getCause();
+                try {
+                    AuthResponse errorResponse = new ObjectMapper()
+                            .readValue(serverError.getResponseBodyAsString(), AuthResponse.class);
+                    errorMessage = errorResponse.getMessage();
+                } catch (Exception parseEx) {
+                    errorMessage = "Server error: " + serverError.getStatusText();
+                }
+            } else if (e instanceof IOException) {
+                errorMessage = "Failed to communicate with server";
+            }
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            redirectAttributes.addFlashAttribute("updateProfileRequest", request);
             return "redirect:/account/profile";
         }
     }

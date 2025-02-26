@@ -125,10 +125,7 @@ public class AuthService extends ApiBaseService {
             throws IOException {
         log.info("Updating profile with request: {}", request);
 
-        // Xử lý upload avatar nếu có
         String avatarUrl = handleAvatarUpload(request.getAvatarFile(), username);
-
-        // Tạo object để gửi lên server (khớp với ProfileUpdateRequest của server)
         Map<String, Object> apiRequest = new HashMap<>();
         apiRequest.put("email", request.getEmail());
         apiRequest.put("fullName", request.getFullName());
@@ -140,7 +137,6 @@ public class AuthService extends ApiBaseService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(apiRequest, headers);
 
             ResponseEntity<AuthResponse> response =
@@ -153,8 +149,19 @@ public class AuthService extends ApiBaseService {
             }
             return Objects.requireNonNull(response.getBody(), "Response body is null");
         } catch (ApiException e) {
-            log.error("Update profile failed: {}", e.getMessage(), e);
-            throw e;
+            log.error("Login failed: {}", e.getMessage());
+            if (e.getCause() instanceof HttpClientErrorException) {
+                HttpClientErrorException clientError = (HttpClientErrorException) e.getCause();
+                AuthResponse errorResponse = parseErrorResponse(clientError);
+                if (errorResponse != null && errorResponse.getMessage() != null) {
+                    return errorResponse;
+                }
+                String errorMessage = clientError.getResponseBodyAsString().isEmpty()
+                        ? "Invalid username or password"
+                        : clientError.getResponseBodyAsString();
+                return AuthResponse.builder().message(errorMessage).build();
+            }
+            return AuthResponse.builder().message("Login failed: " + e.getMessage()).build();
         }
     }
 

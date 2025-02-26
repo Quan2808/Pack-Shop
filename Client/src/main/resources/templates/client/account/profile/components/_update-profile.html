@@ -21,11 +21,6 @@
           method="post"
           enctype="multipart/form-data"
         >
-          <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
-            <ul>
-              <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
-            </ul>
-          </div>
           <div class="row">
             <!-- Thumbnail Section -->
             <div class="col-lg-4">

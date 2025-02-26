@@ -122,16 +122,39 @@ public class AuthService extends ApiBaseService {
         }
     }
 
-    public AuthResponse updateProfile(UpdateAccountRequest request, String username)
-            throws IOException {
+    public AuthResponse updateProfile(UpdateAccountRequest request, String username) throws IOException {
         log.info("Updating profile with request: {}", request);
 
-        String avatarUrl = handleAvatarUpload(request.getAvatarFile(), username);
+        // Fetch current user info to get the existing avatar URL
+        String token = request.getToken();
+        AuthResponse currentUser = getCurrentUser(token);
+        String oldAvatarUrl = currentUser.getAvatarUrl();
+
+        String newAvatarUrl = null;
+
+        // Handle avatar logic
+        if (request.getAvatarFile() == null || request.getAvatarFile().isEmpty()) {
+            // No new avatar uploaded -> remove the existing avatar
+            if (oldAvatarUrl != null && !oldAvatarUrl.isEmpty()) {
+                fileStorageService.deleteFile(oldAvatarUrl);
+                log.info("Deleted old avatar file: {}", oldAvatarUrl);
+            }
+            newAvatarUrl = null; // Set to null to remove avatar
+        } else {
+            // New avatar uploaded -> replace the old one
+            newAvatarUrl = handleAvatarUpload(request.getAvatarFile(), username);
+            if (oldAvatarUrl != null && !oldAvatarUrl.isEmpty()) {
+                fileStorageService.deleteFile(oldAvatarUrl);
+                log.info("Deleted old avatar file: {}", oldAvatarUrl);
+            }
+        }
+
+        // Prepare the API request with updated data
         Map<String, Object> apiRequest = new HashMap<>();
         apiRequest.put("email", request.getEmail());
         apiRequest.put("fullName", request.getFullName());
         apiRequest.put("phoneNumber", request.getPhoneNumber());
-        apiRequest.put("avatarUrl", avatarUrl != null ? avatarUrl : request.getAvatarUrl());
+        apiRequest.put("avatarUrl", newAvatarUrl); // Set to null if no new avatar, or new URL if uploaded
 
         log.debug("Sending request to server: {}", apiRequest);
 
@@ -145,8 +168,7 @@ public class AuthService extends ApiBaseService {
                     HttpMethod.PUT, entity, AuthResponse.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new ApiException("Failed to update profile",
-                        response.getStatusCode().value());
+                throw new ApiException("Failed to update profile", response.getStatusCode().value());
             }
             return Objects.requireNonNull(response.getBody(), "Response body is null");
         } catch (ApiException e) {
@@ -162,8 +184,7 @@ public class AuthService extends ApiBaseService {
                         : clientError.getResponseBodyAsString();
                 return AuthResponse.builder().message(errorMessage).build();
             }
-            return AuthResponse.builder().message("Updating profile failed: " + e.getMessage())
-                    .build();
+            return AuthResponse.builder().message("Updating profile failed: " + e.getMessage()).build();
         }
     }
 

@@ -151,6 +151,7 @@ public class AccountController {
 
         try {
             String username = (String) session.getAttribute("username");
+            request.setToken(token);
             AuthResponse response = authService.updateProfile(request, username);
             if (UPDATE_PROFILE_SUCCESS_MSG.equals(response.getMessage())) {
                 storeSessionAttributes(session, response);

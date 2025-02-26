@@ -149,7 +149,7 @@ public class AuthService extends ApiBaseService {
             }
             return Objects.requireNonNull(response.getBody(), "Response body is null");
         } catch (ApiException e) {
-            log.error("Login failed: {}", e.getMessage());
+            log.error("Updating profile failed: {}", e.getMessage());
             if (e.getCause() instanceof HttpClientErrorException) {
                 HttpClientErrorException clientError = (HttpClientErrorException) e.getCause();
                 AuthResponse errorResponse = parseErrorResponse(clientError);
@@ -157,11 +157,12 @@ public class AuthService extends ApiBaseService {
                     return errorResponse;
                 }
                 String errorMessage = clientError.getResponseBodyAsString().isEmpty()
-                        ? "Invalid username or password"
+                        ? "Update profile failed: Invalid input"
                         : clientError.getResponseBodyAsString();
                 return AuthResponse.builder().message(errorMessage).build();
             }
-            return AuthResponse.builder().message("Login failed: " + e.getMessage()).build();
+            return AuthResponse.builder().message("Updating profile failed: " + e.getMessage())
+                    .build();
         }
     }
 

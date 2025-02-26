@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.exceptions.ApiException;
 import com.packshop.client.common.services.ApiBaseService;
@@ -22,6 +24,7 @@ import com.packshop.client.dto.identity.AuthRequest;
 import com.packshop.client.dto.identity.AuthResponse;
 import com.packshop.client.dto.identity.SignupRequest;
 import com.packshop.client.dto.identity.UpdateAccountRequest;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -66,13 +69,11 @@ public class AuthService extends ApiBaseService {
         BeanUtils.copyProperties(authRequest, apiRequest, "avatarFile");
 
         // Xử lý upload avatar nếu có
-        String avatarUrl =
-                handleAvatarUpload(authRequest.getAvatarFile(), authRequest.getUsername());
+        String avatarUrl = handleAvatarUpload(authRequest.getAvatarFile(), authRequest.getUsername());
         apiRequest.setAvatarUrl(avatarUrl);
 
         try {
-            AuthResponse response =
-                    postToApi(AUTH_API_URL + "/register", apiRequest, AuthResponse.class);
+            AuthResponse response = postToApi(AUTH_API_URL + "/register", apiRequest, AuthResponse.class);
             log.info("Registration successful: {}", response);
             return response;
         } catch (ApiException e) {
@@ -99,9 +100,9 @@ public class AuthService extends ApiBaseService {
             headers.setBearerAuth(token);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<AuthResponse> response =
-                    restTemplate.exchange(BASE_API_URL + AUTH_API_URL + "/me", HttpMethod.GET,
-                            entity, AuthResponse.class);
+            ResponseEntity<AuthResponse> response = restTemplate.exchange(BASE_API_URL + AUTH_API_URL + "/me",
+                    HttpMethod.GET,
+                    entity, AuthResponse.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new ApiException("Failed to fetch current user",
@@ -139,9 +140,9 @@ public class AuthService extends ApiBaseService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(apiRequest, headers);
 
-            ResponseEntity<AuthResponse> response =
-                    restTemplate.exchange(BASE_API_URL + AUTH_API_URL + "/update-profile",
-                            HttpMethod.PUT, entity, AuthResponse.class);
+            ResponseEntity<AuthResponse> response = restTemplate.exchange(
+                    BASE_API_URL + AUTH_API_URL + "/update-profile",
+                    HttpMethod.PUT, entity, AuthResponse.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new ApiException("Failed to update profile",
@@ -173,9 +174,9 @@ public class AuthService extends ApiBaseService {
             headers.setBearerAuth(refreshToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<AuthResponse> response =
-                    restTemplate.exchange(BASE_API_URL + AUTH_API_URL + "/refresh", HttpMethod.POST,
-                            entity, AuthResponse.class);
+            ResponseEntity<AuthResponse> response = restTemplate.exchange(BASE_API_URL + AUTH_API_URL + "/refresh",
+                    HttpMethod.POST,
+                    entity, AuthResponse.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new ApiException("Failed to refresh token", response.getStatusCode().value());
@@ -191,6 +192,44 @@ public class AuthService extends ApiBaseService {
                 throw new RuntimeException(errorMessage);
             }
             throw new RuntimeException("Failed to refresh token: " + e.getMessage());
+        }
+    }
+
+    public AuthResponse updatePassword(String oldPassword, String newPassword) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, String> passwordRequest = new HashMap<>();
+            passwordRequest.put("oldPassword", oldPassword);
+            passwordRequest.put("newPassword", newPassword);
+
+            HttpEntity<Map<String, String>> entity = new HttpEntity<>(passwordRequest, headers);
+
+            ResponseEntity<AuthResponse> response = restTemplate.exchange(
+                    BASE_API_URL + AUTH_API_URL + "/update-password",
+                    HttpMethod.PUT,
+                    entity,
+                    AuthResponse.class);
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new ApiException("Failed to update password", response.getStatusCode().value());
+            }
+            return Objects.requireNonNull(response.getBody(), "Response body is null");
+        } catch (ApiException e) {
+            log.error("Update password failed: {}", e.getMessage());
+            if (e.getCause() instanceof HttpClientErrorException) {
+                HttpClientErrorException clientError = (HttpClientErrorException) e.getCause();
+                AuthResponse errorResponse = parseErrorResponse(clientError);
+                if (errorResponse != null && errorResponse.getMessage() != null) {
+                    return errorResponse;
+                }
+                String errorMessage = clientError.getResponseBodyAsString().isEmpty()
+                        ? "Failed to update password: Invalid request"
+                        : clientError.getResponseBodyAsString();
+                return AuthResponse.builder().message(errorMessage).build();
+            }
+            return AuthResponse.builder().message("Failed to update password: " + e.getMessage()).build();
         }
     }
 

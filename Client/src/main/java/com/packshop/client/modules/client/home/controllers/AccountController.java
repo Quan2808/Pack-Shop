@@ -20,6 +20,7 @@ import com.packshop.client.dto.identity.AuthRequest;
 import com.packshop.client.dto.identity.AuthResponse;
 import com.packshop.client.dto.identity.SignupRequest;
 import com.packshop.client.dto.identity.UpdateAccountRequest;
+import com.packshop.client.dto.identity.UpdatePasswordRequest;
 import com.packshop.client.modules.client.home.services.AuthService;
 
 import jakarta.servlet.http.HttpSession;
@@ -32,20 +33,23 @@ import lombok.extern.slf4j.Slf4j;
 public class AccountController {
 
     private static final String AUTH_VIEW = "client/account/authentication/index";
+    private static final String PROFILE_VIEW = "client/account/profile/index";
     private static final String REDIRECT_HOME = "redirect:/";
     private static final String REDIRECT_AUTH = "redirect:/account/authentication";
+    private static final String REDIRECT_PROFILE = "redirect:/account/profile";
     private static final String LOGIN_SUCCESS_MSG = "Login successful";
     private static final String REGISTER_SUCCESS_MSG = "User registered successfully";
     private static final String LOGOUT_SUCCESS_MSG = "You have been logged out.";
     private static final String REFRESH_SUCCESS_MSG = "Session refreshed successfully.";
+    private static final String UPDATE_PROFILE_SUCCESS_MSG = "Profile updated successfully";
+    private static final String UPDATE_PASSWORD_SUCCESS_MSG = "Password updated successfully";
     private static final String SESSION_EXPIRED_MSG = "Session expired. Please login again.";
 
     private final ViewRenderer viewRenderer;
     private final ModelMapper modelMapper;
     private final AuthService authService;
 
-    public AccountController(AuthService authService, ViewRenderer viewRenderer,
-            ModelMapper modelMapper) {
+    public AccountController(AuthService authService, ViewRenderer viewRenderer, ModelMapper modelMapper) {
         this.authService = authService;
         this.viewRenderer = viewRenderer;
         this.modelMapper = modelMapper;
@@ -62,29 +66,23 @@ public class AccountController {
     public String login(@ModelAttribute("loginRequest") @Valid AuthRequest request,
             BindingResult result, HttpSession session, RedirectAttributes redirectAttributes) {
         log.debug("Login attempt for user: {}", request.getUsername());
-
         if (hasValidationErrors(result, redirectAttributes)) {
             return REDIRECT_AUTH;
         }
-
         AuthResponse response = authService.login(request);
-        return handleAuthResponse(response, session, redirectAttributes, request.getUsername(),
-                LOGIN_SUCCESS_MSG);
+        return handleAuthResponse(response, session, redirectAttributes, request.getUsername(), LOGIN_SUCCESS_MSG);
     }
 
     @PostMapping("/register")
     public String register(@ModelAttribute("registerRequest") @Valid SignupRequest request,
             BindingResult result, RedirectAttributes redirectAttributes) throws IOException {
         log.debug("Register attempt for user: {}", request.getUsername());
-
         if (hasValidationErrors(result, redirectAttributes)) {
             redirectAttributes.addFlashAttribute("registerRequest", request);
             return REDIRECT_AUTH;
         }
-
         AuthResponse response = authService.register(request);
-        return handleAuthResponse(response, null, redirectAttributes, request.getUsername(),
-                REGISTER_SUCCESS_MSG);
+        return handleAuthResponse(response, null, redirectAttributes, request.getUsername(), REGISTER_SUCCESS_MSG);
     }
 
     @GetMapping("/logout")
@@ -103,7 +101,6 @@ public class AccountController {
             redirectAttributes.addFlashAttribute("errorMessage", "Please login again.");
             return REDIRECT_AUTH;
         }
-
         AuthResponse response = authService.refreshToken(refreshToken);
         if ("Token refreshed successfully".equals(response.getMessage())) {
             session.setAttribute("token", response.getToken());
@@ -125,51 +122,53 @@ public class AccountController {
         if (token == null) {
             return REDIRECT_AUTH;
         }
-
         AuthResponse userInfo = authService.getCurrentUser(token);
-
         UpdateAccountRequest updateProfileRequest = modelMapper.map(userInfo, UpdateAccountRequest.class);
 
         model.addAttribute("isLoggedIn", true);
         model.addAttribute("userInfo", userInfo);
         model.addAttribute("user", session);
         model.addAttribute("updateProfileRequest", updateProfileRequest);
+        model.addAttribute("updatePasswordRequest", new UpdatePasswordRequest());
 
         log.info("User info: {}", userInfo);
-        return viewRenderer.renderView(model, "client/account/profile/index", "Profile");
+        return viewRenderer.renderView(model, PROFILE_VIEW, "Profile");
     }
 
-    @PostMapping(value = "/profile/update")
+    @PostMapping("/profile/update")
     public String updateProfile(
             @ModelAttribute("updateProfileRequest") @Valid UpdateAccountRequest request,
             BindingResult result, HttpSession session, RedirectAttributes redirectAttributes) {
         String token = (String) session.getAttribute("token");
         if (token == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Please login again.");
+            redirectAttributes.addFlashAttribute("errorMessage", SESSION_EXPIRED_MSG);
             return REDIRECT_AUTH;
         }
-
         if (hasValidationErrors(result, redirectAttributes)) {
             redirectAttributes.addFlashAttribute("updateProfileRequest", request);
-            return "redirect:/account/profile";
+            return REDIRECT_PROFILE;
         }
 
         try {
             String username = (String) session.getAttribute("username");
             AuthResponse response = authService.updateProfile(request, username);
-            return handleAuthResponse(response, session, redirectAttributes, username,
-                    "Profile updated successfully");
+            if (UPDATE_PROFILE_SUCCESS_MSG.equals(response.getMessage())) {
+                storeSessionAttributes(session, response);
+                log.info("Profile updated successfully for user: {}", username);
+                redirectAttributes.addFlashAttribute("successMessage", UPDATE_PROFILE_SUCCESS_MSG);
+                return REDIRECT_PROFILE;
+            } else {
+                log.warn("Failed to update profile for user: {} - {}", username, response.getMessage());
+                redirectAttributes.addFlashAttribute("errorMessage", response.getMessage());
+                redirectAttributes.addFlashAttribute("updateProfileRequest", request);
+                return REDIRECT_PROFILE;
+            }
         } catch (Exception e) {
-            // Log the exception
             log.error("Error updating profile: ", e);
-
-            // Try to extract error message from response if possible
             String errorMessage = "Failed to update profile";
-
             if (e instanceof HttpClientErrorException) {
                 HttpClientErrorException clientError = (HttpClientErrorException) e;
                 try {
-                    // Try to parse the error response body as an AuthResponse
                     AuthResponse errorResponse = new ObjectMapper()
                             .readValue(clientError.getResponseBodyAsString(), AuthResponse.class);
                     if (errorResponse != null && errorResponse.getMessage() != null) {
@@ -179,7 +178,6 @@ public class AccountController {
                     log.warn("Failed to parse error response: {}", e.getMessage());
                 }
             } else if (e.getCause() instanceof HttpClientErrorException) {
-                // Sometimes the exception is wrapped
                 HttpClientErrorException clientError = (HttpClientErrorException) e.getCause();
                 try {
                     AuthResponse errorResponse = new ObjectMapper()
@@ -191,22 +189,75 @@ public class AccountController {
                     log.warn("Failed to parse error response: {}", e.getMessage());
                 }
             }
-
-            // Add error message to redirect attributes
             redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
             redirectAttributes.addFlashAttribute("updateProfileRequest", request);
-
-            // Redirect back to profile page instead of showing error
-            return "redirect:/account/profile";
+            return REDIRECT_PROFILE;
         }
     }
 
-    private boolean hasValidationErrors(BindingResult result,
-            RedirectAttributes redirectAttributes) {
+    @PostMapping("/profile/update-password")
+    public String updatePassword(
+            @ModelAttribute("updatePasswordRequest") @Valid UpdatePasswordRequest request,
+            BindingResult result, HttpSession session, RedirectAttributes redirectAttributes) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", SESSION_EXPIRED_MSG);
+            return REDIRECT_AUTH;
+        }
+        if (hasValidationErrors(result, redirectAttributes)) {
+            return REDIRECT_PROFILE;
+        }
+
+        try {
+            String username = (String) session.getAttribute("username");
+            AuthResponse response = authService.updatePassword(request.getOldPassword(), request.getNewPassword());
+            if (UPDATE_PASSWORD_SUCCESS_MSG.equals(response.getMessage())) {
+                log.info("Password updated successfully for user: {}", username);
+                redirectAttributes.addFlashAttribute("successMessage", UPDATE_PASSWORD_SUCCESS_MSG);
+                return REDIRECT_PROFILE;
+            } else {
+                log.warn("Failed to update password for user: {} - {}", username, response.getMessage());
+                redirectAttributes.addFlashAttribute("errorMessage", response.getMessage());
+                redirectAttributes.addFlashAttribute("updatePasswordRequest", request);
+                return REDIRECT_PROFILE;
+            }
+        } catch (Exception e) {
+            log.error("Error updating password: ", e);
+            String errorMessage = "Failed to update password";
+            if (e instanceof HttpClientErrorException) {
+                HttpClientErrorException clientError = (HttpClientErrorException) e;
+                try {
+                    AuthResponse errorResponse = new ObjectMapper()
+                            .readValue(clientError.getResponseBodyAsString(), AuthResponse.class);
+                    if (errorResponse != null && errorResponse.getMessage() != null) {
+                        errorMessage = errorResponse.getMessage();
+                    }
+                } catch (Exception parseEx) {
+                    log.warn("Failed to parse error response: {}", e.getMessage());
+                }
+            } else if (e.getCause() instanceof HttpClientErrorException) {
+                HttpClientErrorException clientError = (HttpClientErrorException) e.getCause();
+                try {
+                    AuthResponse errorResponse = new ObjectMapper()
+                            .readValue(clientError.getResponseBodyAsString(), AuthResponse.class);
+                    if (errorResponse != null && errorResponse.getMessage() != null) {
+                        errorMessage = errorResponse.getMessage();
+                    }
+                } catch (Exception parseEx) {
+                    log.warn("Failed to parse error response: {}", e.getMessage());
+                }
+            }
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            return REDIRECT_PROFILE;
+        }
+    }
+
+    private boolean hasValidationErrors(BindingResult result, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             String errorMessage = result.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                    .reduce((msg1, msg2) -> msg1 + "; " + msg2).orElse("Validation failed");
+                    .reduce((msg1, msg2) -> msg1 + "; " + msg2)
+                    .orElse("Validation failed");
             log.warn("Validation failed: {}", errorMessage);
             redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
             return true;
@@ -218,52 +269,21 @@ public class AccountController {
             RedirectAttributes redirectAttributes, String username, String successMsg) {
         log.debug("Response message: {}", response.getMessage());
 
-        // Check if the operation was successful
-        boolean isSuccess = (response.getMessage() != null && (successMsg.equals(response.getMessage())
-                || "Profile updated successfully".equals(response.getMessage())));
-
-        if (isSuccess) {
-            // Handle session management for different operations
-            if (session != null) {
-                if (LOGIN_SUCCESS_MSG.equals(successMsg)
-                        || "Profile updated successfully".equals(response.getMessage())) {
-                    storeSessionAttributes(session, response);
-                }
+        if (response.getMessage() != null && successMsg.equals(response.getMessage())) {
+            if (session != null && LOGIN_SUCCESS_MSG.equals(successMsg)) {
+                storeSessionAttributes(session, response);
             }
+            log.info("{} for user: {}", successMsg, username);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    REGISTER_SUCCESS_MSG.equals(successMsg)
+                            ? "Registration successful. Please login."
+                            : response.getMessage());
 
-            log.info("{} for user: {}", successMsg.isEmpty() ? response.getMessage() : successMsg,
-                    username);
-
-            // Set appropriate success message
-            String flashMessage;
-            if (REGISTER_SUCCESS_MSG.equals(successMsg)) {
-                flashMessage = "Registration successful. Please login.";
-            } else if ("Profile updated successfully".equals(response.getMessage())) {
-                flashMessage = "Profile updated successfully";
-            } else {
-                flashMessage = response.getMessage();
-            }
-            redirectAttributes.addFlashAttribute("successMessage", flashMessage);
-
-            // Determine redirect URL based on operation type
-            if (LOGIN_SUCCESS_MSG.equals(successMsg)) {
-                return REDIRECT_HOME;
-            } else if ("Profile updated successfully".equals(response.getMessage())) {
-                return "redirect:/account/profile";
-            } else {
-                return REDIRECT_AUTH;
-            }
+            return LOGIN_SUCCESS_MSG.equals(successMsg) ? REDIRECT_HOME : REDIRECT_AUTH;
         } else {
-            // Handle error responses
-            log.warn("Operation failed for user: {} - {}", username, response.getMessage());
+            log.warn("Failed for user: {} - {}", username, response.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", response.getMessage());
-
-            // Determine redirect URL based on operation type
-            if ("Profile updated successfully".equals(successMsg)) {
-                return "redirect:/account/profile";
-            } else {
-                return REDIRECT_AUTH;
-            }
+            return REDIRECT_AUTH;
         }
     }
 

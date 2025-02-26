@@ -19,6 +19,8 @@
           class="btn btn-link"
           data-mdb-ripple-init
           data-mdb-ripple-color="dark"
+          data-mdb-modal-init
+          data-mdb-target="#updatePassword"
         >
           Update password
         </button>
@@ -54,6 +56,8 @@
           class="btn btn-link"
           data-mdb-ripple-init
           data-mdb-ripple-color="dark"
+          data-mdb-modal-init
+          data-mdb-target="#updatePassword"
         >
           Update password
         </button>
@@ -123,7 +127,8 @@
     </div>
   </div>
 
-  <div th:replace="~{client/account/profile/components/_edit}"></div>
+  <div th:replace="~{client/account/profile/components/_update-profile}"></div>
+  <div th:replace="~{client/account/profile/components/_update-password}"></div>
 </div>
 
 <th:block th:fragment="viewScripts">

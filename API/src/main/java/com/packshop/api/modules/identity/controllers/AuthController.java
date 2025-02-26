@@ -105,13 +105,14 @@ public class AuthController {
             String token = validateAndExtractToken(authHeader);
             String username = jwtUtil.extractUsername(token);
             User updatedUser = userService.updateProfile(username, profileRequest);
-            return ResponseEntity
-                    .ok(buildAuthResponse(updatedUser, null, null, "Profile updated successfully"));
+            return ResponseEntity.ok(
+                    buildAuthResponse(updatedUser, token, null, "Profile updated successfully"));
         } catch (SecurityException e) {
             return buildErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
         } catch (Exception e) {
-            log.error("Error updating profile", e);
-            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating profile");
+            log.error("Error updating profile: " + e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error updating profile: " + e.getMessage());
         }
     }
 

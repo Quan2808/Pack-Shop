@@ -1,6 +1,8 @@
 package com.packshop.client.modules.client.home.services;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpEntity;
@@ -19,6 +21,7 @@ import com.packshop.client.common.utilities.FileStorageService;
 import com.packshop.client.dto.identity.AuthRequest;
 import com.packshop.client.dto.identity.AuthResponse;
 import com.packshop.client.dto.identity.SignupRequest;
+import com.packshop.client.dto.identity.UpdateAccountRequest;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -118,26 +121,31 @@ public class AuthService extends ApiBaseService {
         }
     }
 
-    public AuthResponse updateProfile(String token, SignupRequest request) throws IOException {
+    public AuthResponse updateProfile(UpdateAccountRequest request, String username)
+            throws IOException {
         log.info("Updating profile with request: {}", request);
 
-        // Tạo bản sao không chứa avatarFile và password
-        SignupRequest apiRequest = new SignupRequest();
-        BeanUtils.copyProperties(request, apiRequest, "avatarFile", "password");
-
         // Xử lý upload avatar nếu có
-        String avatarUrl = handleAvatarUpload(request.getAvatarFile(), request.getUsername());
-        apiRequest.setAvatarUrl(avatarUrl);
+        String avatarUrl = handleAvatarUpload(request.getAvatarFile(), username);
+
+        // Tạo object để gửi lên server (khớp với ProfileUpdateRequest của server)
+        Map<String, Object> apiRequest = new HashMap<>();
+        apiRequest.put("email", request.getEmail());
+        apiRequest.put("fullName", request.getFullName());
+        apiRequest.put("phoneNumber", request.getPhoneNumber());
+        apiRequest.put("avatarUrl", avatarUrl != null ? avatarUrl : request.getAvatarUrl());
+
+        log.debug("Sending request to server: {}", apiRequest);
 
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(token);
-            HttpEntity<SignupRequest> entity = new HttpEntity<>(apiRequest, headers);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(apiRequest, headers);
 
             ResponseEntity<AuthResponse> response =
-                    restTemplate.exchange(BASE_API_URL + AUTH_API_URL + "/profile/update",
-                            HttpMethod.POST, entity, AuthResponse.class);
+                    restTemplate.exchange(BASE_API_URL + AUTH_API_URL + "/update-profile",
+                            HttpMethod.PUT, entity, AuthResponse.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new ApiException("Failed to update profile",
@@ -145,15 +153,8 @@ public class AuthService extends ApiBaseService {
             }
             return Objects.requireNonNull(response.getBody(), "Response body is null");
         } catch (ApiException e) {
-            log.error("Update profile failed: {}", e.getMessage());
-            if (e.getCause() instanceof HttpClientErrorException) {
-                HttpClientErrorException clientError = (HttpClientErrorException) e.getCause();
-                String errorMessage = clientError.getResponseBodyAsString().isEmpty()
-                        ? "Failed to update profile: Invalid input"
-                        : clientError.getResponseBodyAsString();
-                throw new RuntimeException(errorMessage);
-            }
-            throw new RuntimeException("Failed to update profile: " + e.getMessage());
+            log.error("Update profile failed: {}", e.getMessage(), e);
+            throw e;
         }
     }
 
@@ -188,8 +189,11 @@ public class AuthService extends ApiBaseService {
     private String handleAvatarUpload(MultipartFile file, String username) throws IOException {
         if (file != null && !file.isEmpty()) {
             String path = "user/" + username;
-            return fileStorageService.storeFile(file, path);
+            String url = fileStorageService.storeFile(file, path);
+            log.debug("Avatar uploaded, URL: {}", url);
+            return url;
         }
+        log.debug("No avatar file provided or file is empty");
         return null;
     }
 

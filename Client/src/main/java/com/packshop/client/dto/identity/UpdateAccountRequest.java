@@ -1,5 +1,6 @@
-package com.packshop.api.modules.identity.dto;
+package com.packshop.client.dto.identity;
 
+import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -8,6 +9,7 @@ import lombok.Data;
 
 @Data
 public class UpdateAccountRequest {
+
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
     private String email;
@@ -22,4 +24,6 @@ public class UpdateAccountRequest {
 
     @Size(max = 255, message = "Avatar URL must not exceed 255 characters")
     private String avatarUrl;
+
+    private MultipartFile avatarFile;
 }

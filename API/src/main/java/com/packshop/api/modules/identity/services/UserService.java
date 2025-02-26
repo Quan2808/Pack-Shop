@@ -67,7 +67,6 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         modelMapper.map(profileRequest, user);
-
         return userRepository.save(user);
     }
 

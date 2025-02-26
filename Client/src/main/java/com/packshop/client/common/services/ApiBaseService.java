@@ -92,8 +92,9 @@ public abstract class ApiBaseService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Object> entity = new HttpEntity<>(request, headers);
 
-            ResponseEntity<Void> response = restTemplate.exchange(BASE_API_URL + apiUrl + "/" + id,
-                    HttpMethod.PUT, entity, Void.class);
+            ResponseEntity<Void> response =
+                    restTemplate.exchange(BASE_API_URL + apiUrl + (id != null ? "/" + id : ""),
+                            HttpMethod.PUT, entity, Void.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("API error: {} for PUT to {}/{}", response.getStatusCode(), apiUrl, id);

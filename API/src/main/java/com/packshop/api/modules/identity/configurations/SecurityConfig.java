@@ -23,6 +23,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable()).authorizeRequests(requests -> requests
+
+                .requestMatchers(HttpMethod.PUT, "/auth/update-profile").authenticated()
                 .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
                 .requestMatchers("/auth/**").permitAll().requestMatchers(HttpMethod.POST, "/**")
                 .authenticated().requestMatchers(HttpMethod.PUT, "/**").authenticated()

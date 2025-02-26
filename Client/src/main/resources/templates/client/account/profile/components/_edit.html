@@ -21,6 +21,11 @@
           method="post"
           enctype="multipart/form-data"
         >
+          <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+            <ul>
+              <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+            </ul>
+          </div>
           <div class="row">
             <!-- Thumbnail Section -->
             <div class="col-lg-4">
@@ -39,9 +44,10 @@
                       data-mdb-default-msg="Drag & drop your profile picture or click to upload"
                     />
                   </div>
-                  <small class="text-muted">
-                    Upload a profile picture. Accepted formats: PNG, JPG, JPEG.
-                  </small>
+                  <small class="text-muted"
+                    >Upload a profile picture. Accepted formats: PNG, JPG,
+                    JPEG.</small
+                  >
                 </div>
               </div>
             </div>
@@ -63,25 +69,7 @@
                           th:field="*{fullName}"
                           placeholder="Enter your name"
                           class="form-control"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <hr />
-
-                  <!-- Username -->
-                  <div class="row align-items-center mb-3">
-                    <div class="col-sm-3">
-                      <label for="username" class="mb-0">Username</label>
-                    </div>
-                    <div class="col-sm-9">
-                      <div class="form-outline" data-mdb-input-init>
-                        <input
-                          type="text"
-                          id="username"
-                          th:field="*{username}"
-                          placeholder="Choose a username"
-                          class="form-control"
+                          required
                         />
                       </div>
                     </div>
@@ -103,6 +91,7 @@
                           class="form-control"
                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                           title="Please enter a valid email (e.g., your.email@example.com)"
+                          required
                         />
                       </div>
                     </div>
@@ -124,6 +113,7 @@
                           data-mdb-input-mask-init
                           data-mdb-input-mask="(+84) 999 999 999"
                           placeholder="(+84) 123 456 789"
+                          required
                         />
                       </div>
                     </div>

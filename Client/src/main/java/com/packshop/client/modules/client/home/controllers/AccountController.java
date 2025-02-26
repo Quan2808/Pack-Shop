@@ -15,6 +15,7 @@ import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.identity.AuthRequest;
 import com.packshop.client.dto.identity.AuthResponse;
 import com.packshop.client.dto.identity.SignupRequest;
+import com.packshop.client.dto.identity.UpdateAccountRequest;
 import com.packshop.client.modules.client.home.services.AuthService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -122,7 +123,8 @@ public class AccountController {
 
         AuthResponse userInfo = authService.getCurrentUser(token);
 
-        SignupRequest updateProfileRequest = modelMapper.map(userInfo, SignupRequest.class);
+        UpdateAccountRequest updateProfileRequest =
+                modelMapper.map(userInfo, UpdateAccountRequest.class);
 
         model.addAttribute("isLoggedIn", true);
         model.addAttribute("userInfo", userInfo);
@@ -134,26 +136,34 @@ public class AccountController {
     }
 
     @PostMapping(value = "/profile/update")
-    public String updateProfile(@ModelAttribute("authRegisterRequest") SignupRequest request,
+    public String updateProfile(
+            @ModelAttribute("updateProfileRequest") @Valid UpdateAccountRequest request,
             BindingResult result, HttpSession session, RedirectAttributes redirectAttributes) {
         String token = (String) session.getAttribute("token");
         if (token == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please login again.");
             return REDIRECT_AUTH;
         }
 
-        if (result.hasErrors()) {
-            redirectAttributes.addFlashAttribute(
-                    "org.springframework.validation.BindingResult.authRegisterRequest", result);
-            redirectAttributes.addFlashAttribute("authRegisterRequest", request);
+        if (hasValidationErrors(result, redirectAttributes)) {
+            redirectAttributes.addFlashAttribute("updateProfileRequest", request);
             return "redirect:/account/profile";
         }
 
         try {
-            authService.updateProfile(token, request);
-            redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully");
+            String username = (String) session.getAttribute("username");
+            AuthResponse response = authService.updateProfile(request, username);
+
+            if ("Profile updated successfully".equals(response.getMessage())) {
+                storeSessionAttributes(session, response);
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "Profile updated successfully");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", response.getMessage());
+            }
             return "redirect:/account/profile";
         } catch (IOException e) {
-            log.error("Failed to update profile for user: {}", request.getUsername(), e);
+            log.error("Failed to update profile for user: {}", session.getAttribute("username"), e);
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Failed to update profile: " + e.getMessage());
             return "redirect:/account/profile";

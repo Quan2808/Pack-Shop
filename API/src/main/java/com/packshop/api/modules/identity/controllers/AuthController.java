@@ -37,6 +37,7 @@ public class AuthController {
 
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String TOKEN_INVALID_MESSAGE = "Invalid or missing token";
+    private static final String INTERNAL_ERROR_MESSAGE = "An unexpected error occurred";
 
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
@@ -46,18 +47,16 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest authRequest) {
         authenticate(authRequest.getUsername(), authRequest.getPassword());
-        User user = getUserByUsername(authRequest.getUsername());
-        String token = jwtUtil.generateToken(user.getUsername());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
-        return ResponseEntity.ok(buildAuthResponse(user, token, refreshToken, "Login successful"));
+        User user = findUserByUsername(authRequest.getUsername());
+        return okResponse(user, jwtUtil.generateToken(user.getUsername()),
+                jwtUtil.generateRefreshToken(user.getUsername()), "Login successful");
     }
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody SignupRequest authRequest) {
-        User user = createUserFromRequest(authRequest);
-        User savedUser = userService.save(user);
+        User user = userService.save(buildUserFromSignup(authRequest));
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(buildAuthResponse(savedUser, null, null, "User registered successfully"));
+                .body(buildAuthResponse(user, null, null, "User registered successfully"));
     }
 
     @PostMapping("/refresh")
@@ -65,65 +64,47 @@ public class AuthController {
             @RequestHeader("Authorization") String authHeader) {
         String refreshToken = extractToken(authHeader);
         if (refreshToken == null) {
-            return buildErrorResponse(HttpStatus.BAD_REQUEST, "No refresh token provided");
+            return errorResponse(HttpStatus.BAD_REQUEST, "No refresh token provided");
         }
         String username = jwtUtil.extractUsername(refreshToken);
         if (!jwtUtil.validateToken(refreshToken, username)) {
-            return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
+            return errorResponse(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
         }
-        User user = getUserByUsername(username);
-        String newAccessToken = jwtUtil.generateToken(username);
-        return ResponseEntity.ok(buildAuthResponse(user, newAccessToken, refreshToken,
-                "Token refreshed successfully"));
+        User user = findUserByUsername(username);
+        return okResponse(user, jwtUtil.generateToken(username), refreshToken,
+                "Token refreshed successfully");
     }
 
     @PutMapping("/update-password")
     public ResponseEntity<AuthResponse> updatePassword(
             @RequestHeader("Authorization") String authHeader,
             @RequestBody Map<String, String> passwordRequest) {
-        try {
-            String token = validateAndExtractToken(authHeader);
-            String username = jwtUtil.extractUsername(token);
+        return handleAuthenticatedRequest(authHeader, username -> {
             String oldPassword = passwordRequest.getOrDefault("oldPassword", "").trim();
             String newPassword = passwordRequest.getOrDefault("newPassword", "").trim();
             User updatedUser = userService.updatePassword(username, oldPassword, newPassword);
-            return ResponseEntity.ok(
-                    buildAuthResponse(updatedUser, null, null, "Password updated successfully"));
-        } catch (SecurityException e) {
-            return buildErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
-        } catch (Exception e) {
-            log.error("Error updating password", e);
-            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating password");
-        }
+            return buildAuthResponse(updatedUser, null, null, "Password updated successfully");
+        });
     }
 
     @PutMapping("/update-profile")
     public ResponseEntity<AuthResponse> updateProfile(
             @RequestHeader("Authorization") String authHeader,
             @Valid @RequestBody UpdateAccountRequest profileRequest) {
-        try {
-            String token = validateAndExtractToken(authHeader);
-            String username = jwtUtil.extractUsername(token);
+        return handleAuthenticatedRequest(authHeader, username -> {
             User updatedUser = userService.updateProfile(username, profileRequest);
-            return ResponseEntity.ok(
-                    buildAuthResponse(updatedUser, token, null, "Profile updated successfully"));
-        } catch (SecurityException e) {
-            return buildErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
-        } catch (Exception e) {
-            log.error("Error updating profile: " + e.getMessage());
-            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error updating profile: " + e.getMessage());
-        }
+            String token = extractToken(authHeader); // Reuse existing token
+            return buildAuthResponse(updatedUser, token, null, "Profile updated successfully");
+        });
     }
 
     @GetMapping("/me")
     public ResponseEntity<AuthResponse> getCurrentUser(Authentication authentication) {
         if (!isAuthenticated(authentication)) {
-            return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Not authenticated");
+            return errorResponse(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
-        User user = getUserByUsername(authentication.getName());
-        return ResponseEntity
-                .ok(buildAuthResponse(user, null, null, "User info retrieved successfully"));
+        User user = findUserByUsername(authentication.getName());
+        return okResponse(user, null, null, "User info retrieved successfully");
     }
 
     private void authenticate(String username, String password) {
@@ -131,22 +112,13 @@ public class AuthController {
                 .authenticate(new UsernamePasswordAuthenticationToken(username, password));
     }
 
-    private User createUserFromRequest(SignupRequest authRequest) {
-        return User.builder().username(authRequest.getUsername())
-                .password(authRequest.getPassword()).email(authRequest.getEmail())
-                .fullName(authRequest.getFullName()).phoneNumber(authRequest.getPhoneNumber())
-                .avatarUrl(authRequest.getAvatarUrl()).build();
+    private User buildUserFromSignup(SignupRequest request) {
+        return User.builder().username(request.getUsername()).password(request.getPassword())
+                .email(request.getEmail()).fullName(request.getFullName())
+                .phoneNumber(request.getPhoneNumber()).avatarUrl(request.getAvatarUrl()).build();
     }
 
-    private String validateAndExtractToken(String authHeader) {
-        String token = extractToken(authHeader);
-        if (token == null || !isTokenValid(token)) {
-            throw new SecurityException(TOKEN_INVALID_MESSAGE);
-        }
-        return token;
-    }
-
-    private User getUserByUsername(String username) {
+    private User findUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
@@ -166,13 +138,29 @@ public class AuthController {
                 .token(token).refreshToken(refreshToken).message(message).build();
     }
 
-    private ResponseEntity<AuthResponse> buildErrorResponse(HttpStatus status, String message) {
+    private ResponseEntity<AuthResponse> okResponse(User user, String token, String refreshToken,
+            String message) {
+        return ResponseEntity.ok(buildAuthResponse(user, token, refreshToken, message));
+    }
+
+    private ResponseEntity<AuthResponse> errorResponse(HttpStatus status, String message) {
         return ResponseEntity.status(status).body(AuthResponse.builder().message(message).build());
     }
 
-    private boolean isTokenValid(String token) {
-        String username = jwtUtil.extractUsername(token);
-        return jwtUtil.validateToken(token, username);
+    private ResponseEntity<AuthResponse> handleAuthenticatedRequest(String authHeader,
+            java.util.function.Function<String, AuthResponse> action) {
+        try {
+            String token = extractToken(authHeader);
+            if (token == null || !jwtUtil.validateToken(token, jwtUtil.extractUsername(token))) {
+                throw new SecurityException(TOKEN_INVALID_MESSAGE);
+            }
+            return ResponseEntity.ok(action.apply(jwtUtil.extractUsername(token)));
+        } catch (SecurityException e) {
+            return errorResponse(HttpStatus.FORBIDDEN, e.getMessage());
+        } catch (Exception e) {
+            log.error("Error processing request: {}", e.getMessage());
+            return errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE);
+        }
     }
 
     private boolean isAuthenticated(Authentication authentication) {

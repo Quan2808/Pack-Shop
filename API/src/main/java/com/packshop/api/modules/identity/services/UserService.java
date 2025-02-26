@@ -32,30 +32,27 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     private static final String DEFAULT_ROLE = "USER";
+    private static final int MIN_PASSWORD_LENGTH = 8;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = checkUserExist(username);
+        User user = findUserByUsername(username);
         return new org.springframework.security.core.userdetails.User(user.getUsername(),
                 user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
 
     @Transactional
     public User save(User user) {
-        checkDuplicateField(user.getUsername(), "Username", userRepository::findByUsername);
-        checkDuplicateField(user.getEmail(), "Email", userRepository::findByEmail);
-        checkDuplicateField(user.getPhoneNumber(), "Phone number",
-                userRepository::findByPhoneNumber);
-
+        validateUniqueFields(user.getUsername(), user.getEmail(), user.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        assignDefaultRoleIfAbsent(user);
+        assignDefaultRole(user);
         return userRepository.save(user);
     }
 
     @Transactional
     public User updatePassword(String username, String oldPassword, String newPassword) {
-        validatePasswordInputs(oldPassword, newPassword);
-        User user = checkUserExist(username);
+        validatePasswordChange(oldPassword, newPassword);
+        User user = findUserByUsername(username);
         verifyOldPassword(user, oldPassword);
         ensureNewPasswordIsDifferent(user, newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -64,40 +61,25 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public User updateProfile(String username, UpdateAccountRequest profileRequest) {
-        User user = checkUserExist(username);
-
-        if (profileRequest.getEmail() != null
-                && !profileRequest.getEmail().equals(user.getEmail())) {
-            if (isDuplicateField(profileRequest.getEmail(), "Email", userRepository::findByEmail)) {
-                throw new DuplicateResourceException(
-                        "Email '" + profileRequest.getEmail() + "' is already in use");
-            }
-            user.setEmail(profileRequest.getEmail());
-        }
-
-        if (profileRequest.getFullName() != null
-                && !profileRequest.getFullName().equals(user.getFullName())) {
-            user.setFullName(profileRequest.getFullName().trim());
-        }
-
-        if (profileRequest.getPhoneNumber() != null
-                && !profileRequest.getPhoneNumber().equals(user.getPhoneNumber())) {
-            if (isDuplicateField(profileRequest.getPhoneNumber(), "Phone number",
-                    userRepository::findByPhoneNumber)) {
-                throw new DuplicateResourceException(
-                        "Phone number '" + profileRequest.getPhoneNumber() + "' is already in use");
-            }
-            user.setPhoneNumber(profileRequest.getPhoneNumber());
-        }
-
-        if (profileRequest.getAvatarUrl() != null) {
-            user.setAvatarUrl(profileRequest.getAvatarUrl());
-        }
-
+        User user = findUserByUsername(username);
+        updateFieldIfChanged(user::setEmail, user.getEmail(), profileRequest.getEmail(), "Email",
+                userRepository::findByEmail);
+        updateFieldIfChanged(user::setFullName, user.getFullName(), profileRequest.getFullName(),
+                null, null, String::trim);
+        updateFieldIfChanged(user::setPhoneNumber, user.getPhoneNumber(),
+                profileRequest.getPhoneNumber(), "Phone number", userRepository::findByPhoneNumber);
+        updateFieldIfChanged(user::setAvatarUrl, user.getAvatarUrl(), profileRequest.getAvatarUrl(),
+                null, null);
         return userRepository.save(user);
     }
 
-    private void assignDefaultRoleIfAbsent(User user) {
+    private void validateUniqueFields(String username, String email, String phoneNumber) {
+        checkDuplicate(username, "Username", userRepository::findByUsername);
+        checkDuplicate(email, "Email", userRepository::findByEmail);
+        checkDuplicate(phoneNumber, "Phone number", userRepository::findByPhoneNumber);
+    }
+
+    private void assignDefaultRole(User user) {
         Set<Role> roles = user.getRoles() != null ? user.getRoles() : new HashSet<>();
         if (roles.isEmpty()) {
             roles.add(roleRepository.findByName(DEFAULT_ROLE)
@@ -106,16 +88,14 @@ public class UserService implements UserDetailsService {
         user.setRoles(roles);
     }
 
-    private void validatePasswordInputs(String oldPassword, String newPassword) {
-        if (StringUtils.isBlank(oldPassword)) {
+    private void validatePasswordChange(String oldPassword, String newPassword) {
+        if (StringUtils.isBlank(oldPassword))
             throw new SecurityException("Current password cannot be empty");
-        }
-        if (StringUtils.isBlank(newPassword)) {
+        if (StringUtils.isBlank(newPassword))
             throw new SecurityException("New password cannot be empty");
-        }
-        if (newPassword.length() < 8) {
-            throw new SecurityException("New password must be at least 8 characters long");
-        }
+        if (newPassword.length() < MIN_PASSWORD_LENGTH)
+            throw new SecurityException(
+                    "New password must be at least " + MIN_PASSWORD_LENGTH + " characters long");
     }
 
     private void verifyOldPassword(User user, String oldPassword) {
@@ -130,19 +110,18 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    private void checkDuplicateField(String value, String fieldName,
+    private void checkDuplicate(String value, String fieldName,
             Function<String, Optional<User>> checker) {
         if (value != null && checker.apply(value).isPresent()) {
             throw new DuplicateResourceException(fieldName + " '" + value + "' already exists");
         }
     }
 
-    private boolean isDuplicateField(String value, String fieldName,
-            Function<String, Optional<User>> checker) {
+    private boolean isDuplicate(String value, Function<String, Optional<User>> checker) {
         return value != null && checker.apply(value).isPresent();
     }
 
-    private User checkUserExist(String username) {
+    private User findUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(
                 () -> new UsernameNotFoundException("User not found with username: " + username));
     }
@@ -150,5 +129,24 @@ public class UserService implements UserDetailsService {
     private List<GrantedAuthority> mapRolesToAuthorities(Set<Role> roles) {
         return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(Collectors.toList());
+    }
+
+    private <T> void updateFieldIfChanged(java.util.function.Consumer<T> setter, T currentValue,
+            T newValue, String fieldName, Function<String, Optional<User>> duplicateChecker,
+            java.util.function.UnaryOperator<T> transformer) {
+        if (newValue != null && !newValue.equals(currentValue)) {
+            T transformedValue = transformer != null ? transformer.apply(newValue) : newValue;
+            if (fieldName != null && duplicateChecker != null
+                    && isDuplicate((String) transformedValue, duplicateChecker)) {
+                throw new SecurityException(
+                        fieldName + " '" + transformedValue + "' is already in use");
+            }
+            setter.accept(transformedValue);
+        }
+    }
+
+    private <T> void updateFieldIfChanged(java.util.function.Consumer<T> setter, T currentValue,
+            T newValue, String fieldName, Function<String, Optional<User>> duplicateChecker) {
+        updateFieldIfChanged(setter, currentValue, newValue, fieldName, duplicateChecker, null);
     }
 }

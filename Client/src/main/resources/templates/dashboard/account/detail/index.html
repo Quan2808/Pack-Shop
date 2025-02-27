@@ -10,24 +10,24 @@
               <a
                 data-mdb-tab-init
                 class="nav-link active"
-                id="overview"
-                href="#overview-tab"
+                id="order"
+                href="#order-tab"
                 role="tab"
-                aria-controls="overview-tab"
+                aria-controls="order-tab"
                 aria-selected="true"
-                >Overview</a
+                >Order</a
               >
             </li>
             <li class="nav-item" role="presentation">
               <a
                 data-mdb-tab-init
                 class="nav-link"
-                id="advanced"
-                href="#advanced-tab"
+                id="invoice"
+                href="#invoice-tab"
                 role="tab"
-                aria-controls="advanced-tab"
+                aria-controls="invoice-tab"
                 aria-selected="false"
-                >Advanced</a
+                >Invoice</a
               >
             </li>
           </ul>
@@ -37,12 +37,20 @@
       <div class="tab-content" id="profile-content">
         <div
           class="tab-pane fade show active"
-          id="overview-tab"
+          id="order-tab"
           role="tabpanel"
-          aria-labelledby="overview"
+          aria-labelledby="order"
+        >
+          <div th:replace="~{dashboard/account/detail/components/_order}"></div>
+        </div>
+        <div
+          class="tab-pane fade"
+          id="invoice-tab"
+          role="tabpanel"
+          aria-labelledby="invoice"
         >
           <div
-            th:replace="~{dashboard/account/detail/components/_overview}"
+            th:replace="~{dashboard/account/detail/components/_invoice}"
           ></div>
         </div>
       </div>

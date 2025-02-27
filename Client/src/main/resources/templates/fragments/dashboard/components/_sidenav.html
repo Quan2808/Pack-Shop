@@ -65,6 +65,21 @@
     </li>
 
     <li class="sidenav-item pt-3">
+      <span class="sidenav-subheading text-muted">Customers</span>
+      <a
+        class="sidenav-link"
+        href="/dashboard/account"
+        th:classappend="${view.contains('/account') ? 'fw-bold text-warning' : ''}"
+      >
+        <i
+          class="fas fa-users fa-fw me-3"
+          th:classappend="${view.contains('/account') ? 'text-warning' : ''}"
+        ></i>
+        <span>Customers</span>
+      </a>
+    </li>
+
+    <li class="sidenav-item pt-3">
       <span class="sidenav-subheading text-muted">Sales</span>
       <a
         class="sidenav-link"

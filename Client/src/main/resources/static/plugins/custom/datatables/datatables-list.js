@@ -1,6 +1,6 @@
-document.getElementById("catalog-search").addEventListener("input", (e) => {
+document.getElementById("datatables-search").addEventListener("input", (e) => {
   const instance = mdb.Datatable.getInstance(
-    document.getElementById("catalog-table")
+    document.getElementById("datatables-table")
   );
 
   instance.search(e.target.value);
@@ -24,7 +24,7 @@ const search = (value) => {
 
 document.getElementById("status-filter").addEventListener("change", (e) => {
   const statusFilter = e.target.value;
-  const rows = document.querySelectorAll("#catalog-table tbody tr");
+  const rows = document.querySelectorAll("#datatables-table tbody tr");
 
   rows.forEach((row) => {
     const statusCell = row.querySelector("td:nth-child(6)");

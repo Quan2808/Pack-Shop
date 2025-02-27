@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.identity.UserResponse;
@@ -27,16 +30,27 @@ public class AccountManageController {
     }
 
     @RequestMapping
-    public String home(Model model) {
+    public String listAccounts(Model model) {
         try {
-            log.info("Fetching all accounts...");
             List<UserResponse> accounts = service.getAllUsers();
-            log.info("Account response {}:", accounts);
             model.addAttribute("accounts", accounts);
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Failed to fetch Users. Please try again.");
         }
-        return viewRenderer.renderView(model, ACCOUNT_PATH + "/index", "Customers List");
+        return viewRenderer.renderView(model, ACCOUNT_PATH + "/list/index", "Accounts List");
+    }
+
+    @GetMapping("/{id}")
+    public String detail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            UserResponse account = service.getProduct(id);
+            log.info("Fetched User: {}", account);
+            model.addAttribute("userInfo", account);
+            return viewRenderer.renderView(model, ACCOUNT_PATH + "/detail/index", "Account Detais");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to fetch User. Please try again.");
+            return "redirect:/dashboard/account";
+        }
     }
 
 }

@@ -40,7 +40,7 @@
       <div class="card mb-4">
         <div class="card-body text-center">
           <img
-            th:src="${userInfo.avatarUrl != null && userInfo.avatarUrl != '' ? userInfo.avatarUrl : '\images\no-avatar.jpg'}"
+            th:src="${userInfo.avatarUrl != null && userInfo.avatarUrl != ''  && userInfo.avatarUrl != 'null' ? userInfo.avatarUrl : '\images\no-avatar.jpg'}"
             alt="avatar"
             class="img-fluid rounded"
             style="width: 150px"

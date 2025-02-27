@@ -30,4 +30,14 @@ public class AccountManageService extends ApiBaseService {
         }
     }
 
+    public UserResponse getProduct(Long id) {
+        try {
+
+            return getFromApi(API_URL, id, UserResponse.class);
+        } catch (Exception e) {
+            log.info("Failed to fetch User: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
 }

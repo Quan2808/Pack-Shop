@@ -62,7 +62,12 @@
                     class="rounded-circle"
                   />
                   <div class="ms-3">
-                    <p class="fw-bold mb-1" th:text="${i.fullName}"></p>
+                    <a
+                      th:href="${'/dashboard/account/' + i.userId}"
+                      class="text-dark"
+                    >
+                      <p class="fw-bold mb-1" th:text="${i.fullName}"></p>
+                    </a>
                   </div>
                 </div>
               </td>

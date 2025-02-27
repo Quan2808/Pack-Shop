@@ -19,8 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
+@Service
 public class FileStorageService {
 
     private final Path rootLocation;
@@ -74,9 +74,8 @@ public class FileStorageService {
             try {
                 // Remove leading "/media/" if present, since it's already part of
                 // rootLocation
-                String cleanedPath =
-                        filePath.startsWith("/media/") ? filePath.substring("/media/".length())
-                                : filePath;
+                String cleanedPath = filePath.startsWith("/media/") ? filePath.substring("/media/".length())
+                        : filePath;
                 Path file = rootLocation.resolve(cleanedPath).normalize();
 
                 if (Files.exists(file)) {

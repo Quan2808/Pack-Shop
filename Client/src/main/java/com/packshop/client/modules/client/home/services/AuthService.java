@@ -54,7 +54,6 @@ public class AuthService extends ApiBaseService {
     }
 
     public AuthResponse getCurrentUser(String token) {
-        log.info("Fetching current user with token");
         HttpHeaders headers = createBearerHeaders(token);
         return executeRequest(HttpMethod.GET, AUTH_API_URL + "/me", null, headers, AuthResponse.class, "Unauthorized");
     }

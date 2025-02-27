@@ -3,19 +3,22 @@ package com.packshop.client.modules.dashboard.catalog.services;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.services.ApiBaseService;
 import com.packshop.client.common.utilities.FileStorageService;
 import com.packshop.client.dto.catalog.ProductDTO;
+
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
+@Service
 public class ProductManageService extends ApiBaseService {
 
     private static final String PRODUCTS_API_URL = "catalog/products";

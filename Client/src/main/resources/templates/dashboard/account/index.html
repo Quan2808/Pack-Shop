@@ -1,9 +1,110 @@
+<th:block th:fragment="viewStyles">
+  <link href="/plugins/datatables/datatables.bundle.css" rel="stylesheet" />
+</th:block>
+
 <div th:fragment="content">
-  <div>
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc magna massa,
-    ornare quis interdum a, cursus in quam. Quisque risus libero, cursus eget
-    eros vitae, aliquam placerat velit. Vivamus luctus eros id sagittis luctus.
-    Pellentesque felis nulla, rhoncus viverra nunc vitae, viverra aliquam ante.
-    Ut feugiat mattis tempor.
+  <div class="card card-flush">
+    <div class="card-header py-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="p-2">
+          <!-- Search Product -->
+          <div class="form-outline">
+            <div data-mdb-input-init class="form-outline">
+              <input type="text" class="form-control" id="datatables-search" />
+              <label class="form-label" for="datatables-search">Search</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center">
+          <!-- Dropdown for Status Filter -->
+          <div class="me-3">
+            <select
+              class="form-select"
+              id="role-filter"
+              aria-label="Filter by Role"
+            >
+              <option value="" selected>All Roles</option>
+              <option value="ADMIN">Admin</option>
+              <option value="USER">User</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body pt-0">
+      <div
+        data-mdb-datatable-init
+        data-mdb-hover="true"
+        class="datatables-table"
+        id="datatables-table"
+      >
+        <table>
+          <thead>
+            <tr>
+              <th class="th-sm">Customer Name</th>
+              <th class="th-sm">Email</th>
+              <th class="th-sm">Role</th>
+              <th class="th-sm" data-mdb-sort="false">
+                <div class="text-end">Action</div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="i : ${accounts}">
+              <td>
+                <div class="d-flex align-items-center">
+                  <img
+                    th:src="${i.avatarUrl != null && i.avatarUrl != 'null' && i.avatarUrl != '' ? i.avatarUrl : '\images\no-avatar.jpg'}"
+                    th:alt="${i.fullName}"
+                    style="width: 45px; height: 45px"
+                    class="rounded-circle"
+                  />
+                  <div class="ms-3">
+                    <p class="fw-bold mb-1" th:text="${i.fullName}"></p>
+                  </div>
+                </div>
+              </td>
+              <td th:text="${i.email}"></td>
+              <td th:text="${#strings.listJoin(i.roles, ', ')}"></td>
+
+              <td class="text-end">
+                <div class="d-flex justify-content-end">
+                  <!-- Edit Button -->
+                  <button
+                    data-mdb-ripple-init=""
+                    class="call-btn btn btn-outline-primary btn-floating btn-sm"
+                  >
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
+
+<th:block th:fragment="viewScripts">
+  <script>
+    document.getElementById("role-filter").addEventListener("change", (e) => {
+      const statusFilter = e.target.value;
+      const rows = document.querySelectorAll("#datatables-table tbody tr");
+      rows.forEach((row) => {
+        const statusCell = row.querySelector("td:nth-child(3)");
+        const productStatus = statusCell ? statusCell.textContent.trim() : "";
+        if (statusFilter === "" || productStatus.includes(statusFilter)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    });
+  </script>
+  <script src="/plugins/datatables/datatables.bundle.js"></script>
+  <script src="/plugins/custom/datatables/datatables-list.js"></script>
+  <div th:replace="~{fragments\common\_toasts}"></div>
+</th:block>

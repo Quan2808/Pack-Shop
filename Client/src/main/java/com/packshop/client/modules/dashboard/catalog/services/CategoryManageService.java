@@ -1,19 +1,23 @@
 package com.packshop.client.modules.dashboard.catalog.services;
 
 import java.util.List;
+
 import javax.xml.catalog.CatalogException;
+
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.services.ApiBaseService;
 import com.packshop.client.dto.catalog.CategoryDTO;
+
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
+@Service
 @CacheConfig(cacheNames = "categories")
 public class CategoryManageService extends ApiBaseService {
 
@@ -61,8 +65,7 @@ public class CategoryManageService extends ApiBaseService {
         }
         log.info("Creating category: {}", categoryDTO.getName());
         try {
-            CategoryDTO createdCategory =
-                    postToApi(CATEGORIES_API_URL, categoryDTO, CategoryDTO.class);
+            CategoryDTO createdCategory = postToApi(CATEGORIES_API_URL, categoryDTO, CategoryDTO.class);
             log.info("Category created successfully: {}", createdCategory.getName());
             return createdCategory;
         } catch (CatalogException e) {

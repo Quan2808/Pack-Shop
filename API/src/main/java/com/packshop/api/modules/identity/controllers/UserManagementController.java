@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.packshop.api.modules.identity.dto.AuthResponse;
 import com.packshop.api.modules.identity.dto.UserResponse;
 import com.packshop.api.modules.identity.services.UserManagementService;
 
@@ -34,19 +35,15 @@ public class UserManagementController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
-        log.info("Received request to fetch user with id: {}", userId);
         UserResponse user = service.getUserById(userId);
-        log.info("Returning user with id: {}", userId);
         return ResponseEntity.ok(user);
     }
 
     @PutMapping("/{userId}/roles")
-    public ResponseEntity<UserResponse> updateUserRoles(
+    public ResponseEntity<AuthResponse> updateUserRoles(
             @PathVariable Long userId,
             @RequestBody Set<String> roleNames) {
-        log.info("Received request to update roles for user id: {} with roles: {}", userId, roleNames);
-        UserResponse updatedUser = service.updateUserRoles(userId, roleNames);
-        log.info("Roles updated for user id: {}", userId);
+        AuthResponse updatedUser = service.updateUserRoles(userId, roleNames);
         return ResponseEntity.ok(updatedUser);
     }
 }

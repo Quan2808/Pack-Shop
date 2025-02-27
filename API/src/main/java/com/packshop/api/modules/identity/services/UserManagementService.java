@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.packshop.api.common.exceptions.ResourceNotFoundException;
+import com.packshop.api.modules.identity.dto.AuthResponse;
 import com.packshop.api.modules.identity.dto.UserResponse;
 import com.packshop.api.modules.identity.entities.Role;
 import com.packshop.api.modules.identity.entities.User;
@@ -29,47 +30,60 @@ public class UserManagementService {
 
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
-        log.info("Fetching all users");
         List<User> users = userRepository.findAll();
         List<UserResponse> result = users.stream()
                 .map(user -> modelMapper.map(user, UserResponse.class))
                 .collect(Collectors.toList());
-        log.info("Successfully fetched {} users", result.size());
+        // log.info("Successfully fetched {} users", result.size());
         return result;
     }
 
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long userId) {
-        log.info("Fetching user with id: {}", userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.error("User not found with id: {}", userId);
-                    return new ResourceNotFoundException("User not found with id: " + userId);
-                });
+        User user = findUserByUserId(userId);
         UserResponse result = modelMapper.map(user, UserResponse.class);
-
         return result;
     }
 
     @Transactional
-    public UserResponse updateUserRoles(Long userId, Set<String> roleNames) {
-        log.info("Updating roles for user id: {} with roles: {}", userId, roleNames);
-        User user = userRepository.findById(userId)
+    public AuthResponse updateUserRoles(Long userId, Set<String> roleNames) {
+        User user = findUserByUserId(userId);
+
+        Set<String> userRoles = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
+        if (userRoles.equals(roleNames)) {
+            AuthResponse result = modelMapper.map(user, AuthResponse.class);
+            result.setMessage("User already has the requested roles. Nothing to change");
+            return result;
+        }
+
+        Set<Role> roles = getRoles(roleNames);
+        user.setRoles(roles);
+        User updatedUser = userRepository.save(user);
+
+        AuthResponse result = modelMapper.map(updatedUser, AuthResponse.class);
+        result.setMessage("Successfully updated roles for user " + user.getUsername());
+        return result;
+    }
+
+    private User findUserByUserId(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.error("User not found with id: {}", userId);
                     return new ResourceNotFoundException("User not found with id: " + userId);
                 });
-        Set<Role> roles = roleNames.stream()
-                .map(name -> roleRepository.findByName(name)
-                        .orElseThrow(() -> {
-                            log.error("Role not found: {}", name);
-                            return new ResourceNotFoundException("Role not found: " + name);
-                        }))
+    }
+
+    private Role findRoleByName(String roleName) {
+        return roleRepository.findByName(roleName)
+                .orElseThrow(() -> {
+                    log.error("Role not found: {}", roleName);
+                    return new ResourceNotFoundException("Role not found: " + roleName);
+                });
+    }
+
+    private Set<Role> getRoles(Set<String> roleNames) {
+        return roleNames.stream()
+                .map(this::findRoleByName)
                 .collect(Collectors.toSet());
-        user.setRoles(roles);
-        User updatedUser = userRepository.save(user);
-        UserResponse result = modelMapper.map(updatedUser, UserResponse.class);
-        log.info("Successfully updated roles for user {}: {}", user.getUsername(), result.getRoles());
-        return result;
     }
 }

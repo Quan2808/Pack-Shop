@@ -2,6 +2,7 @@ package com.packshop.api.modules.identity.services;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -71,8 +72,9 @@ public class UserService implements UserDetailsService {
                 null, null, String::trim);
         updateFieldIfChanged(user::setPhoneNumber, user.getPhoneNumber(),
                 profileRequest.getPhoneNumber(), "Phone number", userRepository::findByPhoneNumber);
-        updateFieldIfChanged(user::setAvatarUrl, user.getAvatarUrl(), profileRequest.getAvatarUrl(),
-                null, null);
+        if (!Objects.equals(user.getAvatarUrl(), profileRequest.getAvatarUrl())) {
+            user.setAvatarUrl(profileRequest.getAvatarUrl());
+        }
         return userRepository.save(user);
     }
 

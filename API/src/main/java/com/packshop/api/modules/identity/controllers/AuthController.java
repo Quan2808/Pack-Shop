@@ -1,8 +1,10 @@
 package com.packshop.api.modules.identity.controllers;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.packshop.api.common.exceptions.ResourceNotFoundException;
 import com.packshop.api.modules.identity.dto.AuthRequest;
 import com.packshop.api.modules.identity.dto.AuthResponse;
@@ -25,6 +28,7 @@ import com.packshop.api.modules.identity.entities.User;
 import com.packshop.api.modules.identity.repositories.UserRepository;
 import com.packshop.api.modules.identity.services.UserService;
 import com.packshop.api.modules.identity.utilities.JwtUtil;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -92,8 +96,16 @@ public class AuthController {
             @RequestHeader("Authorization") String authHeader,
             @Valid @RequestBody UpdateAccountRequest profileRequest) {
         return handleAuthenticatedRequest(authHeader, username -> {
+            User currentUser = findUserByUsername(username);
+            String token = extractToken(authHeader);
+
+            if (isProfileUnchanged(currentUser, profileRequest)) {
+                log.info("No changes detected for user: {}", username);
+                return buildAuthResponse(currentUser, token, null, "Nothing to change");
+            }
+
+            log.info("Updating profile for user: {}", username);
             User updatedUser = userService.updateProfile(username, profileRequest);
-            String token = extractToken(authHeader); // Reuse existing token
             return buildAuthResponse(updatedUser, token, null, "Profile updated successfully");
         });
     }
@@ -165,5 +177,14 @@ public class AuthController {
 
     private boolean isAuthenticated(Authentication authentication) {
         return authentication != null && authentication.isAuthenticated();
+    }
+
+    private boolean isProfileUnchanged(User user, UpdateAccountRequest request) {
+        boolean unchanged = Objects.equals(user.getEmail(), request.getEmail())
+                && Objects.equals(user.getFullName(), request.getFullName())
+                && Objects.equals(user.getPhoneNumber(), request.getPhoneNumber())
+                && Objects.equals(user.getAvatarUrl(), request.getAvatarUrl());
+        log.debug("Profile unchanged check result: {}", unchanged);
+        return unchanged;
     }
 }

@@ -1,4 +1,4 @@
-package com.packshop.api.modules.identity.entities.order;
+package com.packshop.api.modules.shopping.entities.order;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

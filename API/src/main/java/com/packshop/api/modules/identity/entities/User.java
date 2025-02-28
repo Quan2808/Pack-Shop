@@ -1,9 +1,11 @@
 package com.packshop.api.modules.identity.entities;
 
 import java.util.Set;
+
 import com.packshop.api.modules.identity.entities.address.Address;
-import com.packshop.api.modules.identity.entities.cart.Cart;
-import com.packshop.api.modules.identity.entities.order.Order;
+import com.packshop.api.modules.shopping.entities.cart.Cart;
+import com.packshop.api.modules.shopping.entities.order.Order;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,8 +61,7 @@ public class User {
         private String fullName;
 
         @Column(name = "phone_number", unique = true)
-        @Pattern(regexp = "^\\(\\+84\\)\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{3}$",
-                        message = "Phone number must be in the format (+84) 123 456 789")
+        @Pattern(regexp = "^\\(\\+84\\)\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{3}$", message = "Phone number must be in the format (+84) 123 456 789")
         private String phoneNumber;
 
         @Column(name = "avatar_url")
@@ -77,7 +78,6 @@ public class User {
         private Set<Order> orders;
 
         @ManyToMany(fetch = FetchType.EAGER)
-        @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"),
-                        inverseJoinColumns = @JoinColumn(name = "role_id"))
+        @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
         private Set<Role> roles;
 }

@@ -2,6 +2,7 @@ package com.packshop.api.modules.identity.entities;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.packshop.api.modules.identity.entities.address.Address;
 import com.packshop.api.modules.shopping.entities.cart.Cart;
 import com.packshop.api.modules.shopping.entities.order.Order;
@@ -40,19 +41,19 @@ public class User {
         @Column(name = "id", updatable = false, nullable = false)
         private Long id;
 
+        @Column(nullable = false, unique = true)
         @NotBlank(message = "Username is required")
         @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-        @Column(nullable = false, unique = true)
         private String username;
 
+        @Column(nullable = false)
         @NotBlank(message = "Password is required")
         @Size(min = 8, message = "Password must be at least 8 characters")
-        @Column(nullable = false)
         private String password;
 
+        @Column(nullable = false, unique = true)
         @NotBlank(message = "Email is required")
         @Email(message = "Email must be valid")
-        @Column(nullable = false, unique = true)
         private String email;
 
         @Column(name = "full_name", nullable = false)
@@ -71,7 +72,9 @@ public class User {
         @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
         private Set<Address> shippingAddresses;
 
-        @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+        @OneToOne(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+                        CascadeType.REMOVE }, fetch = FetchType.LAZY)
+        @JsonIgnore
         private Cart cart;
 
         @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

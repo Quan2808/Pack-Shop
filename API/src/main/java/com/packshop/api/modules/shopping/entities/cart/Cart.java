@@ -1,7 +1,10 @@
 package com.packshop.api.modules.shopping.entities.cart;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.packshop.api.modules.identity.entities.User;
 
 import jakarta.persistence.CascadeType;
@@ -30,8 +33,23 @@ public class Cart {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "cart", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @JsonManagedReference
     private Set<CartItem> cartItems;
+
+    public int getTotalItems() {
+        return cartItems != null ? cartItems.size() : 0;
+    }
+
+    public BigDecimal getTotalPrice() {
+        if (cartItems == null || cartItems.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        return cartItems.stream()
+                .map(cartItem -> cartItem.getSubtotal() != null ? cartItem.getSubtotal() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

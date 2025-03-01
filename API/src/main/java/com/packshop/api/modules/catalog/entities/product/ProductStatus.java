@@ -1,4 +1,4 @@
-package com.packshop.api.modules.catalog.entities;
+package com.packshop.api.modules.catalog.entities.product;
 
 public enum ProductStatus {
     PUBLISHED,

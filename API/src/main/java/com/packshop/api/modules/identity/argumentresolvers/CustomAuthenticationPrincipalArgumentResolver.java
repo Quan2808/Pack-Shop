@@ -1,4 +1,4 @@
-package com.packshop.api.modules.identity.configurations;
+package com.packshop.api.modules.identity.argumentresolvers;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;

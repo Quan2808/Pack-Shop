@@ -1,4 +1,4 @@
-package com.packshop.api.modules.identity.configurations;
+package com.packshop.api.modules.identity.configurations.initializer;
 
 import java.util.Collections;
 import java.util.Optional;

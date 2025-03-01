@@ -1,4 +1,4 @@
-package com.packshop.api.modules.catalog.entities;
+package com.packshop.api.modules.catalog.entities.product;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;

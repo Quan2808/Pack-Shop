@@ -1,6 +1,8 @@
-package com.packshop.api.modules.catalog.entities;
+package com.packshop.api.modules.catalog.entities.product;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.packshop.api.modules.catalog.entities.category.Category;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

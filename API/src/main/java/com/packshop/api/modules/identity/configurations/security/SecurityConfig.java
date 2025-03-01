@@ -1,4 +1,4 @@
-package com.packshop.api.modules.identity.configurations;
+package com.packshop.api.modules.identity.configurations.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

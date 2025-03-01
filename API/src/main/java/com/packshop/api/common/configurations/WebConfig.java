@@ -8,7 +8,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.packshop.api.modules.identity.configurations.CustomAuthenticationPrincipalArgumentResolver;
+import com.packshop.api.modules.identity.argumentresolvers.CustomAuthenticationPrincipalArgumentResolver;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {

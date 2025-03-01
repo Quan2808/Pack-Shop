@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.packshop.api.modules.catalog.dto.ProductDTO;
-import com.packshop.api.modules.catalog.entities.Product;
+import com.packshop.api.modules.catalog.entities.product.Product;
 import com.packshop.api.modules.identity.dto.AuthResponse;
 import com.packshop.api.modules.identity.dto.UserResponse;
 import com.packshop.api.modules.identity.entities.Role;

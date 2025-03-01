@@ -1,4 +1,4 @@
-package com.packshop.api.modules.identity.configurations;
+package com.packshop.api.modules.identity.configurations.security;
 
 import java.io.IOException;
 

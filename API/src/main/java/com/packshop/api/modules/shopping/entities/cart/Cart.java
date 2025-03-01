@@ -1,9 +1,9 @@
 package com.packshop.api.modules.shopping.entities.cart;
 
-import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.packshop.api.modules.identity.entities.User;
 
@@ -19,7 +19,9 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "carts")
@@ -33,23 +35,24 @@ public class Cart {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    @JsonIgnore
+    @JsonBackReference
     private User user;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "cart", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
     @JsonManagedReference
-    private Set<CartItem> cartItems;
+    private Set<CartItem> cartItems = new HashSet<>();
 
     public int getTotalItems() {
         return cartItems != null ? cartItems.size() : 0;
     }
 
-    public BigDecimal getTotalPrice() {
-        if (cartItems == null || cartItems.isEmpty()) {
-            return BigDecimal.ZERO;
+    public void addCartItem(CartItem cartItem) {
+        if (cartItems == null) {
+            cartItems = new HashSet<>();
         }
-        return cartItems.stream()
-                .map(cartItem -> cartItem.getSubtotal() != null ? cartItem.getSubtotal() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        cartItems.add(cartItem);
+        cartItem.setCart(this); // Ensure bidirectional relationship
     }
 }

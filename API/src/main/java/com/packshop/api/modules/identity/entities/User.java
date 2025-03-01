@@ -2,7 +2,7 @@ package com.packshop.api.modules.identity.entities;
 
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.packshop.api.modules.identity.entities.address.Address;
 import com.packshop.api.modules.shopping.entities.cart.Cart;
 import com.packshop.api.modules.shopping.entities.order.Order;
@@ -74,7 +74,7 @@ public class User {
 
         @OneToOne(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE,
                         CascadeType.REMOVE }, fetch = FetchType.LAZY)
-        @JsonIgnore
+        @JsonManagedReference
         private Cart cart;
 
         @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

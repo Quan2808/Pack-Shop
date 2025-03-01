@@ -33,7 +33,7 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<CartDTO> getCart(@AuthenticationPrincipal User user) {
-        log.info("Getting cart for user: {}", user.getUsername());
+        log.info("Fetching cart for user: {}", user.getUsername());
         CartDTO cart = cartService.getCartByUser(user);
         return ResponseEntity.ok(cart);
     }
@@ -44,27 +44,21 @@ public class CartController {
             @Valid @RequestBody AddItemRequest request) {
         log.info("Adding item to cart: productId={}, quantity={}", request.getProductId(), request.getQuantity());
         CartItemDTO addedItem = cartService.addItemToCart(user, request.getProductId(), request.getQuantity());
-        return new ResponseEntity<>(addedItem, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(addedItem);
     }
 
     @PutMapping("/items/{itemId}")
-    public ResponseEntity<?> updateCartItem(
+    public ResponseEntity<CartItemDTO> updateCartItem(
             @AuthenticationPrincipal User user,
             @PathVariable Long itemId,
             @Valid @RequestBody UpdateItemRequest request) {
         log.info("Updating cart item: itemId={}, quantity={}", itemId, request.getQuantity());
         CartItemDTO updatedItem = cartService.updateCartItem(user, itemId, request.getQuantity());
-
-        if (updatedItem == null) {
-            log.info("Item removed due to quantity set to zero or less");
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok(updatedItem);
+        return updatedItem != null ? ResponseEntity.ok(updatedItem) : ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/items/{itemId}")
-    public ResponseEntity<?> removeItemFromCart(
+    public ResponseEntity<Void> removeItemFromCart(
             @AuthenticationPrincipal User user,
             @PathVariable Long itemId) {
         log.info("Removing item from cart: itemId={}", itemId);
@@ -73,7 +67,7 @@ public class CartController {
     }
 
     @DeleteMapping("/clear")
-    public ResponseEntity<?> clearCart(@AuthenticationPrincipal User user) {
+    public ResponseEntity<Void> clearCart(@AuthenticationPrincipal User user) {
         log.info("Clearing cart for user: {}", user.getUsername());
         cartService.clearCart(user);
         return ResponseEntity.noContent().build();

@@ -1,8 +1,5 @@
 package com.packshop.api.modules.shopping.services;
 
-import java.util.Optional;
-import java.util.Set;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,11 +38,11 @@ public class CartService {
 
     @Transactional
     public Cart createCart(User user) {
-        if (user.getCart() != null) {
-            return user.getCart();
-        }
+        Cart cart = user.getCart();
+        if (cart != null)
+            return cart;
 
-        Cart cart = new Cart();
+        cart = new Cart();
         cart.setUser(user);
         user.setCart(cart);
         return cartRepository.save(cart);
@@ -55,7 +52,7 @@ public class CartService {
     public CartItemDTO addItemToCart(User user, Long productId, int quantity) {
         log.info("Adding product {} with quantity {} to user {}'s cart", productId, quantity, user.getUsername());
 
-        // Verify product exists
+        // Validate product existence
         if (!productRepository.existsById(productId)) {
             log.error("Product not found with id: {}", productId);
             throw new ResourceNotFoundException("Product not found with id: " + productId);
@@ -63,44 +60,30 @@ public class CartService {
 
         // Validate quantity
         if (quantity <= 0) {
-            log.error("Invalid quantity: {} for product {}", quantity, productId);
+            log.error("Invalid quantity: {}", quantity);
             throw new IllegalArgumentException("Quantity must be greater than zero");
         }
 
         // Get or create cart
-        Cart cart = user.getCart();
-        if (cart == null) {
-            cart = createCart(user);
-        }
+        Cart cart = user.getCart() != null ? user.getCart() : createCart(user);
 
-        // Check if item already exists in cart
-        Optional<CartItem> existingItem = cart.getCartItems().stream()
-                .filter(item -> item.getProduct().equals(productId))
-                .findFirst();
+        // Check for existing item using repository instead of stream
+        CartItem item = cartItemRepository.findByCartAndProduct(cart, productId)
+                .orElseGet(() -> {
+                    CartItem newItem = new CartItem();
+                    newItem.setCart(cart);
+                    newItem.setProduct(productId);
+                    newItem.setQuantity(0); // Will be updated below
+                    cart.addCartItem(newItem);
+                    return newItem;
+                });
 
-        CartItem resultItem;
-        if (existingItem.isPresent()) {
-            // Update quantity of existing item
-            CartItem item = existingItem.get();
-            item.setQuantity(item.getQuantity() + quantity);
-            resultItem = cartItemRepository.save(item);
-            log.info("Updated existing cart item, new quantity: {}", item.getQuantity());
-        } else {
-            // Create new cart item
-            CartItem newItem = new CartItem();
-            newItem.setCart(cart);
-            newItem.setProduct(productId);
-            newItem.setQuantity(quantity);
+        // Update quantity and save
+        item.setQuantity(item.getQuantity() + quantity);
+        CartItem savedItem = cartItemRepository.save(item);
+        log.info("Cart item updated/created with id: {}, quantity: {}", savedItem.getId(), savedItem.getQuantity());
 
-            // Use the helper method in Cart entity to maintain relationship
-            cart.addCartItem(newItem);
-
-            // Save the cart item directly, let JPA handle the relationship
-            resultItem = cartItemRepository.save(newItem);
-            log.info("Created new cart item with id: {}", resultItem.getId());
-        }
-
-        return convertToCartItemDTO(resultItem);
+        return convertToCartItemDTO(savedItem);
     }
 
     @Transactional
@@ -109,33 +92,31 @@ public class CartService {
 
         Cart cart = user.getCart();
         if (cart == null) {
-            log.error("User {} does not have a cart", user.getUsername());
+            log.error("Cart not found for user: {}", user.getUsername());
             throw new ResourceNotFoundException("Cart not found for user: " + user.getUsername());
         }
 
-        // Find the cart item
-        CartItem item = cart.getCartItems().stream()
-                .filter(i -> i.getId().equals(itemId))
-                .findFirst()
-                .orElseThrow(() -> {
-                    log.error("Cart item not found with id: {}", itemId);
-                    return new ResourceNotFoundException("Cart item not found with id: " + itemId);
-                });
+        // Fetch item directly from repository
+        CartItem item = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found with id: " + itemId));
+
+        // Verify ownership
+        if (!cart.equals(item.getCart())) {
+            log.error("Item {} does not belong to user {}'s cart", itemId, user.getUsername());
+            throw new IllegalArgumentException("Item does not belong to user's cart");
+        }
 
         if (quantity <= 0) {
-            // Remove item if quantity is 0 or less
             cart.getCartItems().remove(item);
             cartItemRepository.delete(item);
-            cartRepository.save(cart);
-            log.info("Removed cart item {} because quantity was {}", itemId, quantity);
+            log.info("Removed cart item {} due to quantity {}", itemId, quantity);
             return null;
-        } else {
-            // Update quantity
-            item.setQuantity(quantity);
-            CartItem updatedItem = cartItemRepository.save(item);
-            log.info("Updated cart item {} to quantity {}", itemId, quantity);
-            return convertToCartItemDTO(updatedItem);
         }
+
+        item.setQuantity(quantity);
+        CartItem updatedItem = cartItemRepository.save(item);
+        log.info("Updated cart item {} to quantity {}", itemId, quantity);
+        return convertToCartItemDTO(updatedItem);
     }
 
     @Transactional
@@ -144,18 +125,17 @@ public class CartService {
 
         Cart cart = user.getCart();
         if (cart == null) {
-            log.error("User {} does not have a cart", user.getUsername());
+            log.error("Cart not found for user: {}", user.getUsername());
             throw new ResourceNotFoundException("Cart not found for user: " + user.getUsername());
         }
 
-        // Find the cart item
-        CartItem item = cart.getCartItems().stream()
-                .filter(i -> i.getId().equals(itemId))
-                .findFirst()
-                .orElseThrow(() -> {
-                    log.error("Cart item not found with id: {}", itemId);
-                    return new ResourceNotFoundException("Cart item not found with id: " + itemId);
-                });
+        CartItem item = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found with id: " + itemId));
+
+        if (!cart.equals(item.getCart())) {
+            log.error("Item {} does not belong to user {}'s cart", itemId, user.getUsername());
+            throw new IllegalArgumentException("Item does not belong to user's cart");
+        }
 
         cart.getCartItems().remove(item);
         cartItemRepository.delete(item);
@@ -168,27 +148,21 @@ public class CartService {
 
         Cart cart = user.getCart();
         if (cart == null) {
-            log.info("User {} did not have a cart to clear", user.getUsername());
+            log.info("No cart to clear for user {}", user.getUsername());
             return;
         }
 
-        Set<CartItem> items = cart.getCartItems();
-
-        // Clear items
-        cartItemRepository.deleteAll(items);
-        items.clear();
-        cartRepository.save(cart);
+        cartItemRepository.deleteAll(cart.getCartItems());
+        cart.getCartItems().clear();
         log.info("Cart cleared successfully for user {}", user.getUsername());
     }
 
     // Helper methods to convert entities to DTOs
     private CartDTO convertToCartDTO(Cart cart) {
-        CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
-        return cartDTO;
+        return modelMapper.map(cart, CartDTO.class);
     }
 
     private CartItemDTO convertToCartItemDTO(CartItem cartItem) {
-        CartItemDTO cartItemDTO = modelMapper.map(cartItem, CartItemDTO.class);
-        return cartItemDTO;
+        return modelMapper.map(cartItem, CartItemDTO.class);
     }
 }

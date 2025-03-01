@@ -1,0 +1,59 @@
+<div class="col-lg-3">
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="text-center">
+        <img
+          th:src="${userInfo.avatarUrl != null && userInfo.avatarUrl != ''  && userInfo.avatarUrl != 'null' ? userInfo.avatarUrl : '\images\no-avatar.jpg'}"
+          alt="avatar"
+          class="img-fluid rounded"
+          style="width: 150px"
+        />
+        <h5 class="my-1 mt-4 fw-bold" th:text="${userInfo.fullName}"></h5>
+        <small
+          class="fw-semibold text-muted mb-1"
+          th:text="${#strings.listJoin(userInfo.roles, ', ')}"
+        ></small>
+      </div>
+
+      <div class="accordion accordion-flush" id="view-details">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="view-details-heading">
+            <button
+              data-mdb-collapse-init
+              class="accordion-button collapsed fw-bold"
+              type="button"
+              data-mdb-target="#flush-view-details"
+              aria-expanded="true"
+              aria-controls="flush-view-details"
+            >
+              Details
+            </button>
+          </h2>
+          <div
+            id="flush-view-details"
+            class="accordion-collapse collapse show"
+            aria-labelledby="view-details-heading"
+            data-mdb-parent="#view-details"
+          >
+            <div class="accordion-body">
+              <div class="fw-bold">Account ID</div>
+              <p class="text-gray-600" th:text="${userInfo.userId}"></p>
+
+              <div class="fw-bold">Username</div>
+              <p class="text-gray-600" th:text="${userInfo.username}"></p>
+
+              <div class="fw-bold">Email</div>
+              <p class="text-gray-600" th:text="${userInfo.email}"></p>
+
+              <div class="fw-bold">Phone</div>
+              <p class="text-gray-600" th:text="${userInfo.phoneNumber}"></p>
+
+              <div class="fw-bold">Address</div>
+              <p class="text-gray-600">No address available</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -5,10 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.catalog.CatalogException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,13 +15,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.catalog.CategoryDTO;
 import com.packshop.client.dto.catalog.ProductDTO;
 import com.packshop.client.modules.dashboard.catalog.services.CategoryManageService;
 import com.packshop.client.modules.dashboard.catalog.services.ProductManageService;
-
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,21 +27,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/dashboard/catalog/products")
 public class ProductManageController {
-    @Autowired
-    private ViewRenderer viewRenderer;
-    
+
     private static final String CATALOG_PATH = "dashboard/catalog";
     private static final String REDIRECT_TO_LIST = "redirect:/dashboard/catalog/products";
     private static final String ERROR_CREATE_FAILED = "Failed to create product. Please try again.";
     private static final String ERROR_UPDATE_FAILED = "Failed to update product. Please try again.";
     private static final String ERROR_NOT_FOUND = "Product not found.";
 
+    private final ViewRenderer viewRenderer;
     private final ProductManageService productService;
     private final CategoryManageService categoryService;
 
-    public ProductManageController(ProductManageService productService, CategoryManageService categoryService) {
+    public ProductManageController(ProductManageService productService,
+            CategoryManageService categoryService, ViewRenderer viewRenderer) {
         this.productService = productService;
         this.categoryService = categoryService;
+        this.viewRenderer = viewRenderer;
     }
 
     @GetMapping
@@ -60,7 +56,8 @@ public class ProductManageController {
                 Long categoryId = product.getCategoryId();
                 if (!categoryNames.containsKey(categoryId)) {
                     String categoryName = categoryService.getCategoryNameById(categoryId);
-                    categoryNames.put(categoryId, categoryName != null ? categoryName : "Unknown Category");
+                    categoryNames.put(categoryId,
+                            categoryName != null ? categoryName : "Unknown Category");
                 }
             }
 
@@ -70,7 +67,8 @@ public class ProductManageController {
             log.error("Error fetching products", e);
             model.addAttribute("errorMessage", "Failed to fetch products. Please try again.");
         }
-        return viewRenderer.renderView(model, CATALOG_PATH + "/products/list/index", "Products List");
+        return viewRenderer.renderView(model, CATALOG_PATH + "/products/list/index",
+                "Products List");
     }
 
     @GetMapping("/create")
@@ -79,7 +77,8 @@ public class ProductManageController {
             log.info("Fetching categories for create product form....");
             model.addAttribute("product", new ProductDTO());
             populateCategories(model);
-            return viewRenderer.renderView(model, CATALOG_PATH + "/products/create/index", "Create Product");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/products/create/index",
+                    "Create Product");
         } catch (Exception e) {
             log.error("Error while showing create product form", e);
             redirectAttributes.addFlashAttribute("errorMessage",
@@ -90,15 +89,16 @@ public class ProductManageController {
 
     @PostMapping("/create/submit")
     public String createProduct(@ModelAttribute("product") @Valid ProductDTO productDTO,
-            BindingResult bindingResult,
-            Model model) {
+            BindingResult bindingResult, Model model) {
         log.info("Received request to create product: {}", productDTO);
         populateCategories(model);
 
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed for product: {}", productDTO);
-            model.addAttribute("errorMessage", "Failed to create product. Please fix the errors below.");
-            return viewRenderer.renderView(model, CATALOG_PATH + "/products/create/index", "Create Product");
+            model.addAttribute("errorMessage",
+                    "Failed to create product. Please fix the errors below.");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/products/create/index",
+                    "Create Product");
         }
 
         try {
@@ -108,20 +108,24 @@ public class ProductManageController {
         } catch (CatalogException e) {
             log.error("API error creating product with name: {}", productDTO.getName(), e);
             model.addAttribute("errorMessage", "API error: " + e.getMessage());
-            return viewRenderer.renderView(model, CATALOG_PATH + "/products/create/index", "Create Product");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/products/create/index",
+                    "Create Product");
         } catch (IOException e) {
             log.error("File upload error creating product: {}", productDTO.getName(), e);
             model.addAttribute("errorMessage", "File upload error: " + e.getMessage());
-            return viewRenderer.renderView(model, CATALOG_PATH + "/products/create/index", "Create Product");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/products/create/index",
+                    "Create Product");
         } catch (Exception e) {
             log.error("Unexpected error creating product: {}", productDTO.getName(), e);
             model.addAttribute("errorMessage", ERROR_CREATE_FAILED);
-            return viewRenderer.renderView(model, CATALOG_PATH + "/products/create/index", "Create Product");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/products/create/index",
+                    "Create Product");
         }
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+    public String showEditForm(@PathVariable Long id, Model model,
+            RedirectAttributes redirectAttributes) {
         if (id == null || id <= 0) {
             log.warn("Invalid product ID: {}", id);
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid product ID.");
@@ -139,7 +143,8 @@ public class ProductManageController {
             model.addAttribute("product", product);
             populateCategories(model);
 
-            return viewRenderer.renderView(model, CATALOG_PATH + "/products/edit/index", "Edit Product");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/products/edit/index",
+                    "Edit Product");
         } catch (Exception e) {
             log.error("Unexpected error fetching product for editing: {}", id, e);
             redirectAttributes.addFlashAttribute("errorMessage",
@@ -150,16 +155,17 @@ public class ProductManageController {
 
     @PostMapping("/edit/{id}/submit")
     public String updateProduct(@PathVariable Long id,
-            @ModelAttribute("product") @Valid ProductDTO productDTO,
-            BindingResult bindingResult,
+            @ModelAttribute("product") @Valid ProductDTO productDTO, BindingResult bindingResult,
             Model model) {
         log.info("Received request to update product {}: {}", id, productDTO);
 
         if (bindingResult.hasErrors()) {
             log.error("Validation failed for product update: {}", productDTO);
             populateCategories(model);
-            model.addAttribute("errorMessage", "Failed to update product. Please fix the errors below.");
-            return viewRenderer.renderView(model, CATALOG_PATH + "/products/edit/index", "Edit Product");
+            model.addAttribute("errorMessage",
+                    "Failed to update product. Please fix the errors below.");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/products/edit/index",
+                    "Edit Product");
         }
 
         try {
@@ -172,7 +178,8 @@ public class ProductManageController {
             List<CategoryDTO> categories = categoryService.getAllCategories();
             model.addAttribute("categories", categories);
             model.addAttribute("errorMessage", ERROR_UPDATE_FAILED);
-            return viewRenderer.renderView(model, CATALOG_PATH + "/products/edit/index", "Edit Product");
+            return viewRenderer.renderView(model, CATALOG_PATH + "/products/edit/index",
+                    "Edit Product");
         }
     }
 
@@ -189,10 +196,12 @@ public class ProductManageController {
             }
             productService.deleteProduct(id);
             log.info("Successfully deleted product with ID: {}", id);
-            redirectAttributes.addFlashAttribute("successMessage", "Product has been deleted successfully!");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Product has been deleted successfully!");
         } catch (Exception e) {
             log.error("Error deleting product with ID: {}", id, e);
-            redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete product. Please try again.");
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Failed to delete product. Please try again.");
         }
         return REDIRECT_TO_LIST;
     }

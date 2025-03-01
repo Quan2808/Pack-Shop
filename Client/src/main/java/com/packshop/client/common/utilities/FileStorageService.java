@@ -19,15 +19,15 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
+@Service
 public class FileStorageService {
 
     private final Path rootLocation;
 
     public FileStorageService() {
         String projectDir = System.getProperty("user.dir");
-        this.rootLocation = Paths.get(projectDir, "src", "main", "resources", "static", "uploads");
+        this.rootLocation = Paths.get(projectDir, "src", "main", "resources", "static", "media");
         init();
     }
 
@@ -43,22 +43,18 @@ public class FileStorageService {
         }
     }
 
-    public String storeFile(MultipartFile file, String categoryName, String productName, boolean isThumbnail)
-            throws IOException {
+    @SuppressWarnings("null")
+    public String storeFile(MultipartFile file, String path) throws IOException {
         if (file.isEmpty()) {
-
             throw new IllegalArgumentException("Failed to store empty file");
         }
 
-        @SuppressWarnings("null")
         String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
         String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
         String fileName = UUID.randomUUID().toString() + fileExtension;
 
-        // Define the directory structure
-        Path categoryDir = rootLocation.resolve(categoryName);
-        Path productDir = categoryDir.resolve(productName);
-        Path targetDir = isThumbnail ? productDir : productDir.resolve("media");
+        // Resolve the full target directory from the provided path
+        Path targetDir = rootLocation.resolve(path).normalize();
 
         if (!Files.exists(targetDir)) {
             Files.createDirectories(targetDir);
@@ -70,37 +66,53 @@ public class FileStorageService {
         }
 
         log.info("Stored file: {} at {}", fileName, destinationFile);
-        return categoryName + "/" + productName + (isThumbnail ? "/" : "/media/") + fileName;
+        return "/media/" + path + "/" + fileName;
     }
 
     public void deleteFile(String filePath) {
         if (filePath != null && !filePath.isEmpty()) {
             try {
-                Path file = rootLocation.resolve(filePath).normalize();
+                // Remove leading "/media/" if present, since it's already part of
+                // rootLocation
+                String cleanedPath = filePath.startsWith("/media/") ? filePath.substring("/media/".length())
+                        : filePath;
+                Path file = rootLocation.resolve(cleanedPath).normalize();
+
                 if (Files.exists(file)) {
                     Files.delete(file);
                     log.info("Deleted file: {}", filePath);
 
+                    // Clean up empty parent directories
                     Path parent = file.getParent();
-                    while (parent != null && !parent.equals(rootLocation)) {
-                        try {
-                            Files.delete(parent);
-                            log.info("Deleted empty directory: {}", parent);
-                            parent = parent.getParent();
-                        } catch (IOException e) {
-                            break;
-                        }
+                    while (parent != null && !parent.equals(rootLocation)
+                            && Files.isDirectory(parent) && isDirectoryEmpty(parent)) {
+                        Files.delete(parent);
+                        log.info("Deleted empty directory: {}", parent);
+                        parent = parent.getParent();
                     }
+                } else {
+                    log.warn("File does not exist: {}", filePath);
                 }
             } catch (IOException e) {
                 log.error("Error deleting file or directory: {}", filePath, e);
             }
+        } else {
+            log.warn("File path is null or empty, skipping deletion");
         }
     }
 
     public void deleteFiles(List<String> filePaths) {
-        if (filePaths != null) {
+        if (filePaths != null && !filePaths.isEmpty()) {
             filePaths.forEach(this::deleteFile);
+        } else {
+            log.warn("File paths list is null or empty, no files to delete");
+        }
+    }
+
+    // Helper method to check if a directory is empty
+    private boolean isDirectoryEmpty(Path directory) throws IOException {
+        try (var dirStream = Files.newDirectoryStream(directory)) {
+            return !dirStream.iterator().hasNext();
         }
     }
 

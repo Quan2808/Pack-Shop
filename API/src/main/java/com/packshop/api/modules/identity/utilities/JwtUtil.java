@@ -34,8 +34,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration * 7)) // Refresh token sống lâu hơn (7
-                                                                                   // ngày)
+                .expiration(new Date(System.currentTimeMillis() + expiration * 7))
                 .signWith(getSigningKey())
                 .compact();
     }

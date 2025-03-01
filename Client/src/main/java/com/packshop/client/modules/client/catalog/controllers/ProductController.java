@@ -1,34 +1,31 @@
 package com.packshop.client.modules.client.catalog.controllers;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.catalog.ProductDTO;
-import com.packshop.client.modules.client.catalog.services.product.ProductService;
-
+import com.packshop.client.modules.client.catalog.services.ProductService;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @Slf4j
 @RequestMapping("/products")
 public class ProductController {
-    @Autowired
-    private ViewRenderer viewRenderer;
+
+    private final ViewRenderer viewRenderer;
 
     private final ProductService productService;
     private static final String REDIRECT_TO_LIST = "redirect:/products";
     private static final String ERROR_NOT_FOUND = "Product not found.";
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ViewRenderer viewRenderer) {
         this.productService = productService;
+        this.viewRenderer = viewRenderer;
     }
 
     @GetMapping
@@ -52,7 +49,8 @@ public class ProductController {
     // }
 
     @GetMapping("/{id}")
-    public String getProduct(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+    public String getProduct(@PathVariable Long id, Model model,
+            RedirectAttributes redirectAttributes) {
         try {
             log.info("Fetching product with ID: {}", id);
             ProductDTO product = productService.getProduct(id);

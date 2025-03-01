@@ -1,0 +1,59 @@
+<div th:fragment="content">
+  <div class="row">
+    <div th:replace="~{dashboard/account/detail/components/_avatar}"></div>
+
+    <div class="col-lg">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <ul class="nav nav-tabs mb-3" id="profile" role="tablist">
+            <li class="nav-item" role="presentation">
+              <a
+                data-mdb-tab-init
+                class="nav-link active"
+                id="order"
+                href="#order-tab"
+                role="tab"
+                aria-controls="order-tab"
+                aria-selected="true"
+                >Order</a
+              >
+            </li>
+            <li class="nav-item" role="presentation">
+              <a
+                data-mdb-tab-init
+                class="nav-link"
+                id="invoice"
+                href="#invoice-tab"
+                role="tab"
+                aria-controls="invoice-tab"
+                aria-selected="false"
+                >Invoice</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tab-content" id="profile-content">
+        <div
+          class="tab-pane fade show active"
+          id="order-tab"
+          role="tabpanel"
+          aria-labelledby="order"
+        >
+          <div th:replace="~{dashboard/account/detail/components/_order}"></div>
+        </div>
+        <div
+          class="tab-pane fade"
+          id="invoice-tab"
+          role="tabpanel"
+          aria-labelledby="invoice"
+        >
+          <div
+            th:replace="~{dashboard/account/detail/components/_invoice}"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

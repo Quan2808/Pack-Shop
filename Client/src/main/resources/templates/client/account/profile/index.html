@@ -1,0 +1,138 @@
+<th:block th:fragment="viewStyles">
+  <link href="/plugins/file-upload/file-upload.min.css" rel="stylesheet" />
+</th:block>
+
+<div th:fragment="content" class="container">
+  <!-- Begin Breadcrumb -->
+  <div class="col-md-6 col-12">
+    <div
+      th:replace="~{fragments/client/components/_breadcrumb :: breadcrumb('Account')}"
+    ></div>
+  </div>
+  <!-- End Breadcrumb -->
+
+  <div class="row">
+    <div class="col-lg-4">
+      <div class="d-flex justify-content-center mb-4 d-lg-none">
+        <button
+          type="button"
+          class="btn btn-link"
+          data-mdb-ripple-init
+          data-mdb-ripple-color="dark"
+          data-mdb-modal-init
+          data-mdb-target="#updatePassword"
+        >
+          Update password
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-link"
+          data-mdb-ripple-init
+          data-mdb-ripple-color="dark"
+          data-mdb-modal-init
+          data-mdb-target="#updateProfile"
+        >
+          Update profile
+        </button>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body text-center">
+          <img
+            th:src="${userInfo.avatarUrl != null && userInfo.avatarUrl != ''  && userInfo.avatarUrl != 'null' ? userInfo.avatarUrl : '\images\no-avatar.jpg'}"
+            alt="avatar"
+            class="img-fluid rounded"
+            style="width: 150px"
+          />
+          <h5 class="my-1 mt-4 fw-bold" th:text="${userInfo.fullName}"></h5>
+          <small class="text-muted mb-1" th:text="${userInfo.username}"></small>
+        </div>
+      </div>
+
+      <div class="d-lg-flex justify-content-center mb-4 d-none">
+        <button
+          type="button"
+          class="btn btn-link"
+          data-mdb-ripple-init
+          data-mdb-ripple-color="dark"
+          data-mdb-modal-init
+          data-mdb-target="#updatePassword"
+        >
+          Update password
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-link"
+          data-mdb-ripple-init
+          data-mdb-ripple-color="dark"
+          data-mdb-modal-init
+          data-mdb-target="#updateProfile"
+        >
+          Update profile
+        </button>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-3">
+              <p class="mb-0 fw-bold">Name</p>
+            </div>
+            <div class="col-sm-9">
+              <p class="text-muted mb-0" th:text="${userInfo.fullName}"></p>
+            </div>
+          </div>
+          <hr />
+          <div class="row">
+            <div class="col-sm-3">
+              <p class="mb-0 fw-bold">Username</p>
+            </div>
+            <div class="col-sm-9">
+              <p class="text-muted mb-0" th:text="${userInfo.username}"></p>
+            </div>
+          </div>
+          <hr />
+          <div class="row">
+            <div class="col-sm-3">
+              <p class="mb-0 fw-bold">Email</p>
+            </div>
+            <div class="col-sm-9">
+              <p class="text-muted mb-0" th:text="${userInfo.email}"></p>
+            </div>
+          </div>
+          <hr />
+          <div class="row">
+            <div class="col-sm-3">
+              <p class="mb-0 fw-bold">Phone</p>
+            </div>
+            <div class="col-sm-9">
+              <p class="text-muted mb-0" th:text="${userInfo.phoneNumber}"></p>
+            </div>
+          </div>
+          <hr />
+          <div class="row">
+            <div class="col-sm-3">
+              <p class="mb-0 fw-bold">Address</p>
+            </div>
+            <div class="col-sm-9">
+              <p class="text-muted mb-0">No addresses availiable</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div th:replace="~{client/account/profile/components/_update-profile}"></div>
+  <div th:replace="~{client/account/profile/components/_update-password}"></div>
+</div>
+
+<th:block th:fragment="viewScripts">
+  <div th:replace="~{fragments\common\_toasts}"></div>
+  <script src="/plugins/file-upload/file-upload.min.js"></script>
+  <script src="/plugins/inputmask/inputmask.min.js"></script>
+</th:block>

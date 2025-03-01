@@ -1,0 +1,141 @@
+<div
+  class="modal fade"
+  id="updateProfile"
+  data-mdb-backdrop="static"
+  data-mdb-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="updateProfileLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="updateProfileLabel">
+          Update Profile
+        </h5>
+      </div>
+      <div class="modal-body">
+        <form
+          th:action="@{/account/profile/update}"
+          th:object="${updateProfileRequest}"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <div class="row">
+            <!-- Thumbnail Section -->
+            <div class="col-lg-4">
+              <div class="card mb-4">
+                <div class="card-body text-center">
+                  <h5 class="card-title fw-bold mb-4">Profile Picture</h5>
+                  <div id="dnd-accept-formats" class="file-upload-wrapper">
+                    <input
+                      type="file"
+                      class="file-upload-input"
+                      name="avatarFile"
+                      th:field="*{avatarFile}"
+                      data-mdb-accepted-extensions="image/*"
+                      th:data-mdb-default-file="*{avatarUrl}"
+                      data-mdb-file-upload-init
+                      data-mdb-default-msg="Drag & drop your profile picture or click to upload"
+                    />
+                  </div>
+                  <small class="text-muted"
+                    >Upload a profile picture. Accepted formats: PNG, JPG,
+                    JPEG.</small
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Section -->
+            <div class="col-lg-8">
+              <div class="card mb-4">
+                <div class="card-body">
+                  <!-- Name -->
+                  <div class="row align-items-center mb-3">
+                    <div class="col-sm-3">
+                      <label for="fullName" class="mb-0">Name</label>
+                    </div>
+                    <div class="col-sm-9">
+                      <div class="form-outline" data-mdb-input-init>
+                        <input
+                          type="text"
+                          id="fullName"
+                          th:field="*{fullName}"
+                          placeholder="Enter your name"
+                          class="form-control"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <hr />
+
+                  <!-- Email -->
+                  <div class="row align-items-center mb-3">
+                    <div class="col-sm-3">
+                      <label for="email" class="mb-0">Email</label>
+                    </div>
+                    <div class="col-sm-9">
+                      <div class="form-outline" data-mdb-input-init>
+                        <input
+                          type="email"
+                          id="email"
+                          th:field="*{email}"
+                          placeholder="your.email@example.com"
+                          class="form-control"
+                          pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                          title="Please enter a valid email (e.g., your.email@example.com)"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <hr />
+
+                  <!-- Phone -->
+                  <div class="row align-items-center mb-3">
+                    <div class="col-sm-3">
+                      <label for="phone" class="mb-0">Phone</label>
+                    </div>
+                    <div class="col-sm-9">
+                      <div class="form-outline" data-mdb-input-init>
+                        <input
+                          type="text"
+                          id="phone"
+                          th:field="*{phoneNumber}"
+                          class="form-control"
+                          data-mdb-input-mask-init
+                          data-mdb-input-mask="(+84) 999 999 999"
+                          placeholder="(+84) 123 456 789"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center">
+              <button
+                type="button"
+                class="btn btn-link"
+                data-mdb-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="btn btn-success"
+                data-mdb-ripple-init
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

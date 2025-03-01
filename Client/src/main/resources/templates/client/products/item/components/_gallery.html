@@ -9,7 +9,7 @@
     <!-- Thumbnail là item mặc định (active) -->
     <div class="carousel-item active ratio ratio-1x1">
       <img
-        th:src="@{'/uploads/' + ${product.thumbnail}}"
+        th:src="@{${product.thumbnail}}"
         th:alt="${product.name}"
         class="d-block w-100"
         alt="Product Thumbnail"
@@ -22,7 +22,7 @@
         th:classappend="${iterStat.first} ? 'carousel-item ratio ratio-1x1 active' : 'carousel-item ratio ratio-1x1'"
       >
         <img
-          th:src="@{'/uploads/' + ${mediaUrl}}"
+          th:src="@{${mediaUrl}}"
           th:alt="${product.name} + ' - Image ' + ${iterStat.count}"
           class="d-block w-100"
           alt="Product Media"
@@ -67,7 +67,7 @@
       style="width: 100px"
     >
       <img
-        th:src="@{'/uploads/' + ${product.thumbnail}}"
+        th:src="@{${product.thumbnail}}"
         th:alt="${product.name}"
         class="d-block w-100 img-fluid"
       />
@@ -84,7 +84,7 @@
         style="width: 100px"
       >
         <img
-          th:src="@{'/uploads/' + ${mediaUrl}}"
+          th:src="@{${mediaUrl}}"
           th:alt="${product.name} + ' - Image ' + ${iterStat.count}"
           class="d-block w-100 img-fluid"
         />

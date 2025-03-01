@@ -84,8 +84,8 @@
         <div class="row">
           <div class="col-lg-4" th:each="mediaItem : ${product.media}">
             <img
-              th:src="@{'/uploads/' + ${mediaItem}}"
-              th:data-mdb-img="@{'/uploads/' + ${mediaItem}}"
+              th:src="@{${mediaItem}}"
+              th:data-mdb-img="@{${mediaItem}}"
               alt="Product Media"
               class="w-100"
             />

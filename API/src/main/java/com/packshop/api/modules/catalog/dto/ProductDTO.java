@@ -3,7 +3,7 @@ package com.packshop.api.modules.catalog.dto;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.packshop.api.modules.catalog.entities.ProductStatus;
+import com.packshop.api.modules.catalog.entities.product.ProductStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

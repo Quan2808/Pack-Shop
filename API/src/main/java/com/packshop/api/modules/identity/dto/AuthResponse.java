@@ -2,16 +2,24 @@ package com.packshop.api.modules.identity.dto;
 
 import java.util.Set;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuthResponse {
+    private Long userId;
+    private String username;
+    private String email;
+    private String fullName;
+    private String phoneNumber;
+    private String avatarUrl;
+    private Set<String> roles;
     private String token;
     private String refreshToken;
-    private String username;
-    private String fullName;
-    private Set<String> roles;
     private String message;
 }

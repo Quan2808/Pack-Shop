@@ -8,7 +8,7 @@
           data-mdb-ripple-color="light"
         >
           <img
-            th:src="@{'/uploads/' + ${product.thumbnail}}"
+            th:src="@{${product.thumbnail}}"
             th:alt="${product.name}"
             class="card-img-top"
           />

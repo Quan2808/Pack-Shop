@@ -11,17 +11,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.packshop.client.common.services.CatalogBaseService;
+import com.packshop.client.common.services.ApiBaseService;
 import com.packshop.client.dto.catalog.CategoryDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
+@Service
 @CacheConfig(cacheNames = "categories")
-public class CategoryManageService extends CatalogBaseService {
+public class CategoryManageService extends ApiBaseService {
 
-    private static final String CATEGORIES_API_URL = "categories";
+    private static final String CATEGORIES_API_URL = "catalog/categories";
 
     public CategoryManageService(RestTemplate restTemplate, ObjectMapper objectMapper) {
         super(restTemplate, objectMapper);

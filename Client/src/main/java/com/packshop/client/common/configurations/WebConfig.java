@@ -20,7 +20,9 @@ public class WebConfig implements WebMvcConfigurer {
 
         for (String[] resource : resources) {
             registry.addResourceHandler(resource[0])
-                    .addResourceLocations(resource[1]);
+                    .addResourceLocations(resource[1])
+                    .setCachePeriod(3600);
+            ;
         }
     }
 }

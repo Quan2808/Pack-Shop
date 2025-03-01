@@ -1,14 +1,12 @@
 package com.packshop.client.common.utilities;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
-
-import com.packshop.client.common.services.AuthService;
 import com.packshop.client.dto.identity.AuthResponse;
-
+import com.packshop.client.modules.client.home.services.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+
 @Component
 public class ViewRenderer {
 
@@ -16,12 +14,11 @@ public class ViewRenderer {
     private static final String DASHBOARD_LAYOUT = "fragments/dashboard/_layout";
 
     private final AuthService authService;
+    private final HttpServletRequest request;
 
-    @Autowired
-    private HttpServletRequest request;
-
-    public ViewRenderer(AuthService authService) {
+    public ViewRenderer(AuthService authService, HttpServletRequest request) {
         this.authService = authService;
+        this.request = request;
     }
 
     @SuppressWarnings("null")
@@ -42,7 +39,8 @@ public class ViewRenderer {
                     if (isAdmin == null || !isAdmin) {
                         model.addAttribute("statusCode", 403);
                         model.addAttribute("errorTitle", "Forbidden");
-                        model.addAttribute("errorMessage", "You don't have permission to access this resource.");
+                        model.addAttribute("errorMessage",
+                                "You don't have permission to access this resource.");
                         return "error/index";
                     }
                 }

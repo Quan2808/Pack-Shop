@@ -112,3 +112,8 @@ out/
 Client/src/main/resources/static/uploads/*
 # But keep the uploads directory
 !Client/src/main/resources/static/uploads/.gitkeep
+
+# Ignore media files
+Client/src/main/resources/static/media/*
+# But keep the uploads directory
+!Client/src/main/resources/static/media/.gitkeep

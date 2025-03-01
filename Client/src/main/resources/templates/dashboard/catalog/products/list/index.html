@@ -10,8 +10,8 @@
           <!-- Search Product -->
           <div class="form-outline">
             <div data-mdb-input-init class="form-outline">
-              <input type="text" class="form-control" id="catalog-search" />
-              <label class="form-label" for="catalog-search">Search</label>
+              <input type="text" class="form-control" id="datatables-search" />
+              <label class="form-label" for="datatables-search">Search</label>
             </div>
           </div>
         </div>
@@ -48,8 +48,8 @@
       <div
         data-mdb-datatable-init
         data-mdb-hover="true"
-        class="catalog-table"
-        id="catalog-table"
+        class="datatables-table"
+        id="datatables-table"
       >
         <table>
           <thead>
@@ -70,7 +70,7 @@
               <td>
                 <div class="d-flex align-items-center">
                   <img
-                    th:src="@{'/uploads/' + ${product.thumbnail}}"
+                    th:src="@{${product.thumbnail}}"
                     th:alt="${product.name}"
                     style="width: 45px; height: 45px"
                     class="rounded-circle"
@@ -173,7 +173,7 @@
 
 <th:block th:fragment="viewScripts">
   <script src="/plugins/datatables/datatables.bundle.js"></script>
-  <script src="/plugins/custom/catalog/list.js"></script>
+  <script src="/plugins/custom/datatables/datatables-list.js"></script>
 
   <div th:replace="~{fragments\common\_toasts}"></div>
 

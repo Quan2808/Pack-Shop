@@ -9,8 +9,8 @@
         <div class="p-2">
           <div class="form-outline">
             <div data-mdb-input-init class="form-outline">
-              <input type="text" class="form-control" id="catalog-search" />
-              <label class="form-label" for="catalog-search">Search</label>
+              <input type="text" class="form-control" id="datatables-search" />
+              <label class="form-label" for="datatables-search">Search</label>
             </div>
           </div>
         </div>
@@ -35,8 +35,8 @@
         data-mdb-datatable-init
         data-mdb-clickable-rows="true"
         data-mdb-hover="true"
-        class="catalog-table"
-        id="catalog-table"
+        class="datatables-table"
+        id="datatables-table"
       >
         <table class="table table-striped table-bordered" id="products-table">
           <thead>
@@ -90,12 +90,15 @@
     class="modal fade"
     tabindex="-1"
     aria-hidden="true"
-    id="modal-catalog-table"
+    id="modal-datatables-table"
   >
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold" id="modal-header-catalog-table"></h5>
+          <h5
+            class="modal-title fw-bold"
+            id="modal-header-datatables-table"
+          ></h5>
           <button
             type="button"
             class="btn-close"
@@ -103,7 +106,7 @@
             aria-label="Close"
           ></button>
         </div>
-        <div class="modal-body" id="modal-body-catalog-table"></div>
+        <div class="modal-body" id="modal-body-datatables-table"></div>
       </div>
     </div>
   </div>
@@ -161,7 +164,7 @@
 
 <th:block th:fragment="viewScripts">
   <script src="/plugins/datatables/datatables.bundle.js"></script>
-  <script src="/plugins/custom/catalog/list.js"></script>
+  <script src="/plugins/custom/datatables/datatables-list.js"></script>
 
   <div th:replace="~{fragments\common\_toasts}"></div>
 
@@ -173,10 +176,12 @@
 
   <script>
     (() => {
-      const table = document.getElementById("catalog-table");
-      const modal = document.getElementById("modal-catalog-table");
-      const modalBody = document.getElementById("modal-body-catalog-table");
-      const modalHeader = document.getElementById("modal-header-catalog-table");
+      const table = document.getElementById("datatables-table");
+      const modal = document.getElementById("modal-datatables-table");
+      const modalBody = document.getElementById("modal-body-datatables-table");
+      const modalHeader = document.getElementById(
+        "modal-header-datatables-table"
+      );
 
       const modalInstance = new mdb.Modal(modal);
 
@@ -215,7 +220,7 @@
                 <td>
                   <div class="d-flex align-items-center">
                     <img
-                      src="/uploads/${product.thumbnail}"
+                      src="${product.thumbnail}"
                       alt="${product.name}"
                       style="width: 45px; height: 45px"
                       class="rounded-circle"

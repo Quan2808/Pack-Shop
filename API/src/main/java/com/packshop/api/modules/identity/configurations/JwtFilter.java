@@ -36,37 +36,44 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        logger.debug("Processing request: {}", request.getRequestURI());
-
         String uri = request.getRequestURI();
         if (uri.equals("/auth/login") || uri.equals("/auth/register") || uri.equals("/auth/refresh")) {
-            logger.debug("Skipping authentication for: {}", uri);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Skipping authentication for: {}", uri);
+            }
             chain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String username = null;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            try {
-                username = jwtUtil.extractUsername(token);
+        String token = authHeader.substring(7);
+        String username = null;
+        try {
+            username = jwtUtil.extractUsername(token);
+            if (logger.isDebugEnabled()) {
                 logger.debug("Extracted username from token: {}", username);
-            } catch (Exception e) {
-                logger.warn("Invalid token: {}", e.getMessage());
             }
+        } catch (Exception e) {
+            logger.warn("Invalid token: {}", e.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+            return;
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             if (jwtUtil.validateToken(token, userDetails.getUsername())) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
-                        null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                logger.debug("Authentication set for user: {}", username);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Authentication set for user: {}", username);
+                }
             } else {
                 logger.warn("Token validation failed for user: {}", username);
             }

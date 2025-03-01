@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -111,11 +111,10 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<AuthResponse> getCurrentUser(Authentication authentication) {
-        if (!isAuthenticated(authentication)) {
+    public ResponseEntity<AuthResponse> getCurrentUser(@AuthenticationPrincipal User user) {
+        if (user == null) {
             return errorResponse(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
-        User user = findUserByUsername(authentication.getName());
         return okResponse(user, null, null, "User info retrieved successfully");
     }
 
@@ -173,10 +172,6 @@ public class AuthController {
             log.error("Error processing request: {}", e.getMessage());
             return errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE);
         }
-    }
-
-    private boolean isAuthenticated(Authentication authentication) {
-        return authentication != null && authentication.isAuthenticated();
     }
 
     private boolean isProfileUnchanged(User user, UpdateAccountRequest request) {

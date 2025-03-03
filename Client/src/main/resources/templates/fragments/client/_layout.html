@@ -46,6 +46,8 @@
     <div th:replace="~{fragments/client/components/_scripts}"></div>
 
     <!-- Include Scripts Specific to the Current View -->
+    <div th:replace="~{fragments\common\_toasts}"></div>
+
     <th:block th:replace="~{${view} :: viewScripts} ?: _"></th:block>
   </body>
 </html>

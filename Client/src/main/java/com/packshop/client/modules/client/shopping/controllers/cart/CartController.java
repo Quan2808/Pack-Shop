@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -14,6 +15,7 @@ import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.shopping.cart.CartDTO;
 import com.packshop.client.modules.client.shopping.services.cart.CartService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,17 +29,19 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping
-    public String showCart(Model model) {
+    public String showCart(HttpSession session, Model model) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/account/authentication";
+        }
         try {
             Long userId = (Long) model.getAttribute("userId");
             CartDTO cart = cartService.getCartForUser(userId);
-            log.info("Cart: {}", cart);
             model.addAttribute("cart", cart);
         } catch (ApiException e) {
             log.error("Error fetching cart: {}", e.getMessage());
             model.addAttribute("errorMessage", "Unable to load cart. Please try again later.");
         }
-
         return viewRenderer.renderView(model, "client/cart/index", "Cart");
     }
 
@@ -45,10 +49,29 @@ public class CartController {
     public String addItemToCart(
             @RequestParam("productId") Long productId,
             @RequestParam("quantity") Integer quantity,
-            RedirectAttributes redirectAttributes) {
+            @RequestHeader(value = "Referer", required = false) String referer,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/account/authentication";
+        }
+
         try {
+            Long userId = (Long) session.getAttribute("userId");
+
+            CartDTO cart = cartService.getCartForUser(userId);
+            boolean productExists = cart.getCartItems().stream()
+                    .anyMatch(item -> item.getProduct().getId().equals(productId));
+
+            if (productExists) {
+                log.info("Product {} already exists in cart for user {}", productId, userId);
+                redirectAttributes.addFlashAttribute("errorMessage", "Product is already in your cart!");
+                return "redirect:" + (referer != null ? referer : "/products/" + productId);
+            }
+
             cartService.addItemToCart(productId, quantity);
-            redirectAttributes.addFlashAttribute("message", "Item added to cart successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "Item added to cart successfully!");
             return "redirect:/cart";
         } catch (ApiException e) {
             log.error("Error adding item to cart: {}", e.getMessage());

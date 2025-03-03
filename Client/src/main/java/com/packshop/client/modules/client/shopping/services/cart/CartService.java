@@ -36,7 +36,7 @@ public class CartService extends ApiBaseService {
     // log.info("Updating cart item: itemId={}, quantity={}", itemId, quantity);
     // CartItemRequest request = new CartItemRequest(null, quantity); // productId
     // không cần thiết khi update
-    // return putToApi(CART_API_URL + "/items", request, itemId, CartItemDTO.class);
+    // return putToApi(CART_API_URL + "/items", itemId, CartItemDTO.class);
     // }
 
     public void removeItemFromCart(Long itemId) {

@@ -1,5 +1,7 @@
 package com.packshop.api.modules.shopping.services;
 
+import java.util.Optional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,70 +54,49 @@ public class CartService {
     public CartItemDTO addItemToCart(User user, Long productId, int quantity) {
         log.info("Adding product {} with quantity {} to user {}'s cart", productId, quantity, user.getUsername());
 
-        // Validate product existence
+        // Validate product
         if (!productRepository.existsById(productId)) {
-            log.error("Product not found with id: {}", productId);
             throw new ResourceNotFoundException("Product not found with id: " + productId);
         }
 
-        // Validate quantity
-        if (quantity <= 0) {
-            log.error("Invalid quantity: {}", quantity);
-            throw new IllegalArgumentException("Quantity must be greater than zero");
-        }
-
-        // Get or create cart
         Cart cart = user.getCart() != null ? user.getCart() : createCart(user);
 
-        // Check for existing item using repository instead of stream
-        CartItem item = cartItemRepository.findByCartAndProduct(cart, productId)
-                .orElseGet(() -> {
-                    CartItem newItem = new CartItem();
-                    newItem.setCart(cart);
-                    newItem.setProduct(productId);
-                    newItem.setQuantity(0); // Will be updated below
-                    cart.addCartItem(newItem);
-                    return newItem;
-                });
+        // Check if item already exists
+        Optional<CartItem> existingItem = cartItemRepository.findByCartAndProduct(cart, productId);
+        if (existingItem.isPresent()) {
+            log.warn("Item with productId {} already exists in cart", productId);
+            return convertToCartItemDTO(existingItem.get());
+            // throw new IllegalStateException("Product " + productId + " already exists in
+            // cart. Use update instead.");
+        }
 
-        // Update quantity and save
-        item.setQuantity(item.getQuantity() + quantity);
-        CartItem savedItem = cartItemRepository.save(item);
-        log.info("Cart item updated/created with id: {}, quantity: {}", savedItem.getId(), savedItem.getQuantity());
+        // Create new item
+        CartItem newItem = new CartItem();
+        newItem.setCart(cart);
+        newItem.setProduct(productId);
+        newItem.setQuantity(quantity);
+        cart.addCartItem(newItem);
 
+        CartItem savedItem = cartItemRepository.save(newItem);
         return convertToCartItemDTO(savedItem);
     }
 
     @Transactional
     public CartItemDTO updateCartItem(User user, Long itemId, int quantity) {
-        log.info("Updating cart item {} to quantity {} for user {}", itemId, quantity, user.getUsername());
-
         Cart cart = user.getCart();
         if (cart == null) {
-            log.error("Cart not found for user: {}", user.getUsername());
             throw new ResourceNotFoundException("Cart not found for user: " + user.getUsername());
         }
 
-        // Fetch item directly from repository
         CartItem item = cartItemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart item not found with id: " + itemId));
 
-        // Verify ownership
         if (!cart.equals(item.getCart())) {
-            log.error("Item {} does not belong to user {}'s cart", itemId, user.getUsername());
             throw new IllegalArgumentException("Item does not belong to user's cart");
-        }
-
-        if (quantity <= 0) {
-            cart.getCartItems().remove(item);
-            cartItemRepository.delete(item);
-            log.info("Removed cart item {} due to quantity {}", itemId, quantity);
-            return null;
         }
 
         item.setQuantity(quantity);
         CartItem updatedItem = cartItemRepository.save(item);
-        log.info("Updated cart item {} to quantity {}", itemId, quantity);
         return convertToCartItemDTO(updatedItem);
     }
 

@@ -13,10 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.packshop.api.modules.identity.entities.User;
-import com.packshop.api.modules.shopping.dto.AddItemRequest;
 import com.packshop.api.modules.shopping.dto.CartDTO;
 import com.packshop.api.modules.shopping.dto.CartItemDTO;
-import com.packshop.api.modules.shopping.dto.UpdateItemRequest;
+import com.packshop.api.modules.shopping.dto.CartItemRequest;
 import com.packshop.api.modules.shopping.services.CartService;
 
 import jakarta.validation.Valid;
@@ -41,7 +40,7 @@ public class CartController {
     @PostMapping("/items")
     public ResponseEntity<CartItemDTO> addItemToCart(
             @AuthenticationPrincipal User user,
-            @Valid @RequestBody AddItemRequest request) {
+            @Valid @RequestBody CartItemRequest request) {
         log.info("Adding item to cart: productId={}, quantity={}", request.getProductId(), request.getQuantity());
         CartItemDTO addedItem = cartService.addItemToCart(user, request.getProductId(), request.getQuantity());
         return ResponseEntity.status(HttpStatus.CREATED).body(addedItem);
@@ -51,10 +50,10 @@ public class CartController {
     public ResponseEntity<CartItemDTO> updateCartItem(
             @AuthenticationPrincipal User user,
             @PathVariable Long itemId,
-            @Valid @RequestBody UpdateItemRequest request) {
+            @Valid @RequestBody CartItemRequest request) {
         log.info("Updating cart item: itemId={}, quantity={}", itemId, request.getQuantity());
         CartItemDTO updatedItem = cartService.updateCartItem(user, itemId, request.getQuantity());
-        return updatedItem != null ? ResponseEntity.ok(updatedItem) : ResponseEntity.noContent().build();
+        return ResponseEntity.ok(updatedItem);
     }
 
     @DeleteMapping("/items/{itemId}")

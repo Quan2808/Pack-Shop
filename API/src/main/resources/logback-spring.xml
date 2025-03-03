@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="com.packshop.api.common.logging.CustomLogEncoder" />
-    </appender>x
-
-    <root level="INFO">
+        <encoder class="com.packshop.api.logging.CustomLogEncoder" />
+    </appender>x <root
+        level="INFO">
         <appender-ref ref="CONSOLE" />
     </root>
 

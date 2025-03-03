@@ -1,7 +1,6 @@
-package com.packshop.api.modules.shopping.dto;
+package com.packshop.api.modules.shopping.dto.cart;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class CartDTO {
     private Long id;
     private int totalItems;
-    private Set<CartItemDTO> cartItems = new HashSet<>();
+    private List<CartItemDTO> cartItems;
 }

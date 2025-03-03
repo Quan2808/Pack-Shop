@@ -1,16 +1,22 @@
 package com.packshop.api.modules.shopping.services;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.packshop.api.common.exceptions.ResourceNotFoundException;
+import com.packshop.api.modules.catalog.entities.product.Product;
 import com.packshop.api.modules.catalog.repositories.ProductRepository;
 import com.packshop.api.modules.identity.entities.User;
-import com.packshop.api.modules.shopping.dto.CartDTO;
-import com.packshop.api.modules.shopping.dto.CartItemDTO;
+import com.packshop.api.modules.shopping.dto.cart.CartDTO;
+import com.packshop.api.modules.shopping.dto.cart.CartItemDTO;
+import com.packshop.api.modules.shopping.dto.cart.ProductCartDTO;
 import com.packshop.api.modules.shopping.entities.cart.Cart;
 import com.packshop.api.modules.shopping.entities.cart.CartItem;
 import com.packshop.api.modules.shopping.repositories.CartItemRepository;
@@ -31,19 +37,25 @@ public class CartService {
 
     @Transactional(readOnly = true)
     public CartDTO getCartByUser(User user) {
+        Cart cart = ensureCartExists(user);
+        return convertToCartDTO(cart);
+    }
+
+    @Transactional
+    public Cart ensureCartExists(User user) {
         Cart cart = user.getCart();
         if (cart == null) {
             cart = createCart(user);
         }
-        return convertToCartDTO(cart);
+        return cart;
     }
 
     @Transactional
     public Cart createCart(User user) {
         Cart cart = user.getCart();
-        if (cart != null)
+        if (cart != null) {
             return cart;
-
+        }
         cart = new Cart();
         cart.setUser(user);
         user.setCart(cart);
@@ -140,10 +152,40 @@ public class CartService {
 
     // Helper methods to convert entities to DTOs
     private CartDTO convertToCartDTO(Cart cart) {
-        return modelMapper.map(cart, CartDTO.class);
+        CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+        cartDTO.setTotalItems(cart.getCartItems().size());
+
+        List<Long> productIds = cart.getCartItems().stream()
+                .map(CartItem::getProduct)
+                .collect(Collectors.toList());
+        List<Product> products = productRepository.findAllById(productIds);
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        List<CartItemDTO> cartItemDTOs = cart.getCartItems().stream()
+                .map(cartItem -> {
+                    CartItemDTO dto = modelMapper.map(cartItem, CartItemDTO.class);
+                    Product product = productMap.get(cartItem.getProduct());
+                    if (product == null) {
+                        throw new ResourceNotFoundException("Product not found with id: " + cartItem.getProduct());
+                    }
+                    ProductCartDTO productDTO = modelMapper.map(product, ProductCartDTO.class);
+                    dto.setProduct(productDTO);
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        cartDTO.setCartItems(cartItemDTOs);
+        return cartDTO;
     }
 
     private CartItemDTO convertToCartItemDTO(CartItem cartItem) {
-        return modelMapper.map(cartItem, CartItemDTO.class);
+        CartItemDTO dto = modelMapper.map(cartItem, CartItemDTO.class);
+        Product product = productRepository.findById(cartItem.getProduct())
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Product not found with id: " + cartItem.getProduct()));
+        ProductCartDTO productDTO = modelMapper.map(product, ProductCartDTO.class);
+        dto.setProduct(productDTO);
+        return dto;
     }
 }

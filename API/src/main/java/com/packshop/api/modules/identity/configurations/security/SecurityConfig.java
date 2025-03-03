@@ -32,7 +32,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/**").authenticated()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .sessionManagement(management -> management
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

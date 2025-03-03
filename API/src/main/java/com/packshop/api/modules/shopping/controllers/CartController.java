@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.packshop.api.modules.identity.entities.User;
-import com.packshop.api.modules.shopping.dto.CartDTO;
-import com.packshop.api.modules.shopping.dto.CartItemDTO;
-import com.packshop.api.modules.shopping.dto.CartItemRequest;
+import com.packshop.api.modules.shopping.dto.cart.CartDTO;
+import com.packshop.api.modules.shopping.dto.cart.CartItemDTO;
+import com.packshop.api.modules.shopping.dto.cart.CartItemRequest;
 import com.packshop.api.modules.shopping.services.CartService;
 
 import jakarta.validation.Valid;

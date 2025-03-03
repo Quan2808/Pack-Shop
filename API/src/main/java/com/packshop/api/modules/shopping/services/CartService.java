@@ -14,9 +14,9 @@ import com.packshop.api.common.exceptions.ResourceNotFoundException;
 import com.packshop.api.modules.catalog.entities.product.Product;
 import com.packshop.api.modules.catalog.repositories.ProductRepository;
 import com.packshop.api.modules.identity.entities.User;
+import com.packshop.api.modules.shopping.dto.ProductItemDTO;
 import com.packshop.api.modules.shopping.dto.cart.CartDTO;
 import com.packshop.api.modules.shopping.dto.cart.CartItemDTO;
-import com.packshop.api.modules.shopping.dto.cart.ProductCartDTO;
 import com.packshop.api.modules.shopping.entities.cart.Cart;
 import com.packshop.api.modules.shopping.entities.cart.CartItem;
 import com.packshop.api.modules.shopping.repositories.CartItemRepository;
@@ -169,7 +169,7 @@ public class CartService {
                     if (product == null) {
                         throw new ResourceNotFoundException("Product not found with id: " + cartItem.getProduct());
                     }
-                    ProductCartDTO productDTO = modelMapper.map(product, ProductCartDTO.class);
+                    ProductItemDTO productDTO = modelMapper.map(product, ProductItemDTO.class);
                     dto.setProduct(productDTO);
                     return dto;
                 })
@@ -184,7 +184,7 @@ public class CartService {
         Product product = productRepository.findById(cartItem.getProduct())
                 .orElseThrow(
                         () -> new ResourceNotFoundException("Product not found with id: " + cartItem.getProduct()));
-        ProductCartDTO productDTO = modelMapper.map(product, ProductCartDTO.class);
+        ProductItemDTO productDTO = modelMapper.map(product, ProductItemDTO.class);
         dto.setProduct(productDTO);
         return dto;
     }

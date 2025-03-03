@@ -57,15 +57,9 @@
               <li>
                 <a class="dropdown-item" href="/products">All Products</a>
               </li>
-              <li>
-                <a class="dropdown-item" href="#">Category 1</a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="#">Category 2</a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="#">Category 3</a>
-              </li>
+              <li><a class="dropdown-item" href="#">Category 1</a></li>
+              <li><a class="dropdown-item" href="#">Category 2</a></li>
+              <li><a class="dropdown-item" href="#">Category 3</a></li>
             </ul>
           </li>
           <li class="nav-item">
@@ -76,11 +70,35 @@
               >Contact</a
             >
           </li>
-          <li class="nav-item text-uppercase fw-bold dropdown">
+        </ul>
+
+        <div class="d-flex align-items-center">
+          <div class="grid ps-3 pe-3">
+            <a
+              class="nav-link position-relative"
+              href="/cart"
+              th:classappend="${view.contains('/cart') ? 'nav-active' : ''}"
+            >
+              <i class="fas fa-shopping-cart fa-lg"></i>
+              <span
+                class="badge rounded-pill bg-danger text-white position-absolute"
+                style="
+                  top: -5px;
+                  right: -10px;
+                  font-size: 0.7rem;
+                  padding: 4px 8px;
+                "
+              >
+                1
+              </span>
+            </a>
+          </div>
+
+          <div class="grid ps-3 pe-3">
             <a
               th:if="${isLoggedIn}"
               data-mdb-dropdown-init
-              class="nav-link dropdown-toggle"
+              class="nav-link dropdown-toggle text-uppercase fw-bold hidden-arrow"
               href="#"
               id="navbar_authentication"
               role="button"
@@ -91,7 +109,7 @@
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbar_authentication">
               <li>
-                <a class="dropdown-item" href="/account/profile">My profile</a>
+                <a class="dropdown-item" href="/account/profile">My Profile</a>
               </li>
               <li>
                 <a class="dropdown-item" href="/account/logout">Logout</a>
@@ -103,21 +121,20 @@
               class="nav-link text-uppercase fw-bold"
               th:classappend="${view.contains('/account') ? 'nav-active' : ''}"
               href="/account/authentication"
-              >Account
+            >
+              Account
             </a>
-          </li>
-        </ul>
+          </div>
 
-        <div class="d-flex align-items-center">
           <div class="grid ps-3 pe-3">
             <div class="g-col-6"><i class="fas fa-envelope"></i> Email</div>
             <div class="g-col-6"><small>contact@example.com</small></div>
           </div>
+
           <div class="grid ps-3 pe-3">
             <div class="g-col-6"><i class="fas fa-phone"></i> Hotline</div>
-            <div class="g-col-6">
               <small>(+84) 123 456 789 (Vietnam)</small>
-            </div>
+            <div class="g-col-6"><small>(+84) 123 456 789</small></div>
           </div>
         </div>
       </div>

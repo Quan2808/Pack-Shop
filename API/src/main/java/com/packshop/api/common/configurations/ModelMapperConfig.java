@@ -14,8 +14,8 @@ import com.packshop.api.modules.identity.dto.AuthResponse;
 import com.packshop.api.modules.identity.dto.UserResponse;
 import com.packshop.api.modules.identity.entities.Role;
 import com.packshop.api.modules.identity.entities.User;
+import com.packshop.api.modules.shopping.dto.ProductItemDTO;
 import com.packshop.api.modules.shopping.dto.cart.CartItemDTO;
-import com.packshop.api.modules.shopping.dto.cart.ProductCartDTO;
 import com.packshop.api.modules.shopping.entities.cart.CartItem;
 
 @Configuration
@@ -53,7 +53,7 @@ public class ModelMapperConfig {
                                                 AuthResponse::setRoles);
 
                 // Product -> ProductCartDTO mapping
-                modelMapper.createTypeMap(Product.class, ProductCartDTO.class);
+                modelMapper.createTypeMap(Product.class, ProductItemDTO.class);
 
                 // CartItem -> CartItemDTO mapping
                 modelMapper.createTypeMap(CartItem.class, CartItemDTO.class)

@@ -1,4 +1,4 @@
-package com.packshop.api.modules.shopping.dto.cart;
+package com.packshop.api.modules.shopping.dto;
 
 import java.math.BigDecimal;
 
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductCartDTO {
+public class ProductItemDTO {
     private Long id;
     private String name;
     private BigDecimal price;

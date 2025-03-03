@@ -52,8 +52,8 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest authRequest) {
         authenticate(authRequest.getUsername(), authRequest.getPassword());
         User user = findUserByUsername(authRequest.getUsername());
-        return okResponse(user, jwtUtil.generateToken(user.getUsername()),
-                jwtUtil.generateRefreshToken(user.getUsername()), "Login successful");
+        return okResponse(user, jwtUtil.generateToken(user.getUsername(), false),
+                jwtUtil.generateToken(user.getUsername(), true), "Login successful");
     }
 
     @PostMapping("/register")
@@ -75,7 +75,7 @@ public class AuthController {
             return errorResponse(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
         }
         User user = findUserByUsername(username);
-        return okResponse(user, jwtUtil.generateToken(username), refreshToken,
+        return okResponse(user, jwtUtil.generateToken(username, false), refreshToken,
                 "Token refreshed successfully");
     }
 

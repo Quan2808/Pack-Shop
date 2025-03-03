@@ -28,12 +28,14 @@
       <label class="form-label fw-bold" for="price">Base Price</label>
       <div data-mdb-input-init class="form-outline">
         <input
-          type="number"
+          type="text"
           id="price"
           name="price"
           class="form-control"
-          placeholder="Product price"
           th:field="*{price}"
+          data-mdb-input-mask-init
+          data-mdb-input-mask="999 000"
+          placeholder="Product price"
         />
       </div>
       <small class="text-muted text-center"> Set the product price. </small>

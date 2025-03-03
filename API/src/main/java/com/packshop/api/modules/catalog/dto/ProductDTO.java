@@ -1,6 +1,5 @@
 package com.packshop.api.modules.catalog.dto;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import com.packshop.api.modules.catalog.entities.product.ProductStatus;
@@ -19,7 +18,7 @@ public class ProductDTO {
     private ProductStatus status;
     private String description;
     private List<String> media;
-    private BigDecimal price;
+    private Long price;
     private String sku;
     private int quantity;
     private Long categoryId;

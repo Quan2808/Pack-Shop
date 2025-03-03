@@ -7,6 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.packshop.api.common.exceptions.DuplicateResourceException;
 import com.packshop.api.common.exceptions.ResourceNotFoundException;
 import com.packshop.api.modules.catalog.dto.ProductDTO;
 import com.packshop.api.modules.catalog.entities.category.Category;
@@ -25,10 +26,19 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
 
-    // Product operations
     public ProductDTO createProduct(ProductDTO productDTO) {
         Category category = categoryRepository.findById(productDTO.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+
+        if (productRepository.existsByNameIgnoreCase(productDTO.getName())) {
+            throw new DuplicateResourceException(
+                    String.format("Product with name '%s' already exists", productDTO.getName()));
+        }
+
+        if (productRepository.existsBySkuIgnoreCase(productDTO.getSku())) {
+            throw new DuplicateResourceException(
+                    String.format("Product with SKU '%s' already exists", productDTO.getSku()));
+        }
 
         Product product = modelMapper.map(productDTO, Product.class);
         product.setCategory(category);

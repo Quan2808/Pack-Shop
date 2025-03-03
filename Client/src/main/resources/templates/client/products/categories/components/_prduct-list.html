@@ -30,14 +30,19 @@
             class="btn-group w-100 d-flex justify-content-between"
             role="group"
           >
-            <button
-              type="button"
-              class="btn btn-warning"
-              data-mdb-ripple-init
-              data-mdb-color="dark"
-            >
-              Add to cart
-            </button>
+            <form th:action="@{/cart/add}" method="post" class="w-50 me-1">
+              <input type="hidden" name="productId" th:value="${product.id}" />
+              <input type="hidden" name="quantity" value="1" />
+              <!-- Mặc định thêm 1 sản phẩm -->
+              <button
+                type="submit"
+                class="btn btn-warning w-100"
+                data-mdb-ripple-init
+                data-mdb-color="dark"
+              >
+                Add to cart
+              </button>
+            </form>
             <button
               type="button"
               class="btn btn-light"

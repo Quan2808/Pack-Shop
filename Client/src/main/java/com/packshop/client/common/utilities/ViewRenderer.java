@@ -2,11 +2,15 @@ package com.packshop.client.common.utilities;
 
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
+
 import com.packshop.client.dto.identity.AuthResponse;
 import com.packshop.client.modules.client.home.services.AuthService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class ViewRenderer {
 
@@ -30,6 +34,7 @@ public class ViewRenderer {
         if (token != null) {
             try {
                 AuthResponse userInfo = authService.getCurrentUser(token);
+                model.addAttribute("userId", userInfo.getUserId());
                 model.addAttribute("username", userInfo.getUsername());
                 model.addAttribute("roles", userInfo.getRoles());
                 model.addAttribute("isLoggedIn", true);

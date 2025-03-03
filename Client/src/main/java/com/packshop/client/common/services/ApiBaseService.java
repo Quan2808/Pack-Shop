@@ -3,6 +3,7 @@ package com.packshop.client.common.services;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -10,8 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.packshop.client.common.exceptions.ApiException;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -28,8 +31,15 @@ public abstract class ApiBaseService {
 
     protected <T> T getFromApi(String apiUrl, Long id, Class<T> responseType) {
         try {
-            ResponseEntity<T> response =
-                    restTemplate.getForEntity(BASE_API_URL + apiUrl + "/" + id, responseType);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Object> entity = new HttpEntity<>(headers); // Không cần body cho GET
+
+            ResponseEntity<T> response = restTemplate.exchange(
+                    BASE_API_URL + apiUrl + (id != null ? "/" + id : ""),
+                    HttpMethod.GET,
+                    entity,
+                    responseType);
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("API error: {} for {}/{}", response.getStatusCode(), apiUrl, id);
                 throw new ApiException("API error: " + response.getStatusCode().value());
@@ -46,8 +56,15 @@ public abstract class ApiBaseService {
 
     protected <T> List<T> getAllFromApi(String apiUrl, Class<T[]> clazz) {
         try {
-            ResponseEntity<T[]> response =
-                    restTemplate.exchange(BASE_API_URL + apiUrl, HttpMethod.GET, null, clazz);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Object> entity = new HttpEntity<>(headers); // Không cần body cho GET
+
+            ResponseEntity<T[]> response = restTemplate.exchange(
+                    BASE_API_URL + apiUrl,
+                    HttpMethod.GET,
+                    entity,
+                    clazz);
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("API error: {} for {}", response.getStatusCode(), apiUrl);
                 throw new ApiException("API error: " + response.getStatusCode().value());
@@ -69,9 +86,11 @@ public abstract class ApiBaseService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Object> entity = new HttpEntity<>(request, headers);
 
-            ResponseEntity<T> response = restTemplate.exchange(BASE_API_URL + apiUrl,
-                    HttpMethod.POST, entity, responseType);
-
+            ResponseEntity<T> response = restTemplate.exchange(
+                    BASE_API_URL + apiUrl,
+                    HttpMethod.POST,
+                    entity,
+                    responseType);
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("API error: {} for POST to {}", response.getStatusCode(), apiUrl);
                 throw new ApiException("API error: " + response.getStatusCode().value());
@@ -92,10 +111,11 @@ public abstract class ApiBaseService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Object> entity = new HttpEntity<>(request, headers);
 
-            ResponseEntity<Void> response =
-                    restTemplate.exchange(BASE_API_URL + apiUrl + (id != null ? "/" + id : ""),
-                            HttpMethod.PUT, entity, Void.class);
-
+            ResponseEntity<Void> response = restTemplate.exchange(
+                    BASE_API_URL + apiUrl + (id != null ? "/" + id : ""),
+                    HttpMethod.PUT,
+                    entity,
+                    Void.class);
             if (!response.getStatusCode().is2xxSuccessful()) {
                 log.error("API error: {} for PUT to {}/{}", response.getStatusCode(), apiUrl, id);
                 throw new ApiException("API error: " + response.getStatusCode().value());
@@ -111,12 +131,17 @@ public abstract class ApiBaseService {
 
     protected void deleteFromApi(String apiUrl, Long id) {
         try {
-            ResponseEntity<Void> response = restTemplate.exchange(BASE_API_URL + apiUrl + "/" + id,
-                    HttpMethod.DELETE, null, Void.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Object> entity = new HttpEntity<>(headers); // Không cần body cho DELETE
 
+            ResponseEntity<Void> response = restTemplate.exchange(
+                    BASE_API_URL + apiUrl + (id != null ? "/" + id : ""),
+                    HttpMethod.DELETE,
+                    entity,
+                    Void.class);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                log.error("API error: {} for DELETE to {}/{}", response.getStatusCode(), apiUrl,
-                        id);
+                log.error("API error: {} for DELETE to {}/{}", response.getStatusCode(), apiUrl, id);
                 throw new ApiException("API error: " + response.getStatusCode().value());
             }
         } catch (HttpClientErrorException e) {

@@ -24,7 +24,6 @@ public class CartService extends ApiBaseService {
     }
 
     public CartDTO getCartForUser(Long userId) {
-        log.info("Fetching cart for current user");
         return getFromApi(CART_API_URL, userId, CartDTO.class);
     }
 
@@ -36,7 +35,9 @@ public class CartService extends ApiBaseService {
 
     public List<CartItemDTO> updateCartItems(List<CartItemRequest> updateRequests) {
         log.info("Updating multiple cart items: {}", updateRequests);
-        return putToApi(CART_API_URL + "/items", updateRequests, CartItemDTO.class);
+
+        // Modify the method to handle multiple updates
+        return putToApiMultiple(CART_API_URL + "/items", updateRequests, CartItemDTO.class);
     }
 
     public void removeItemFromCart(Long itemId) {

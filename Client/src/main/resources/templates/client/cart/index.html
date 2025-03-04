@@ -1,11 +1,9 @@
 <th:block th:fragment="viewStyles"> </th:block>
 
 <div th:fragment="content" class="container">
-  <!-- Begin Breadcrumb -->
   <div
     th:replace="~{fragments/client/components/_breadcrumb :: breadcrumb(item=null)}"
   ></div>
-  <!-- End Breadcrumb -->
 
   <div class="row d-flex justify-content-center my-4">
     <div class="col-md-8">
@@ -31,11 +29,9 @@
           </div>
         </div>
         <div class="card-body">
-          <!-- Single item -->
           <div th:each="item, iterStat : ${cart.cartItems}">
             <div class="row">
               <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
-                <!-- Image -->
                 <div
                   class="bg-image hover-overlay hover-zoom ripple rounded"
                   data-mdb-ripple-color="light"
@@ -52,11 +48,9 @@
                     ></div>
                   </a>
                 </div>
-                <!-- Image -->
               </div>
 
               <div class="col-lg-5 col-md-6 mb-4 mb-lg-0">
-                <!-- Data -->
                 <p>
                   <strong th:text="${item.product.name}">Product Name</strong>
                 </p>
@@ -73,11 +67,9 @@
                     Remove
                   </button>
                 </form>
-                <!-- Data -->
               </div>
 
               <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-                <!-- Quantity -->
                 <form
                   th:action="@{/cart/items}"
                   method="post"
@@ -122,14 +114,11 @@
                     </button>
                   </div>
                 </form>
-                <!-- Quantity -->
               </div>
             </div>
             <hr class="my-4" th:unless="${iterStat.last}" />
           </div>
-          <!-- Single item -->
 
-          <!-- Giỏ hàng rỗng -->
           <div th:if="${cart.cartItems == null or cart.cartItems.isEmpty()}">
             <p class="text-center">Your cart is empty.</p>
           </div>
@@ -177,7 +166,6 @@
       const updateForms = document.querySelectorAll(".update-form");
       const initialValues = new Map();
 
-      // Lưu giá trị ban đầu của quantity
       updateForms.forEach((form) => {
         const input = form.querySelector(".quantity-input");
         const itemId = form.querySelector(".item-id").value;
@@ -186,7 +174,6 @@
         }
       });
 
-      // Hàm bật/tắt nút Update Cart
       function toggleUpdateCartButton() {
         let hasChanges = false;
         updateForms.forEach((form) => {
@@ -204,7 +191,6 @@
         updateCartBtn.disabled = !hasChanges;
       }
 
-      // Theo dõi thay đổi trong quantity
       updateForms.forEach((form) => {
         const input = form.querySelector(".quantity-input");
         const minusButton = form.querySelector(".btn-minus");
@@ -219,9 +205,8 @@
         );
       });
 
-      // Xử lý nút Update Cart
       updateCartBtn.addEventListener("click", function () {
-        let submitted = false;
+        const changedItems = [];
         updateForms.forEach((form) => {
           const input = form.querySelector(".quantity-input");
           const itemId = form.querySelector(".item-id").value;
@@ -231,19 +216,37 @@
             input.value !== initialValues.get(itemId) &&
             input.value >= 1
           ) {
-            form.submit(); // Submit form nếu có thay đổi
-            submitted = true;
+            changedItems.push({
+              id: itemId,
+              quantity: input.value,
+            });
           }
         });
 
-        if (submitted) {
-          // Reset giá trị ban đầu sau khi submit
-          updateForms.forEach((form) => {
-            const input = form.querySelector(".quantity-input");
-            const itemId = form.querySelector(".item-id").value;
-            if (input && itemId) {
-              initialValues.set(itemId, input.value);
-            }
+        if (changedItems.length > 0) {
+          const multiUpdateForm = document.createElement("form");
+          multiUpdateForm.method = "post";
+          multiUpdateForm.action = "/cart/items";
+
+          changedItems.forEach((item) => {
+            const idInput = document.createElement("input");
+            idInput.type = "hidden";
+            idInput.name = "id";
+            idInput.value = item.id;
+            multiUpdateForm.appendChild(idInput);
+
+            const quantityInput = document.createElement("input");
+            quantityInput.type = "hidden";
+            quantityInput.name = "quantity";
+            quantityInput.value = item.quantity;
+            multiUpdateForm.appendChild(quantityInput);
+          });
+
+          document.body.appendChild(multiUpdateForm);
+          multiUpdateForm.submit();
+
+          changedItems.forEach((item) => {
+            initialValues.set(item.id, item.quantity);
           });
           toggleUpdateCartButton();
         }

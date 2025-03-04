@@ -34,7 +34,6 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<CartDTO> getCart(@AuthenticationPrincipal User user) {
-        log.info("Fetching cart for user: {}", user.getUsername());
         CartDTO cart = cartService.getCartByUser(user);
         return ResponseEntity.ok(cart);
     }
@@ -46,16 +45,6 @@ public class CartController {
         log.info("Adding item to cart: productId={}, quantity={}", request.getProductId(), request.getQuantity());
         CartItemDTO addedItem = cartService.addItemToCart(user, request.getProductId(), request.getQuantity());
         return ResponseEntity.status(HttpStatus.CREATED).body(addedItem);
-    }
-
-    @PutMapping("/items/{itemId}")
-    public ResponseEntity<CartItemDTO> updateCartItem(
-            @AuthenticationPrincipal User user,
-            @PathVariable Long itemId,
-            @Valid @RequestBody CartItemRequest request) {
-        log.info("Updating cart item: itemId={}, quantity={}", itemId, request.getQuantity());
-        CartItemDTO updatedItem = cartService.updateCartItem(user, itemId, request.getQuantity());
-        return ResponseEntity.ok(updatedItem);
     }
 
     @PutMapping("/items")
@@ -73,7 +62,7 @@ public class CartController {
             @PathVariable Long itemId) {
         log.info("Removing item from cart: itemId={}", itemId);
         cartService.removeItemFromCart(user, itemId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/clear")

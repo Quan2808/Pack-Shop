@@ -88,13 +88,26 @@ public class CartController {
     public String updateCartItems(@RequestParam("id") List<Long> ids,
             @RequestParam("quantity") List<Integer> quantities,
             RedirectAttributes redirectAttributes) {
-        List<CartItemRequest> updateRequests = new ArrayList<>();
-        for (int i = 0; i < ids.size(); i++) {
-            updateRequests.add(new CartItemRequest(ids.get(i), null, quantities.get(i)));
+
+        try {
+            // Validate input lists have the same size
+            if (ids.size() != quantities.size()) {
+                throw new IllegalArgumentException("Number of item IDs must match number of quantities");
+            }
+
+            List<CartItemRequest> updateRequests = new ArrayList<>();
+            for (int i = 0; i < ids.size(); i++) {
+                updateRequests.add(new CartItemRequest(ids.get(i), null, quantities.get(i)));
+            }
+
+            cartService.updateCartItems(updateRequests);
+            log.info("Updating cart items: {}", cartService.updateCartItems(updateRequests));
+            redirectAttributes.addFlashAttribute("successMessage", "Cart updated successfully");
+        } catch (ApiException | IllegalArgumentException e) {
+            log.error("Error updating cart items: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
-        cartService.updateCartItems(updateRequests); // Gọi service để xử lý
-        redirectAttributes.addFlashAttribute("message", "Cart updated successfully");
-        return "redirect:/cart"; // Redirect về trang giỏ hàng
+        return "redirect:/cart";
     }
 
     @PostMapping("/remove/{itemId}")
@@ -104,12 +117,11 @@ public class CartController {
         try {
             cartService.removeItemFromCart(itemId);
             redirectAttributes.addFlashAttribute("successMessage", "Item removed from cart!");
-            return "redirect:/cart";
         } catch (ApiException e) {
             log.error("Error removing item from cart: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to remove item.");
-            return "redirect:/cart";
         }
+        return "redirect:/cart";
     }
 
     @PostMapping("/clear")

@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class CartService {
     private final ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "carts", key = "#user.id")
     public CartDTO getCartByUser(User user) {
         Cart cart = ensureCartExists(user);
         return convertToCartDTO(cart);
@@ -69,9 +71,7 @@ public class CartService {
         log.info("Adding product {} with quantity {} to user {}'s cart", productId, quantity, user.getUsername());
 
         // Validate product
-        if (!productRepository.existsById(productId)) {
-            throw new ResourceNotFoundException("Product not found with id: " + productId);
-        }
+        checkProductAvailability(productId, quantity);
 
         Cart cart = user.getCart() != null ? user.getCart() : createCart(user);
 
@@ -96,25 +96,6 @@ public class CartService {
     }
 
     @Transactional
-    public CartItemDTO updateCartItem(User user, Long itemId, int quantity) {
-        Cart cart = user.getCart();
-        if (cart == null) {
-            throw new ResourceNotFoundException("Cart not found for user: " + user.getUsername());
-        }
-
-        CartItem item = cartItemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found with id: " + itemId));
-
-        if (!cart.equals(item.getCart())) {
-            throw new IllegalArgumentException("Item does not belong to user's cart");
-        }
-
-        item.setQuantity(quantity);
-        CartItem updatedItem = cartItemRepository.save(item);
-        return convertToCartItemDTO(updatedItem);
-    }
-
-    @Transactional
     public List<CartItemDTO> updateCartItems(User user, List<CartItemRequest> updateRequests) {
         Cart cart = user.getCart();
         if (cart == null) {
@@ -135,6 +116,9 @@ public class CartService {
             if (!cart.equals(item.getCart())) {
                 throw new IllegalArgumentException("Item does not belong to user's cart");
             }
+
+            // Validate product
+            checkProductAvailability(item.getProduct(), request.getQuantity());
             item.setQuantity(request.getQuantity());
             return item;
         }).collect(Collectors.toList());
@@ -221,5 +205,19 @@ public class CartService {
         ProductItemDTO productDTO = modelMapper.map(product, ProductItemDTO.class);
         dto.setProduct(productDTO);
         return dto;
+    }
+
+    public Product checkProductAvailability(Long productId, int quantity) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative for product: " + productId);
+        }
+
+        if (product.getQuantity() < quantity || product.getQuantity() <= 0) {
+            throw new IllegalStateException("Insufficient stock for product: " + productId);
+        }
+        return product;
     }
 }

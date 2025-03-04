@@ -1,5 +1,8 @@
 package com.packshop.client.modules.client.shopping.controllers.cart;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.packshop.client.common.exceptions.ApiException;
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.shopping.cart.CartDTO;
+import com.packshop.client.dto.shopping.cart.CartItemRequest;
 import com.packshop.client.modules.client.shopping.services.cart.CartService;
 
 import jakarta.servlet.http.HttpSession;
@@ -80,23 +84,18 @@ public class CartController {
         }
     }
 
-    // @PostMapping("/update/{itemId}")
-    // public String updateCartItem(
-    // @PathVariable("itemId") Long itemId,
-    // @RequestParam("quantity") Integer quantity,
-    // RedirectAttributes redirectAttributes) {
-    // try {
-    // cartService.updateCartItem(itemId, quantity);
-    // redirectAttributes.addFlashAttribute("message", "Cart updated
-    // successfully!");
-    // return "redirect:/cart";
-    // } catch (ApiException e) {
-    // log.error("Error updating cart item: {}", e.getMessage());
-    // redirectAttributes.addFlashAttribute("errorMessage", "Failed to update
-    // cart.");
-    // return "redirect:/cart";
-    // }
-    // }
+    @PostMapping("/items")
+    public String updateCartItems(@RequestParam("id") List<Long> ids,
+            @RequestParam("quantity") List<Integer> quantities,
+            RedirectAttributes redirectAttributes) {
+        List<CartItemRequest> updateRequests = new ArrayList<>();
+        for (int i = 0; i < ids.size(); i++) {
+            updateRequests.add(new CartItemRequest(ids.get(i), null, quantities.get(i)));
+        }
+        cartService.updateCartItems(updateRequests); // Gọi service để xử lý
+        redirectAttributes.addFlashAttribute("message", "Cart updated successfully");
+        return "redirect:/cart"; // Redirect về trang giỏ hàng
+    }
 
     @PostMapping("/remove/{itemId}")
     public String removeItemFromCart(

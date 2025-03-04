@@ -1,5 +1,7 @@
 package com.packshop.client.modules.client.shopping.services.cart;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,16 +30,14 @@ public class CartService extends ApiBaseService {
 
     public CartItemDTO addItemToCart(Long productId, Integer quantity) {
         log.info("Adding item to cart: productId={}, quantity={}", productId, quantity);
-        CartItemRequest request = new CartItemRequest(productId, quantity);
+        CartItemRequest request = new CartItemRequest(null, productId, quantity);
         return postToApi(CART_API_URL + "/items", request, CartItemDTO.class);
     }
 
-    // public CartItemDTO updateCartItem(Long itemId, Integer quantity) {
-    // log.info("Updating cart item: itemId={}, quantity={}", itemId, quantity);
-    // CartItemRequest request = new CartItemRequest(null, quantity); // productId
-    // không cần thiết khi update
-    // return putToApi(CART_API_URL + "/items", itemId, CartItemDTO.class);
-    // }
+    public List<CartItemDTO> updateCartItems(List<CartItemRequest> updateRequests) {
+        log.info("Updating multiple cart items: {}", updateRequests);
+        return putToApi(CART_API_URL + "/items", updateRequests, CartItemDTO.class);
+    }
 
     public void removeItemFromCart(Long itemId) {
         log.info("Removing item from cart: itemId={}", itemId);

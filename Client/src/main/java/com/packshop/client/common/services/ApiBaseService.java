@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -126,6 +127,32 @@ public abstract class ApiBaseService {
         } catch (Exception e) {
             log.error("Failed to update: {}/{}", apiUrl, id, e);
             throw new ApiException("Failed to update data with id: " + id, e);
+        }
+    }
+
+    protected <T> List<T> putToApi(String apiUrl, Object request, Class<T> responseType) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Object> entity = new HttpEntity<>(request, headers);
+
+            ResponseEntity<List<T>> response = restTemplate.exchange(
+                    BASE_API_URL + apiUrl,
+                    HttpMethod.PUT,
+                    entity,
+                    new ParameterizedTypeReference<List<T>>() {
+                    });
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                log.error("API error: {} for PUT to {}", response.getStatusCode(), apiUrl);
+                throw new ApiException("API error: " + response.getStatusCode().value());
+            }
+            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+        } catch (HttpClientErrorException e) {
+            log.error("Client error: {} for {}", e.getStatusCode(), apiUrl);
+            throw new ApiException("Client error: " + e.getStatusText(), e);
+        } catch (Exception e) {
+            log.error("Failed to update: {}", apiUrl, e);
+            throw new ApiException("Failed to update cart items", e);
         }
     }
 

@@ -3,6 +3,7 @@ package com.packshop.api.modules.shopping.services;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ import com.packshop.api.modules.identity.entities.User;
 import com.packshop.api.modules.shopping.dto.ProductItemDTO;
 import com.packshop.api.modules.shopping.dto.cart.CartDTO;
 import com.packshop.api.modules.shopping.dto.cart.CartItemDTO;
+import com.packshop.api.modules.shopping.dto.cart.CartItemRequest;
 import com.packshop.api.modules.shopping.entities.cart.Cart;
 import com.packshop.api.modules.shopping.entities.cart.CartItem;
 import com.packshop.api.modules.shopping.repositories.CartItemRepository;
@@ -110,6 +112,38 @@ public class CartService {
         item.setQuantity(quantity);
         CartItem updatedItem = cartItemRepository.save(item);
         return convertToCartItemDTO(updatedItem);
+    }
+
+    @Transactional
+    public List<CartItemDTO> updateCartItems(User user, List<CartItemRequest> updateRequests) {
+        Cart cart = user.getCart();
+        if (cart == null) {
+            throw new ResourceNotFoundException("Cart not found for user: " + user.getUsername());
+        }
+
+        // Lấy tất cả cart items hiện tại trong cart của user
+        Set<CartItem> currentItems = cart.getCartItems();
+        Map<Long, CartItem> currentItemMap = currentItems.stream()
+                .collect(Collectors.toMap(CartItem::getId, Function.identity()));
+
+        // Cập nhật các item dựa trên request
+        List<CartItem> updatedItems = updateRequests.stream().map(request -> {
+            CartItem item = currentItemMap.get(request.getId());
+            if (item == null) {
+                throw new ResourceNotFoundException("Cart item not found with id: " + request.getId());
+            }
+            if (!cart.equals(item.getCart())) {
+                throw new IllegalArgumentException("Item does not belong to user's cart");
+            }
+            item.setQuantity(request.getQuantity());
+            return item;
+        }).collect(Collectors.toList());
+
+        // Lưu tất cả các item đã cập nhật
+        List<CartItem> savedItems = cartItemRepository.saveAll(updatedItems);
+        return savedItems.stream()
+                .map(this::convertToCartItemDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional

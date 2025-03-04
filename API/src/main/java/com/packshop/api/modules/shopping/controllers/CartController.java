@@ -1,5 +1,7 @@
 package com.packshop.api.modules.shopping.controllers;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -54,6 +56,15 @@ public class CartController {
         log.info("Updating cart item: itemId={}, quantity={}", itemId, request.getQuantity());
         CartItemDTO updatedItem = cartService.updateCartItem(user, itemId, request.getQuantity());
         return ResponseEntity.ok(updatedItem);
+    }
+
+    @PutMapping("/items")
+    public ResponseEntity<List<CartItemDTO>> updateCartItems(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody List<CartItemRequest> updateRequests) {
+        log.info("Updating multiple cart items for user: {}", user.getUsername());
+        List<CartItemDTO> updatedItems = cartService.updateCartItems(user, updateRequests);
+        return ResponseEntity.ok(updatedItems);
     }
 
     @DeleteMapping("/items/{itemId}")

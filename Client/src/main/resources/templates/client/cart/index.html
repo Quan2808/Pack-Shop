@@ -15,9 +15,7 @@
             <div class="p-2">
               <h5 class="mb-0 fw-bold">Cart</h5>
             </div>
-
             <div class="d-flex align-items-center">
-              <!-- Dropdown for Status Filter -->
               <div class="me-3">
                 <button
                   type="button"
@@ -62,12 +60,10 @@
                 <p>
                   <strong th:text="${item.product.name}">Product Name</strong>
                 </p>
-                <!-- Có thể thêm thông tin như Color, Size nếu DTO hỗ trợ -->
                 <p
                   class="text-muted"
                   th:text="'Price: ' + ${item.product.price}"
                 ></p>
-
                 <form
                   th:action="@{/cart/remove/{itemId}(itemId=${item.id})}"
                   method="post"
@@ -82,12 +78,17 @@
 
               <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
                 <!-- Quantity -->
-                <!-- Trong phần Quantity -->
                 <form
-                  th:action="@{/cart/update/{itemId}(itemId=${item.id})}"
+                  th:action="@{/cart/items}"
                   method="post"
                   class="update-form"
                 >
+                  <input
+                    type="hidden"
+                    name="id"
+                    th:value="${item.id}"
+                    class="item-id"
+                  />
                   <div class="d-flex mb-4" style="max-width: 300px">
                     <button
                       data-mdb-button-init
@@ -101,14 +102,13 @@
 
                     <div data-mdb-input-init class="form-outline">
                       <input
-                        id="form1"
                         min="1"
                         name="quantity"
                         th:value="${item.quantity}"
                         type="number"
                         class="form-control quantity-input"
                       />
-                      <label class="form-label" for="form1">Quantity</label>
+                      <label class="form-label">Quantity</label>
                     </div>
 
                     <button
@@ -122,6 +122,7 @@
                     </button>
                   </div>
                 </form>
+                <!-- Quantity -->
               </div>
             </div>
             <hr class="my-4" th:unless="${iterStat.last}" />
@@ -172,67 +173,80 @@
 <th:block th:fragment="viewScripts">
   <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
-      // Lấy nút Update Cart
       const updateCartBtn = document.getElementById("update-cart-btn");
-      // Lấy tất cả các form và input quantity
       const updateForms = document.querySelectorAll(".update-form");
-      const quantityInputs = document.querySelectorAll(".quantity-input");
-
-      // Lưu giá trị ban đầu của tất cả quantity
       const initialValues = new Map();
-      quantityInputs.forEach((input) => {
-        initialValues.set(input, input.value);
+
+      // Lưu giá trị ban đầu của quantity
+      updateForms.forEach((form) => {
+        const input = form.querySelector(".quantity-input");
+        const itemId = form.querySelector(".item-id").value;
+        if (input && itemId) {
+          initialValues.set(itemId, input.value);
+        }
       });
 
-      // Hàm kiểm tra và bật/tắt nút Update Cart
+      // Hàm bật/tắt nút Update Cart
       function toggleUpdateCartButton() {
         let hasChanges = false;
-        quantityInputs.forEach((input) => {
-          if (input.value !== initialValues.get(input) && input.value >= 1) {
+        updateForms.forEach((form) => {
+          const input = form.querySelector(".quantity-input");
+          const itemId = form.querySelector(".item-id").value;
+          if (
+            input &&
+            itemId &&
+            input.value !== initialValues.get(itemId) &&
+            input.value >= 1
+          ) {
             hasChanges = true;
           }
         });
-        if (hasChanges) {
-          updateCartBtn.removeAttribute("disabled");
-        } else {
-          updateCartBtn.setAttribute("disabled", "disabled");
-        }
+        updateCartBtn.disabled = !hasChanges;
       }
 
-      // Theo dõi sự thay đổi trong tất cả input quantity
-      quantityInputs.forEach((input) => {
-        input.addEventListener("input", toggleUpdateCartButton);
-
-        const form = input.closest(".update-form");
+      // Theo dõi thay đổi trong quantity
+      updateForms.forEach((form) => {
+        const input = form.querySelector(".quantity-input");
         const minusButton = form.querySelector(".btn-minus");
         const plusButton = form.querySelector(".btn-plus");
 
-        if (minusButton) {
-          minusButton.addEventListener("click", function () {
-            setTimeout(toggleUpdateCartButton, 0);
-          });
-        }
-        if (plusButton) {
-          plusButton.addEventListener("click", function () {
-            setTimeout(toggleUpdateCartButton, 0);
-          });
-        }
+        input.addEventListener("input", toggleUpdateCartButton);
+        minusButton?.addEventListener("click", () =>
+          setTimeout(toggleUpdateCartButton, 0)
+        );
+        plusButton?.addEventListener("click", () =>
+          setTimeout(toggleUpdateCartButton, 0)
+        );
       });
 
-      // Xử lý khi ấn nút Update Cart
+      // Xử lý nút Update Cart
       updateCartBtn.addEventListener("click", function () {
-        // Submit tất cả các form có thay đổi
+        let submitted = false;
         updateForms.forEach((form) => {
           const input = form.querySelector(".quantity-input");
-          if (input.value !== initialValues.get(input) && input.value >= 1) {
-            form.submit();
+          const itemId = form.querySelector(".item-id").value;
+          if (
+            input &&
+            itemId &&
+            input.value !== initialValues.get(itemId) &&
+            input.value >= 1
+          ) {
+            form.submit(); // Submit form nếu có thay đổi
+            submitted = true;
           }
         });
-        // Reset giá trị ban đầu sau khi submit
-        quantityInputs.forEach((input) => {
-          initialValues.set(input, input.value);
-        });
-        toggleUpdateCartButton();
+
+        if (submitted) {
+          // Reset giá trị ban đầu sau khi submit
+          updateForms.forEach((form) => {
+            const input = form.querySelector(".quantity-input");
+            const itemId = form.querySelector(".item-id").value;
+            if (input && itemId) {
+              initialValues.set(itemId, input.value);
+            }
+          });
+          toggleUpdateCartButton();
+        }
       });
     });
   </script>

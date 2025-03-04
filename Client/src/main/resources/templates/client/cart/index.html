@@ -3,24 +3,34 @@
 <div th:fragment="content" class="container">
   <!-- Begin Breadcrumb -->
   <div
-    th:replace="~{fragments/client/components/_breadcrumb :: breadcrumb(item='Cart')}"
+    th:replace="~{fragments/client/components/_breadcrumb :: breadcrumb(item=null)}"
   ></div>
   <!-- End Breadcrumb -->
-
-  <div th:if="${cart.totalItems == 0}">
-    <p>Your cart is empty.</p>
-  </div>
 
   <div class="row d-flex justify-content-center my-4">
     <div class="col-md-8">
       <div class="card mb-4">
         <div class="card-header py-3">
-          <h5
-            class="mb-0 fw-bold"
-            th:text="'Cart - ' + ${cart.totalItems} + ' items'"
-          >
-            Cart - 0 items
-          </h5>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="p-2">
+              <h5 class="mb-0 fw-bold">Cart</h5>
+            </div>
+
+            <div class="d-flex align-items-center">
+              <!-- Dropdown for Status Filter -->
+              <div class="me-3">
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  data-mdb-ripple-init
+                  id="update-cart-btn"
+                  disabled
+                >
+                  Update Cart
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="card-body">
           <!-- Single item -->
@@ -72,16 +82,19 @@
 
               <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
                 <!-- Quantity -->
+                <!-- Trong phần Quantity -->
                 <form
                   th:action="@{/cart/update/{itemId}(itemId=${item.id})}"
                   method="post"
+                  class="update-form"
                 >
                   <div class="d-flex mb-4" style="max-width: 300px">
                     <button
                       data-mdb-button-init
                       data-mdb-ripple-init
-                      class="btn btn-primary px-3 me-2"
+                      class="btn btn-primary px-3 me-2 btn-minus"
                       onclick="this.parentNode.querySelector('input[type=number]').stepDown()"
+                      type="button"
                     >
                       <i class="fas fa-minus"></i>
                     </button>
@@ -93,7 +106,7 @@
                         name="quantity"
                         th:value="${item.quantity}"
                         type="number"
-                        class="form-control"
+                        class="form-control quantity-input"
                       />
                       <label class="form-label" for="form1">Quantity</label>
                     </div>
@@ -101,30 +114,14 @@
                     <button
                       data-mdb-button-init
                       data-mdb-ripple-init
-                      class="btn btn-primary px-3 ms-2"
+                      class="btn btn-primary px-3 ms-2 btn-plus"
                       onclick="this.parentNode.querySelector('input[type=number]').stepUp()"
+                      type="button"
                     >
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>
-                  <button
-                    type="submit"
-                    data-mdb-button-init
-                    data-mdb-ripple-init
-                    class="btn btn-primary btn-sm w-100"
-                  >
-                    Update
-                  </button>
                 </form>
-                <!-- Quantity -->
-
-                <!-- Price -->
-                <p class="text-start text-md-center">
-                  <strong th:text="'Price: ' + ${item.product.price}"
-                    >$0.00</strong
-                  >
-                </p>
-                <!-- Price -->
               </div>
             </div>
             <hr class="my-4" th:unless="${iterStat.last}" />
@@ -150,7 +147,6 @@
           >
             <div>
               <strong>Total amount</strong>
-              <strong><p class="mb-0">(including VAT)</p></strong>
             </div>
             <span
               ><strong
@@ -173,4 +169,71 @@
   </div>
 </div>
 
-<th:block th:fragment="viewScripts"> </th:block>
+<th:block th:fragment="viewScripts">
+  <script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+      // Lấy nút Update Cart
+      const updateCartBtn = document.getElementById("update-cart-btn");
+      // Lấy tất cả các form và input quantity
+      const updateForms = document.querySelectorAll(".update-form");
+      const quantityInputs = document.querySelectorAll(".quantity-input");
+
+      // Lưu giá trị ban đầu của tất cả quantity
+      const initialValues = new Map();
+      quantityInputs.forEach((input) => {
+        initialValues.set(input, input.value);
+      });
+
+      // Hàm kiểm tra và bật/tắt nút Update Cart
+      function toggleUpdateCartButton() {
+        let hasChanges = false;
+        quantityInputs.forEach((input) => {
+          if (input.value !== initialValues.get(input) && input.value >= 1) {
+            hasChanges = true;
+          }
+        });
+        if (hasChanges) {
+          updateCartBtn.removeAttribute("disabled");
+        } else {
+          updateCartBtn.setAttribute("disabled", "disabled");
+        }
+      }
+
+      // Theo dõi sự thay đổi trong tất cả input quantity
+      quantityInputs.forEach((input) => {
+        input.addEventListener("input", toggleUpdateCartButton);
+
+        const form = input.closest(".update-form");
+        const minusButton = form.querySelector(".btn-minus");
+        const plusButton = form.querySelector(".btn-plus");
+
+        if (minusButton) {
+          minusButton.addEventListener("click", function () {
+            setTimeout(toggleUpdateCartButton, 0);
+          });
+        }
+        if (plusButton) {
+          plusButton.addEventListener("click", function () {
+            setTimeout(toggleUpdateCartButton, 0);
+          });
+        }
+      });
+
+      // Xử lý khi ấn nút Update Cart
+      updateCartBtn.addEventListener("click", function () {
+        // Submit tất cả các form có thay đổi
+        updateForms.forEach((form) => {
+          const input = form.querySelector(".quantity-input");
+          if (input.value !== initialValues.get(input) && input.value >= 1) {
+            form.submit();
+          }
+        });
+        // Reset giá trị ban đầu sau khi submit
+        quantityInputs.forEach((input) => {
+          initialValues.set(input, input.value);
+        });
+        toggleUpdateCartButton();
+      });
+    });
+  </script>
+</th:block>

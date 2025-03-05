@@ -42,8 +42,22 @@ public class CartController {
     public ResponseEntity<CartItemDTO> addItemToCart(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody CartItemRequest request) {
-        log.info("Adding item to cart: productId={}, quantity={}", request.getProductId(), request.getQuantity());
-        CartItemDTO addedItem = cartService.addItemToCart(user, request.getProductId(), request.getQuantity());
+
+        // Validate request parameters
+        if (request.getProductId() == null) {
+            throw new IllegalArgumentException("Product ID is required");
+        }
+
+        if (request.getQuantity() == null) {
+            throw new IllegalArgumentException("Quantity is required");
+        }
+
+        log.info("Adding item to cart: productId={}, quantity={} for user ID: {}",
+                request.getProductId(), request.getQuantity(), user.getId());
+
+        CartItemDTO addedItem = cartService.addItemToCart(
+                user, request.getProductId(), request.getQuantity());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(addedItem);
     }
 
@@ -51,7 +65,24 @@ public class CartController {
     public ResponseEntity<List<CartItemDTO>> updateCartItems(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody List<CartItemRequest> updateRequests) {
-        log.info("Updating multiple cart items for user: {}", user.getUsername());
+
+        // Validate request
+        if (updateRequests == null || updateRequests.isEmpty()) {
+            throw new IllegalArgumentException("Update requests cannot be empty");
+        }
+
+        for (CartItemRequest request : updateRequests) {
+            if (request.getId() == null) {
+                throw new IllegalArgumentException("Cart item ID is required for updates");
+            }
+
+            if (request.getQuantity() == null) {
+                throw new IllegalArgumentException("Quantity is required");
+            }
+        }
+
+        log.info("Updating {} cart items for user ID: {}", updateRequests.size(), user.getId());
+
         List<CartItemDTO> updatedItems = cartService.updateCartItems(user, updateRequests);
         return ResponseEntity.ok(updatedItems);
     }
@@ -60,14 +91,23 @@ public class CartController {
     public ResponseEntity<Void> removeItemFromCart(
             @AuthenticationPrincipal User user,
             @PathVariable Long itemId) {
-        log.info("Removing item from cart: itemId={}", itemId);
+
+        // Validate path variable
+        if (itemId == null || itemId <= 0) {
+            log.error("Invalid item ID: {}", itemId);
+            throw new IllegalArgumentException("Valid item ID is required");
+        }
+
+        log.info("Removing item {} from cart for user ID: {}", itemId, user.getId());
+
         cartService.removeItemFromCart(user, itemId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/clear")
+    @DeleteMapping
     public ResponseEntity<Void> clearCart(@AuthenticationPrincipal User user) {
-        log.info("Clearing cart for user: {}", user.getUsername());
+        log.info("Clearing cart for user ID: {}", user.getId());
+
         cartService.clearCart(user);
         return ResponseEntity.noContent().build();
     }

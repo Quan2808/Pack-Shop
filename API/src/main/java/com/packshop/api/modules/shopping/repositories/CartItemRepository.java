@@ -9,4 +9,6 @@ import com.packshop.api.modules.shopping.entities.cart.CartItem;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     Optional<CartItem> findByCartAndProduct(Cart cart, Long productId);
+
+    void deleteByCart(Cart cart);
 }

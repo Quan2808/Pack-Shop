@@ -1,4 +1,4 @@
-package com.packshop.api.modules.shopping.controllers;
+package com.packshop.api.modules.shopping.cart.controller;
 
 import java.util.List;
 
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.packshop.api.modules.identity.entities.User;
-import com.packshop.api.modules.shopping.dto.cart.CartDTO;
-import com.packshop.api.modules.shopping.dto.cart.CartItemDTO;
-import com.packshop.api.modules.shopping.dto.cart.CartItemRequest;
-import com.packshop.api.modules.shopping.services.CartService;
+import com.packshop.api.modules.shopping.cart.dto.CartDTO;
+import com.packshop.api.modules.shopping.cart.dto.CartItemDTO;
+import com.packshop.api.modules.shopping.cart.dto.CartItemRequest;
+import com.packshop.api.modules.shopping.cart.service.CartService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

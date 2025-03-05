@@ -1,4 +1,4 @@
-package com.packshop.api.modules.shopping.dto.order;
+package com.packshop.api.modules.shopping.order.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

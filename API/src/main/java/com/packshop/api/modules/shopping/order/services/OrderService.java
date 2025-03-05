@@ -1,4 +1,4 @@
-package com.packshop.api.modules.shopping.services;
+package com.packshop.api.modules.shopping.order.services;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,14 +14,14 @@ import com.packshop.api.common.exceptions.ResourceNotFoundException;
 import com.packshop.api.modules.catalog.entities.product.Product;
 import com.packshop.api.modules.catalog.repositories.ProductRepository;
 import com.packshop.api.modules.identity.entities.User;
+import com.packshop.api.modules.shopping.cart.entities.Cart;
+import com.packshop.api.modules.shopping.cart.repositories.CartRepository;
 import com.packshop.api.modules.shopping.dto.ProductItemDTO;
-import com.packshop.api.modules.shopping.dto.order.OrderDTO;
-import com.packshop.api.modules.shopping.dto.order.OrderItemDTO;
-import com.packshop.api.modules.shopping.entities.cart.Cart;
-import com.packshop.api.modules.shopping.entities.order.Order;
-import com.packshop.api.modules.shopping.entities.order.OrderItem;
-import com.packshop.api.modules.shopping.repositories.CartRepository;
-import com.packshop.api.modules.shopping.repositories.OrderRepository;
+import com.packshop.api.modules.shopping.order.dto.OrderDTO;
+import com.packshop.api.modules.shopping.order.dto.OrderItemDTO;
+import com.packshop.api.modules.shopping.order.entities.Order;
+import com.packshop.api.modules.shopping.order.entities.OrderItem;
+import com.packshop.api.modules.shopping.order.repositories.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

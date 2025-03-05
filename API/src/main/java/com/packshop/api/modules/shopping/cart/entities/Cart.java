@@ -1,4 +1,4 @@
-package com.packshop.api.modules.shopping.entities.cart;
+package com.packshop.api.modules.shopping.cart.entities;
 
 import java.util.HashSet;
 import java.util.Set;

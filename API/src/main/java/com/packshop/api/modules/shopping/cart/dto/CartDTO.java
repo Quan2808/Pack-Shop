@@ -1,4 +1,4 @@
-package com.packshop.api.modules.shopping.dto.cart;
+package com.packshop.api.modules.shopping.cart.dto;
 
 import java.util.List;
 

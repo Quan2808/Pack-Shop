@@ -1,4 +1,4 @@
-package com.packshop.api.modules.shopping.services;
+package com.packshop.api.modules.shopping.cart.service;
 
 import java.util.*;
 import java.util.function.Function;
@@ -16,14 +16,14 @@ import com.packshop.api.common.exceptions.ResourceNotFoundException;
 import com.packshop.api.modules.catalog.entities.product.Product;
 import com.packshop.api.modules.catalog.repositories.ProductRepository;
 import com.packshop.api.modules.identity.entities.User;
+import com.packshop.api.modules.shopping.cart.dto.CartDTO;
+import com.packshop.api.modules.shopping.cart.dto.CartItemDTO;
+import com.packshop.api.modules.shopping.cart.dto.CartItemRequest;
+import com.packshop.api.modules.shopping.cart.entities.Cart;
+import com.packshop.api.modules.shopping.cart.entities.CartItem;
+import com.packshop.api.modules.shopping.cart.repositories.CartItemRepository;
+import com.packshop.api.modules.shopping.cart.repositories.CartRepository;
 import com.packshop.api.modules.shopping.dto.ProductItemDTO;
-import com.packshop.api.modules.shopping.dto.cart.CartDTO;
-import com.packshop.api.modules.shopping.dto.cart.CartItemDTO;
-import com.packshop.api.modules.shopping.dto.cart.CartItemRequest;
-import com.packshop.api.modules.shopping.entities.cart.Cart;
-import com.packshop.api.modules.shopping.entities.cart.CartItem;
-import com.packshop.api.modules.shopping.repositories.CartItemRepository;
-import com.packshop.api.modules.shopping.repositories.CartRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

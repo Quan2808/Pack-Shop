@@ -1,11 +1,11 @@
-package com.packshop.api.modules.shopping.repositories;
+package com.packshop.api.modules.shopping.cart.repositories;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.packshop.api.modules.identity.entities.User;
-import com.packshop.api.modules.shopping.entities.cart.Cart;
+import com.packshop.api.modules.shopping.cart.entities.Cart;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
 

@@ -1,4 +1,4 @@
-package com.packshop.api.modules.shopping.entities.order;
+package com.packshop.api.modules.shopping.order.entities;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;

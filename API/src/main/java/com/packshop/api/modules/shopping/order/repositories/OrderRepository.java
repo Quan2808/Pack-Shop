@@ -1,4 +1,4 @@
-package com.packshop.api.modules.shopping.repositories;
+package com.packshop.api.modules.shopping.order.repositories;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.packshop.api.modules.identity.entities.User;
-import com.packshop.api.modules.shopping.entities.order.Order;
+import com.packshop.api.modules.shopping.order.entities.Order;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUserOrderByOrderDateDesc(User user);

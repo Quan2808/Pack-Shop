@@ -14,9 +14,9 @@ import com.packshop.api.modules.identity.dto.AuthResponse;
 import com.packshop.api.modules.identity.dto.UserResponse;
 import com.packshop.api.modules.identity.entities.Role;
 import com.packshop.api.modules.identity.entities.User;
+import com.packshop.api.modules.shopping.cart.dto.CartItemDTO;
+import com.packshop.api.modules.shopping.cart.entities.CartItem;
 import com.packshop.api.modules.shopping.dto.ProductItemDTO;
-import com.packshop.api.modules.shopping.dto.cart.CartItemDTO;
-import com.packshop.api.modules.shopping.entities.cart.CartItem;
 
 @Configuration
 public class ModelMapperConfig {

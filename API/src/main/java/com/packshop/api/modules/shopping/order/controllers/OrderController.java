@@ -1,4 +1,4 @@
-package com.packshop.api.modules.shopping.controllers;
+package com.packshop.api.modules.shopping.order.controllers;
 
 import java.util.List;
 
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.packshop.api.modules.identity.entities.User;
-import com.packshop.api.modules.shopping.dto.order.OrderDTO;
-import com.packshop.api.modules.shopping.entities.order.Order;
-import com.packshop.api.modules.shopping.services.OrderService;
+import com.packshop.api.modules.shopping.order.dto.OrderDTO;
+import com.packshop.api.modules.shopping.order.entities.Order;
+import com.packshop.api.modules.shopping.order.services.OrderService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

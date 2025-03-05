@@ -78,6 +78,7 @@ public class User {
         private Cart cart;
 
         @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+        @JsonManagedReference
         private Set<Order> orders;
 
         @ManyToMany(fetch = FetchType.EAGER)

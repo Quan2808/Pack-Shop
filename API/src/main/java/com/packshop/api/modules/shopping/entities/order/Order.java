@@ -1,11 +1,20 @@
 package com.packshop.api.modules.shopping.entities.order;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.packshop.api.modules.identity.entities.User;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,7 +25,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "orders")
@@ -30,8 +41,59 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
+    @JsonIgnore
     private User user;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private Set<OrderItem> orderItems;
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<OrderItem> orderItems = new HashSet<>();
+
+    @Column(nullable = false)
+    private LocalDateTime orderDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+
+    @Column(nullable = false)
+    private BigDecimal totalAmount = BigDecimal.ZERO;
+
+    public enum Status {
+        PENDING,
+        SHIPPED,
+        DELIVERED,
+        CANCELLED
+    }
+
+    // Phương thức tiện ích
+    public void addOrderItem(OrderItem item) {
+        if (orderItems == null) {
+            orderItems = new HashSet<>();
+        }
+        orderItems.add(item);
+        item.setOrder(this); // Đảm bảo tính hai chiều
+        updateTotalAmount(); // Cập nhật tổng giá trị
+    }
+
+    public void removeOrderItem(OrderItem item) {
+        orderItems.remove(item);
+        item.setOrder(null);
+        updateTotalAmount();
+    }
+
+    public void updateTotalAmount() {
+        this.totalAmount = orderItems.stream()
+                .map(orderItem -> BigDecimal
+                        .valueOf(orderItem.getQuantity() * getProductPrice(orderItem.getProductId())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    // Giả định hàm lấy giá sản phẩm (cần implement theo logic thực tế)
+    private double getProductPrice(Long productId) {
+        // Logic để lấy giá từ service hoặc DB
+        return 0.0; // Placeholder
+    }
 }

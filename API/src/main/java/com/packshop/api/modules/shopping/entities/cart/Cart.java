@@ -53,6 +53,6 @@ public class Cart {
             cartItems = new HashSet<>();
         }
         cartItems.add(cartItem);
-        cartItem.setCart(this); // Ensure bidirectional relationship
+        cartItem.setCart(this);
     }
 }

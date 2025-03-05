@@ -1,6 +1,5 @@
 package com.packshop.api.modules.shopping.entities.order;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -59,7 +58,7 @@ public class Order {
     private Status status;
 
     @Column(nullable = false)
-    private BigDecimal totalAmount = BigDecimal.ZERO;
+    private Long totalAmount;
 
     public enum Status {
         PENDING,
@@ -86,14 +85,7 @@ public class Order {
 
     public void updateTotalAmount() {
         this.totalAmount = orderItems.stream()
-                .map(orderItem -> BigDecimal
-                        .valueOf(orderItem.getQuantity() * getProductPrice(orderItem.getProductId())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    // Giả định hàm lấy giá sản phẩm (cần implement theo logic thực tế)
-    private double getProductPrice(Long productId) {
-        // Logic để lấy giá từ service hoặc DB
-        return 0.0; // Placeholder
+                .map(orderItem -> orderItem.getUnitPrice() * orderItem.getQuantity()) // Calculate subtotal
+                .reduce(0L, Long::sum); // Sum up all subtotals to get the total amount
     }
 }

@@ -30,19 +30,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class OrderService {
-
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
-
-    @Transactional(readOnly = true)
-    public List<OrderDTO> getOrdersByUser(User user) {
-        List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
-        return orders.stream()
-                .map(this::convertToOrderDTO)
-                .collect(Collectors.toList());
-    }
 
     @Transactional
     public OrderDTO createOrderFromCart(User user) {
@@ -67,7 +58,7 @@ public class OrderService {
         Set<OrderItem> orderItems = cart.getCartItems().stream()
                 .map(cartItem -> {
                     // Validate and fetch product
-                    Product product = checkProductAvailability(cartItem.getProduct(), cartItem.getQuantity());
+                    Product product = validateProductAvailability(cartItem.getProduct(), cartItem.getQuantity());
 
                     OrderItem orderItem = new OrderItem();
                     orderItem.setOrder(order);
@@ -98,6 +89,14 @@ public class OrderService {
         return convertToOrderDTO(savedOrder);
     }
 
+    @Transactional(readOnly = true)
+    public List<OrderDTO> getOrdersByUser(User user) {
+        List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
+        return orders.stream()
+                .map(this::convertToOrderDTO)
+                .collect(Collectors.toList());
+    }
+
     private OrderDTO convertToOrderDTO(Order order) {
         // Create OrderDTO
         OrderDTO orderDTO = modelMapper.map(order, OrderDTO.class);
@@ -111,9 +110,9 @@ public class OrderService {
                     Product product = productRepository.findById(orderItem.getProductId())
                             .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-                    // Map product to summary DTO to avoid recursive serialization
-                    ProductItemDTO productItem = modelMapper.map(product, ProductItemDTO.class);
-                    itemDTO.setProduct(productItem);
+                    // Map product to ProductItemDTO
+                    ProductItemDTO productItemDTO = modelMapper.map(product, ProductItemDTO.class);
+                    itemDTO.setProduct(productItemDTO);
                     itemDTO.setSubtotal(orderItem.getUnitPrice() * orderItem.getQuantity());
 
                     return itemDTO;
@@ -122,21 +121,21 @@ public class OrderService {
 
         orderDTO.setOrderItems(orderItemDTOs);
 
-        // Map user to summary DTO
         return orderDTO;
     }
 
-    private Product checkProductAvailability(Long productId, int quantity) {
+    private Product validateProductAvailability(Long productId, int quantity) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        if (quantity < 0) {
-            throw new IllegalArgumentException("Quantity cannot be negative for product: " + productId);
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
         }
 
         if (product.getQuantity() < quantity) {
             throw new InsufficientStockException("Insufficient stock for product: " + productId);
         }
+
         return product;
     }
 }

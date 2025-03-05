@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.packshop.api.modules.shopping.dto.ProductItemDTO;
 
 import lombok.Data;
 
@@ -17,7 +16,6 @@ public class OrderDTO {
     private Status status;
     private BigDecimal totalAmount;
     private List<OrderItemDTO> orderItems;
-    private ProductItemDTO user;
 
     public enum Status {
         PENDING,

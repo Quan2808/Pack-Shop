@@ -97,6 +97,47 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public OrderDTO updateOrderStatus(Long orderId, Order.Status newStatus, User user) {
+        log.info("Updating order {} status to {}", orderId, newStatus);
+
+        Order order = orderRepository.findByIdAndUser(orderId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+        // Status transition validation can be added here
+        order.setStatus(newStatus);
+        Order updatedOrder = orderRepository.save(order);
+
+        return convertToOrderDTO(updatedOrder);
+    }
+
+    @Transactional
+    public void cancelOrder(Long orderId, User user) {
+        log.info("Cancelling order {} for user {}", orderId, user.getUsername());
+
+        Order order = orderRepository.findByIdAndUser(orderId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+        // Only allow cancellation of pending orders
+        if (order.getStatus() != Order.Status.PENDING) {
+            throw new IllegalStateException("Cannot cancel order with status: " + order.getStatus());
+        }
+
+        // Restore product quantities
+        order.getOrderItems().forEach(orderItem -> {
+            Product product = productRepository.findById(orderItem.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+            product.setQuantity(product.getQuantity() + orderItem.getQuantity());
+            productRepository.save(product);
+        });
+
+        order.setStatus(Order.Status.CANCELLED);
+        orderRepository.save(order);
+
+        log.info("Order {} cancelled successfully", orderId);
+    }
+
     private OrderDTO convertToOrderDTO(Order order) {
         // Create OrderDTO
         OrderDTO orderDTO = modelMapper.map(order, OrderDTO.class);

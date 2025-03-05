@@ -1,4 +1,4 @@
-package com.packshop.api.common.exceptions;
+package com.packshop.client.common.exceptions;
 
 import java.util.Map;
 
@@ -8,12 +8,12 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ErrorDetails {
-    private final int status;
-    private final String message;
-    private final String errorCode;
-    private final long timestamp;
-    private final String path;
-    private final Map<String, String> errors;
+    private int status;
+    private String message;
+    private String errorCode;
+    private long timestamp;
+    private String path;
+    private Map<String, String> errors;
 
     public ErrorDetails(int status, String message, String errorCode, String path, Map<String, String> errors) {
         this.status = status;

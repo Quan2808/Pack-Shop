@@ -101,7 +101,7 @@ public class AuthService extends ApiBaseService {
             ResponseEntity<R> response = restTemplate.exchange(BASE_API_URL + endpoint, method, entity, responseType);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new ApiException("Request failed", response.getStatusCode().value());
+                throw new ApiException("Request failed", response.getStatusCode().value(), defaultErrorMessage, null);
             }
             return response.getBody();
         } catch (ApiException e) {

@@ -12,6 +12,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.packshop.api.common.exceptions.InsufficientStockException;
 import com.packshop.api.common.exceptions.ResourceNotFoundException;
 import com.packshop.api.modules.catalog.entities.product.Product;
 import com.packshop.api.modules.catalog.repositories.ProductRepository;
@@ -216,7 +217,7 @@ public class CartService {
         }
 
         if (product.getQuantity() < quantity || product.getQuantity() <= 0) {
-            throw new IllegalStateException("Insufficient stock for product: " + productId);
+            throw new InsufficientStockException("Insufficient stock for product: " + productId);
         }
         return product;
     }

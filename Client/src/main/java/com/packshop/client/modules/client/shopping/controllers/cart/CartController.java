@@ -101,7 +101,6 @@ public class CartController {
             }
 
             cartService.updateCartItems(updateRequests);
-            log.info("Updating cart items: {}", cartService.updateCartItems(updateRequests));
             redirectAttributes.addFlashAttribute("successMessage", "Cart updated successfully");
         } catch (ApiException | IllegalArgumentException e) {
             log.error("Error updating cart items: {}", e.getMessage());

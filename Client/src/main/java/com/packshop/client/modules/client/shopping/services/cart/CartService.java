@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.packshop.client.common.exceptions.ApiException;
 import com.packshop.client.common.services.ApiBaseService;
 import com.packshop.client.dto.shopping.cart.CartDTO;
 import com.packshop.client.dto.shopping.cart.CartItemDTO;
@@ -28,16 +29,37 @@ public class CartService extends ApiBaseService {
     }
 
     public CartItemDTO addItemToCart(Long productId, Integer quantity) {
-        log.info("Adding item to cart: productId={}, quantity={}", productId, quantity);
-        CartItemRequest request = new CartItemRequest(null, productId, quantity);
-        return postToApi(CART_API_URL + "/items", request, CartItemDTO.class);
+        try {
+            log.info("Adding item to cart: productId={}, quantity={}", productId, quantity);
+            CartItemRequest request = new CartItemRequest(null, productId, quantity);
+            return postToApi(CART_API_URL + "/items", request, CartItemDTO.class);
+        } catch (ApiException e) {
+            if ("Insufficient".contains(e.getMessage())) {
+                throw new ApiException("Not enough stock available", e.getStatusCode(),
+                        e.getErrorCode(), e.getErrors(), e);
+            } else if ("INTERNAL_ERROR".equals(e.getErrorCode())) {
+                throw new ApiException("An unexpected error occurred while adding product to cart",
+                        e.getStatusCode(), e.getErrorCode(), e.getErrors(), e);
+            }
+            throw new ApiException("Failed to add product to cart", e.getStatusCode(),
+                    e.getErrorCode(), e.getErrors(), e);
+        }
     }
 
     public List<CartItemDTO> updateCartItems(List<CartItemRequest> updateRequests) {
-        log.info("Updating multiple cart items: {}", updateRequests);
-
-        // Modify the method to handle multiple updates
-        return putToApiMultiple(CART_API_URL + "/items", updateRequests, CartItemDTO.class);
+        try {
+            return putToApiMultiple(CART_API_URL + "/items", updateRequests, CartItemDTO.class);
+        } catch (ApiException e) {
+            if ("Insufficient".contains(e.getMessage())) {
+                throw new ApiException("Not enough stock available", e.getStatusCode(),
+                        e.getErrorCode(), e.getErrors(), e);
+            } else if ("INTERNAL_ERROR".equals(e.getErrorCode())) {
+                throw new ApiException("An unexpected error occurred while updating cart",
+                        e.getStatusCode(), e.getErrorCode(), e.getErrors(), e);
+            }
+            throw new ApiException("Failed to update cart items", e.getStatusCode(),
+                    e.getErrorCode(), e.getErrors(), e);
+        }
     }
 
     public void removeItemFromCart(Long itemId) {

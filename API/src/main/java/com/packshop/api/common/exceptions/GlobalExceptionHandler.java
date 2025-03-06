@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,36 @@ public class GlobalExceptionHandler {
 
         log.debug("Validation failed for {} {}: {}", request.getMethod(), request.getRequestURI(), errorMessage);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessage, "VALIDATION_ERROR", errors);
+    }
+
+    @SuppressWarnings("null")
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorDetails> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String paramName = ex.getName();
+        String invalidValue = ex.getValue() != null ? ex.getValue().toString() : "null";
+        Class<?> requiredType = ex.getRequiredType();
+
+        String message;
+        Map<String, String> errors = new HashMap<>();
+
+        if (requiredType != null && requiredType.isEnum()) {
+            message = String.format("Invalid value '%s' for parameter '%s'. Valid values are: %s",
+                    invalidValue, paramName, getEnumValues(requiredType));
+            errors.put("invalidValue", invalidValue);
+            errors.put("validValues", getEnumValues(requiredType));
+        } else {
+            message = String.format("Failed to convert value '%s' for parameter '%s' to required type '%s'",
+                    invalidValue, paramName, requiredType != null ? requiredType.getSimpleName() : "unknown");
+            errors.put("invalidValue", invalidValue);
+            errors.put("requiredType", requiredType != null ? requiredType.getSimpleName() : "unknown");
+        }
+
+        log.debug("Type mismatch for {} {}: parameter '{}', value '{}', required type '{}'",
+                request.getMethod(), request.getRequestURI(), paramName, invalidValue,
+                requiredType != null ? requiredType.getSimpleName() : "unknown");
+
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, message, "INVALID_PARAMETER", errors);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -83,9 +114,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidStatusException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorDetails> handleInvalidStatusException(InvalidStatusException ex) {
-        log.debug("Insufficient stock for {} {}: {}",
+        log.debug("Invalid status for {} {}: {}",
                 request.getMethod(), request.getRequestURI(), ex.getMessage());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "INVALID_STATUS", null);
+
+        Map<String, String> errors = new HashMap<>();
+        if (ex.getInvalidValue() != null) {
+            errors.put("invalidValue", ex.getInvalidValue());
+            errors.put("validValues", getEnumValues(ex.getEnumClass()));
+        } else {
+            errors.put("currentStatus", ex.getCurrentStatus());
+            errors.put("expectedStatus", ex.getExpectedStatus());
+        }
+
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "INVALID_STATUS", errors);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -112,5 +153,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(status)
                 .body(new ErrorDetails(status.value(), message, errorCode, path, errors));
+    }
+
+    private String getEnumValues(Class<?> enumClass) {
+        if (enumClass == null || !enumClass.isEnum()) {
+            return "unknown";
+        }
+        Object[] enumConstants = enumClass.getEnumConstants();
+        return String.join(", ",
+                java.util.Arrays.stream(enumConstants)
+                        .map(Object::toString)
+                        .toArray(String[]::new));
     }
 }

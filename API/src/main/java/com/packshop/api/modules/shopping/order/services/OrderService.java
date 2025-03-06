@@ -105,6 +105,8 @@ public class OrderService {
         Order order = orderRepository.findByIdAndUser(orderId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
+        validateStatusTransition(order, newStatus);
+
         // Status transition validation can be added here
         order.setStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
@@ -120,12 +122,7 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
         // Only allow cancellation of pending orders
-        if (order.getStatus() != Order.Status.PENDING) {
-            throw new InvalidStatusException(
-                    orderId.toString(),
-                    order.getStatus().name(),
-                    Order.Status.PENDING.name());
-        }
+        validateStatusTransition(order, order.getStatus());
 
         // Restore product quantities
         order.getOrderItems().forEach(orderItem -> {
@@ -182,5 +179,47 @@ public class OrderService {
         }
 
         return product;
+    }
+
+    private void validateStatusTransition(Order order, Order.Status newStatus) {
+        Order.Status currentStatus = order.getStatus();
+        String orderId = order.getId().toString();
+
+        if (currentStatus == Order.Status.CANCELLED) {
+            throw new InvalidStatusException(
+                    orderId,
+                    currentStatus.name(),
+                    "any non-CANCELLED status",
+                    Order.Status.class);
+        }
+
+        switch (currentStatus) {
+            case PENDING:
+                if (newStatus != Order.Status.SHIPPED && newStatus != Order.Status.CANCELLED) {
+                    throw new InvalidStatusException(
+                            orderId,
+                            currentStatus.name(),
+                            "SHIPPED or CANCELLED",
+                            Order.Status.class);
+                }
+                break;
+            case SHIPPED:
+                if (newStatus != Order.Status.DELIVERED) {
+                    throw new InvalidStatusException(
+                            orderId,
+                            currentStatus.name(),
+                            "DELIVERED",
+                            Order.Status.class);
+                }
+                break;
+            case DELIVERED:
+                throw new InvalidStatusException(
+                        orderId,
+                        currentStatus.name(),
+                        "no further status change allowed",
+                        Order.Status.class);
+            default:
+                throw new IllegalStateException("Unexpected status: " + currentStatus);
+        }
     }
 }

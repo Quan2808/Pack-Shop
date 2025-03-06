@@ -42,8 +42,8 @@ public class OrderController {
       List<OrderDTO> orders = orderService.getUserOrders(userId);
       model.addAttribute("orders", orders);
     } catch (ApiException e) {
-      log.error("Error fetching order: {}", e.getMessage());
-      model.addAttribute("errorMessage", "Unable to load orders. Please try again later.");
+      log.error("Error fetching orders: {}", e.getMessage());
+      model.addAttribute("errorMessage", e.getMessage());
     }
     return viewRenderer.renderView(model, "client/order/index", "Order");
   }
@@ -57,10 +57,10 @@ public class OrderController {
     }
     try {
       orderService.updateOrderStatus(orderId, newStatus);
-      redirectAttributes.addFlashAttribute("successMessage", "Order status updated successfully.");
-      return "redirect:/order";
+      redirectAttributes.addFlashAttribute("successMessage", "Order status has been updated successfully.");
+      return REDIRECT_TO_ORDER;
     } catch (ApiException e) {
-      log.error("Error updating order status: {}", e.getMessage());
+      log.error("Error updating order {} status: {}", orderId, e.getMessage());
       redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
       return REDIRECT_TO_ORDER;
     }
@@ -75,10 +75,10 @@ public class OrderController {
     }
     try {
       orderService.cancelOrder(orderId);
-      redirectAttributes.addFlashAttribute("successMessage", "Order cancelled successfully.");
-      return "redirect:/order";
+      redirectAttributes.addFlashAttribute("successMessage", "Your order has been cancelled successfully.");
+      return REDIRECT_TO_ORDER;
     } catch (ApiException e) {
-      log.error("Error cancelling order: {}", e.getMessage());
+      log.error("Error cancelling order {}: {}", orderId, e.getMessage());
       redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
       return REDIRECT_TO_ORDER;
     }

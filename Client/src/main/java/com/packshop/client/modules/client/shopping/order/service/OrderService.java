@@ -23,12 +23,16 @@ public class OrderService extends ApiBaseService {
   }
 
   public List<OrderDTO> getUserOrders(Long userId) {
-    log.info("Fetching all Orders from User");
     try {
       return getAllFromApi(ORDERS_API_URL, OrderDTO[].class);
     } catch (ApiException e) {
-      throw new ApiException("Failed to fetching all Orders from User", e.getStatusCode(),
-          e.getErrorCode(), e.getErrors(), e);
+      log.error("Error fetching orders for user {}: {}", userId, e.getMessage());
+      throw new ApiException(
+          "We couldn’t load your orders. Please try again later.",
+          e.getStatusCode(),
+          e.getErrorCode(),
+          e.getErrors(),
+          e);
     }
   }
 
@@ -37,8 +41,13 @@ public class OrderService extends ApiBaseService {
     try {
       return postToApi(ORDERS_API_URL, null, OrderDTO.class);
     } catch (ApiException e) {
-      throw new ApiException("Failed to create order", e.getStatusCode(),
-          e.getErrorCode(), e.getErrors(), e);
+      log.error("Error creating order: {}", e.getMessage());
+      throw new ApiException(
+          "Unable to create your order. Please try again.",
+          e.getStatusCode(),
+          e.getErrorCode(),
+          e.getErrors(),
+          e);
     }
   }
 
@@ -48,8 +57,21 @@ public class OrderService extends ApiBaseService {
       String url = ORDERS_API_URL + "/" + orderId + "/status?newStatus=" + newStatus;
       return putToApi(url, null, OrderDTO.class);
     } catch (ApiException e) {
-      throw new ApiException("Failed to update order status", e.getStatusCode(),
-          e.getErrorCode(), e.getErrors(), e);
+      log.error("Error updating order {} status: {}", orderId, e.getMessage());
+      if ("INVALID_STATUS".equals(e.getErrorCode())) {
+        throw new ApiException(
+            String.format("Cannot update order %d to '%s'. The status is not valid.", orderId, newStatus),
+            e.getStatusCode(),
+            e.getErrorCode(),
+            e.getErrors(),
+            e);
+      }
+      throw new ApiException(
+          String.format("Failed to update order %d status to '%s'. Please try again.", orderId, newStatus),
+          e.getStatusCode(),
+          e.getErrorCode(),
+          e.getErrors(),
+          e);
     }
   }
 
@@ -58,11 +80,21 @@ public class OrderService extends ApiBaseService {
     try {
       deleteFromApi(ORDERS_API_URL, orderId);
     } catch (ApiException e) {
-      if ("INVALID_STATUS".equals(e.getErrorCode()))
-        throw new ApiException("Order cannot be cancelled due to invalid status.", e.getStatusCode(),
-            e.getErrorCode(), e.getErrors(), e);
-      throw new ApiException("Failed to cancel order", e.getStatusCode(),
-          e.getErrorCode(), e.getErrors(), e);
+      log.error("Error cancelling order {}: {}", orderId, e.getMessage());
+      if ("INVALID_STATUS".equals(e.getErrorCode())) {
+        throw new ApiException(
+            String.format("Order %d cannot be cancelled due to its current status.", orderId),
+            e.getStatusCode(),
+            e.getErrorCode(),
+            e.getErrors(),
+            e);
+      }
+      throw new ApiException(
+          String.format("Failed to cancel order %d. Please try again.", orderId),
+          e.getStatusCode(),
+          e.getErrorCode(),
+          e.getErrors(),
+          e);
     }
   }
 }

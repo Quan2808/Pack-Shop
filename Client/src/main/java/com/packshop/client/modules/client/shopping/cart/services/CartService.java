@@ -50,15 +50,44 @@ public class CartService extends ApiBaseService {
         try {
             return putToApiMultiple(CART_API_URL + "/items", updateRequests, CartItemDTO.class);
         } catch (ApiException e) {
-            if ("Insufficient".contains(e.getMessage())) {
-                throw new ApiException("Not enough stock available", e.getStatusCode(),
-                        e.getErrorCode(), e.getErrors(), e);
-            } else if ("INTERNAL_ERROR".equals(e.getErrorCode())) {
-                throw new ApiException("An unexpected error occurred while updating cart",
-                        e.getStatusCode(), e.getErrorCode(), e.getErrors(), e);
+            // Handle insufficient stock scenario
+            if (e.getErrorCode() != null && e.getErrorCode().contains("INSUFFICIENT_STOCK")) {
+                throw new ApiException(
+                    "Not enough stock available",
+                    e.getStatusCode(),
+                    e.getErrorCode(),
+                    e.getErrors(),
+                    e
+                );
             }
-            throw new ApiException("Failed to update cart items", e.getStatusCode(),
-                    e.getErrorCode(), e.getErrors(), e);
+            // Handle invalid status or other specific errors
+            else if ("INVALID_STATUS".equals(e.getErrorCode())) {
+                throw new ApiException(
+                    "Cannot update cart items due to invalid status",
+                    e.getStatusCode(),
+                    e.getErrorCode(),
+                    e.getErrors(),
+                    e
+                );
+            }
+            // Handle internal server errors
+            else if ("INTERNAL_ERROR".equals(e.getErrorCode()) || e.getStatusCode() == 500) {
+                throw new ApiException(
+                    "An unexpected error occurred while updating cart",
+                    e.getStatusCode(),
+                    e.getErrorCode(),
+                    e.getErrors(),
+                    e
+                );
+            }
+            // Generic fallback
+            throw new ApiException(
+                "Failed to update cart items: " + e.getMessage(),
+                e.getStatusCode(),
+                e.getErrorCode(),
+                e.getErrors(),
+                e
+            );
         }
     }
 

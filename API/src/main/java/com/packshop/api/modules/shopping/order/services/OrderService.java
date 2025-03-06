@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.packshop.api.common.exceptions.InsufficientStockException;
+import com.packshop.api.common.exceptions.InvalidStatusException;
 import com.packshop.api.common.exceptions.ResourceNotFoundException;
 import com.packshop.api.modules.catalog.entities.product.Product;
 import com.packshop.api.modules.catalog.repositories.ProductRepository;
@@ -120,7 +121,10 @@ public class OrderService {
 
         // Only allow cancellation of pending orders
         if (order.getStatus() != Order.Status.PENDING) {
-            throw new IllegalStateException("Cannot cancel order with status: " + order.getStatus());
+            throw new InvalidStatusException(
+                    orderId.toString(),
+                    order.getStatus().name(),
+                    Order.Status.PENDING.name());
         }
 
         // Restore product quantities

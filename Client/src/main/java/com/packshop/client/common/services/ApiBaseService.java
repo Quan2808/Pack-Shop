@@ -58,6 +58,12 @@ public abstract class ApiBaseService {
         executeRequest(url, HttpMethod.PUT, createJsonEntity(request), Void.class);
     }
 
+    protected <T> T putToApi(String apiUrl, Object request, Class<T> responseType) {
+        String url = BASE_API_URL + apiUrl;
+        ResponseEntity<T> response = executeRequest(url, HttpMethod.PUT, createJsonEntity(request), responseType);
+        return response.getBody();
+    }
+
     protected <T> List<T> putToApiMultiple(String apiUrl, List<?> request, Class<T> responseType) {
         String url = BASE_API_URL + apiUrl;
         ResponseEntity<List<T>> response = executeRequest(url, HttpMethod.PUT, createJsonEntity(request),
@@ -133,6 +139,7 @@ public abstract class ApiBaseService {
 
     private ErrorDetails parseErrorBody(HttpClientErrorException e) {
         try {
+            log.info("Error Body: {}", e.getResponseBodyAsString());
             return objectMapper.readValue(e.getResponseBodyAsString(), ErrorDetails.class);
         } catch (Exception ex) {
             log.warn("Failed to parse error body: {}", ex.getMessage());

@@ -72,13 +72,20 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "DUPLICATE_RESOURCE", null);
     }
 
-    // Handler cho InsufficientStockException
     @ExceptionHandler(InsufficientStockException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorDetails> handleInsufficientStockException(InsufficientStockException ex) {
         log.debug("Insufficient stock for {} {}: {}",
                 request.getMethod(), request.getRequestURI(), ex.getMessage());
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "INSUFFICIENT_STOCK", null);
+    }
+
+    @ExceptionHandler(InvalidStatusException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorDetails> handleInvalidStatusException(InvalidStatusException ex) {
+        log.debug("Insufficient stock for {} {}: {}",
+                request.getMethod(), request.getRequestURI(), ex.getMessage());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "INVALID_STATUS", null);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

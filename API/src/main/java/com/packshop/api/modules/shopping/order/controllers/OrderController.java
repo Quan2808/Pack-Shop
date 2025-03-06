@@ -36,6 +36,15 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderDTO> getOrderById(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal User user) {
+        log.info("Retrieving order {} for user {}", orderId, user.getUsername());
+        OrderDTO order = orderService.getOrderById(orderId, user);
+        return ResponseEntity.ok(order);
+    }
+
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(
             @AuthenticationPrincipal User user) {

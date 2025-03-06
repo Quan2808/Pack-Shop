@@ -36,6 +36,24 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
 
+    @Transactional(readOnly = true)
+    public List<OrderDTO> getOrdersByUser(User user) {
+        List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
+        return orders.stream()
+                .map(this::convertToOrderDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public OrderDTO getOrderById(Long orderId, User user) {
+        log.info("Retrieving order {} for user {}", orderId, user.getUsername());
+
+        Order order = orderRepository.findByIdAndUser(orderId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+        return convertToOrderDTO(order);
+    }
+
     @Transactional
     public OrderDTO createOrderFromCart(User user) {
         log.info("Creating order from cart for user: {}", user.getUsername());
@@ -88,14 +106,6 @@ public class OrderService {
 
         log.info("Order created successfully for user: {}", user.getUsername());
         return convertToOrderDTO(savedOrder);
-    }
-
-    @Transactional(readOnly = true)
-    public List<OrderDTO> getOrdersByUser(User user) {
-        List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
-        return orders.stream()
-                .map(this::convertToOrderDTO)
-                .collect(Collectors.toList());
     }
 
     @Transactional

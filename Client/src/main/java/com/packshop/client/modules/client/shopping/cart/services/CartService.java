@@ -1,4 +1,4 @@
-package com.packshop.client.modules.client.shopping.services.cart;
+package com.packshop.client.modules.client.shopping.cart.services;
 
 import java.util.List;
 

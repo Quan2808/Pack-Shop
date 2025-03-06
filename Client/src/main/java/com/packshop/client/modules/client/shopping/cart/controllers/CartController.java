@@ -1,4 +1,4 @@
-package com.packshop.client.modules.client.shopping.controllers.cart;
+package com.packshop.client.modules.client.shopping.cart.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import com.packshop.client.common.exceptions.ApiException;
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.shopping.cart.CartDTO;
 import com.packshop.client.dto.shopping.cart.CartItemRequest;
-import com.packshop.client.modules.client.shopping.services.cart.CartService;
+import com.packshop.client.modules.client.shopping.cart.services.CartService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;

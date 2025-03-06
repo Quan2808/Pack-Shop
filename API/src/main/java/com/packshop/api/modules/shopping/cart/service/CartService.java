@@ -112,8 +112,6 @@ public class CartService {
     @Transactional
     @CacheEvict(value = "carts", key = "#user.id")
     public List<CartItemDTO> updateCartItems(User user, List<CartItemRequest> updateRequests) {
-        log.info("Updating {} cart items for user ID: {}", updateRequests.size(), user.getId());
-
         Cart cart = user.getCart();
         if (cart == null) {
             log.error("Cart not found for user ID: {}", user.getId());
@@ -169,8 +167,6 @@ public class CartService {
     @Transactional
     @CacheEvict(value = "carts", key = "#user.id")
     public void removeItemFromCart(User user, Long itemId) {
-        log.info("Removing cart item {} for user ID: {}", itemId, user.getId());
-
         Cart cart = user.getCart();
         if (cart == null) {
             log.error("Cart not found for user ID: {}", user.getId());
@@ -196,8 +192,6 @@ public class CartService {
     @Transactional
     @CacheEvict(value = "carts", key = "#user.id")
     public void clearCart(User user) {
-        log.info("Clearing cart for user ID: {}", user.getId());
-
         Cart cart = user.getCart();
         if (cart == null) {
             log.info("No cart to clear for user ID: {}", user.getId());

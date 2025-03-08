@@ -11,6 +11,9 @@
       transform: rotate(90deg);
       transition: transform 0.2s ease-in-out;
     }
+    .no-border-bottom {
+      border-bottom: none !important;
+    }
   </style>
 </th:block>
 
@@ -71,90 +74,59 @@
             data-mdb-parent="#accordionFlushExample"
           >
             <div class="accordion-body">
-              <!-- Order Details -->
-              <div class="order-details">
-                <p>
-                  <strong>Order ID:</strong>
-                  <span th:text="${order.id}">123</span>
-                </p>
-                <p>
-                  <strong>Date:</strong>
-                  <span
-                    th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}"
-                    >01-01-2023</span
+              <table class="table align-middle table-row-dashed fs-6 gy-5 mb-0">
+                <thead>
+                  <tr
+                    class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0"
                   >
-                </p>
-                <p>
-                  <strong>Status:</strong>
-                  <span th:text="${order.status}">STATUS</span>
-                </p>
-                <p>
-                  <strong>Total Amount:</strong>
-                  <span
-                    th:text="${#numbers.formatDecimal(order.totalAmount, 1, 3)} + ' đ'"
-                    >100.00 đ</span
-                  >
-                </p>
-              </div>
-
-              <!-- Order Items Table -->
-              <!-- <div
-                class="order-items mt-3"
-                th:if="${not #lists.isEmpty(order.orderItems)}"
-              >
-                <h5>Order Items</h5>
-                <table class="table table-sm">
-                  <thead>
-                    <tr>
-                      <th>Product</th>
-                      <th>Quantity</th>
-                      <th>Unit Price</th>
-                      <th>Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr th:each="item : ${order.orderItems}">
-                      <td>
-                        <div class="d-flex align-items-center">
-                          <img
-                            th:if="${item.product != null && item.product.thumbnail != null}"
-                            th:src="${item.product.thumbnail}"
-                            alt="Product thumbnail"
-                            class="me-2"
-                            style="width: 35px; height: 35px; object-fit: cover"
-                          />
-                          <span th:text="${item.productName}"
-                            >Product Name</span
-                          >
+                    <th class="fw-bold min-w-175px">Product</th>
+                    <th class="fw-bold min-w-70px text-end">Qty</th>
+                    <th class="fw-bold min-w-100px text-end">Unit Price</th>
+                    <th class="fw-bold min-w-100px text-end">Total</th>
+                  </tr>
+                </thead>
+                <tbody class="fw-semibold text-gray-600">
+                  <tr th:each="item : ${order.orderItems}">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <img
+                          th:src="${item.product.thumbnail}"
+                          th:alt="${item.product.name}"
+                          style="width: 45px; height: 45px"
+                          class="img-fluid rounded"
+                        />
+                        <div class="ms-5">
+                          <div
+                            class="fs-7 text-muted"
+                            th:text="${item.product.name}"
+                          ></div>
                         </div>
-                      </td>
-                      <td th:text="${item.quantity}">1</td>
-                      <td
-                        th:text="${#numbers.formatDecimal(item.unitPrice, 1, 0)} + ' đ'"
-                      >
-                        50.000 đ
-                      </td>
-                      <td
-                        th:text="${#numbers.formatDecimal(item.subtotal, 1, 0)} + ' đ'"
-                      >
-                        50.000 đ
-                      </td>
-                    </tr>
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td colspan="3" class="text-end">
-                        <strong>Total:</strong>
-                      </td>
-                      <td
-                        th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)} + ' đ'"
-                      >
-                        100.00 đ
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div> -->
+                      </div>
+                    </td>
+                    <td
+                      class="text-end text-muted"
+                      th:text="${item.quantity}"
+                    ></td>
+                    <td
+                      class="text-end text-muted"
+                      th:text="${#numbers.formatInteger(item.unitPrice, 0, 'POINT')} + ' đ'"
+                    ></td>
+                    <td
+                      class="text-end text-muted"
+                      th:text="${#numbers.formatInteger(item.subtotal, 0, 'POINT')} + ' đ'"
+                    ></td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" class="text-end no-border-bottom">
+                      Subtotal
+                    </td>
+                    <td
+                      class="fw-bolder text-end no-border-bottom"
+                      th:text="${#numbers.formatInteger(order.totalAmount, 0, 'POINT')} + ' đ'"
+                    ></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

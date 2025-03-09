@@ -4,6 +4,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.packshop.api.modules.identity.entities.address.Address;
+
 import com.packshop.api.modules.shopping.cart.entities.Cart;
 import com.packshop.api.modules.shopping.order.entities.Order;
 
@@ -20,10 +21,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,31 +39,27 @@ public class User {
         private Long id;
 
         @Column(nullable = false, unique = true)
-        @NotBlank(message = "Username is required")
-        @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+        @ValidUniqueName(fieldName = "Username")
         private String username;
 
         @Column(nullable = false)
-        @NotBlank(message = "Password is required")
-        @Size(min = 8, message = "Password must be at least 8 characters")
+        @ValidPassword
         private String password;
 
         @Column(nullable = false, unique = true)
-        @NotBlank(message = "Email is required")
-        @Email(message = "Email must be valid")
+        @ValidEmail
         private String email;
 
         @Column(name = "full_name", nullable = false)
-        @NotBlank(message = "Full name is required")
-        @Size(max = 100, message = "Full name must not exceed 100 characters")
+        @ValidFieldName(fieldName = "Full name")
         private String fullName;
 
         @Column(name = "phone_number", unique = true)
-        @Pattern(regexp = "^\\(\\+84\\)\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{3}$", message = "Phone number must be in the format (+84) 123 456 789")
+        @ValidPhoneNumber
         private String phoneNumber;
 
         @Column(name = "avatar_url")
-        @Size(max = 255, message = "Avatar URL must not exceed 255 characters")
+        @ValidPath(maxLength = 255)
         private String avatarUrl;
 
         @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

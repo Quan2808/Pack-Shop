@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.packshop.api.common.exceptions.DuplicateResourceException;
+import com.packshop.api.common.exceptions.InvalidStatusException;
 import com.packshop.api.common.exceptions.ResourceNotFoundException;
 import com.packshop.api.modules.catalog.dto.ProductDTO;
 import com.packshop.api.modules.catalog.entities.category.Category;
 import com.packshop.api.modules.catalog.entities.product.Product;
 import com.packshop.api.modules.catalog.entities.product.ProductAttribute;
+import com.packshop.api.modules.catalog.entities.product.ProductStatus;
 import com.packshop.api.modules.catalog.repositories.CategoryRepository;
 import com.packshop.api.modules.catalog.repositories.ProductRepository;
 
@@ -26,6 +28,7 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
 
+    @Transactional
     public ProductDTO createProduct(ProductDTO productDTO) {
         Category category = categoryRepository.findById(productDTO.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
@@ -38,6 +41,11 @@ public class ProductService {
         if (productRepository.existsBySkuIgnoreCase(productDTO.getSku())) {
             throw new DuplicateResourceException(
                     String.format("Product with SKU '%s' already exists", productDTO.getSku()));
+        }
+
+        if (!isValidStatus(productDTO.getStatus())) {
+            throw new InvalidStatusException(
+                    "Product", productDTO.getStatus().toString(), ProductStatus.class);
         }
 
         Product product = modelMapper.map(productDTO, Product.class);
@@ -69,6 +77,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -122,5 +131,17 @@ public class ProductService {
         }
 
         productRepository.delete(product);
+    }
+
+    private boolean isValidStatus(ProductStatus status) {
+        if (status == null) {
+            return false;
+        }
+        try {
+            ProductStatus.valueOf(status.name());
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }

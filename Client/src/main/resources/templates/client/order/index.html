@@ -24,7 +24,7 @@
 
   <div class="card">
     <div class="card-body">
-      <div class="accordion accordion-flush" id="accordionFlushExample">
+      <div class="accordion accordion-flush" id="order-accordion">
         <div
           class="accordion-item"
           th:each="order, orderStat : ${orders}"
@@ -71,7 +71,7 @@
             th:id="'flush-collapse-' + ${orderStat.index}"
             class="accordion-collapse collapse"
             th:aria-labelledby="'flush-heading-' + ${orderStat.index}"
-            data-mdb-parent="#accordionFlushExample"
+            data-mdb-parent="#order-accordion"
           >
             <div class="accordion-body">
               <table class="table align-middle table-row-dashed fs-6 gy-5 mb-0">

@@ -28,6 +28,10 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "alias_name")
+    @Size(max = 100, message = "Alias name must not exceed 100 characters")
+    private String aliasName;
+
     @Column(name = "street_address", nullable = false)
     @NotBlank(message = "Street address is required")
     @Size(max = 255, message = "Street address must not exceed 255 characters")

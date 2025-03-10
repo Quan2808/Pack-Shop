@@ -54,6 +54,7 @@ public class AddressService {
     // Check for duplicate and handle default logic in one pass
     List<Address> userAddresses = addressRepository.findByUser(user);
     checkForDuplicateAddress(address.getFullAddress(), userAddresses);
+    checkForDuplicateAliasName(address.getAliasName(), userAddresses);
     setDefaultAddressLogic(address, userAddresses);
 
     Address savedAddress = addressRepository.save(address);
@@ -70,8 +71,11 @@ public class AddressService {
             String.format("Address with ID %d not found for user %d", addressId, user.getId())));
 
     updateAddressFields(address, addressDTO);
+
     List<Address> userAddresses = addressRepository.findByUser(user);
     checkForDuplicateAddress(address.getFullAddress(), userAddresses, addressId);
+    checkForDuplicateAliasName(address.getAliasName(), userAddresses, addressId);
+
     setDefaultAddressLogic(address, userAddresses);
 
     Address updatedAddress = addressRepository.save(address);
@@ -104,6 +108,21 @@ public class AddressService {
     checkForDuplicateAddress(fullAddress, userAddresses, null);
   }
 
+  private void checkForDuplicateAliasName(String aliasName, List<Address> userAddresses, Long excludeId) {
+    if (aliasName == null || aliasName.trim().isEmpty())
+      return;
+
+    boolean duplicateExists = userAddresses.stream()
+        .anyMatch(a -> aliasName.equalsIgnoreCase(a.getAliasName()) && !a.getId().equals(excludeId));
+    if (duplicateExists) {
+      throw new DuplicateResourceException("Another address with the same alias name already exists for this user");
+    }
+  }
+
+  private void checkForDuplicateAliasName(String aliasName, List<Address> userAddresses) {
+    checkForDuplicateAliasName(aliasName, userAddresses, null);
+  }
+
   private void setDefaultAddressLogic(Address address, List<Address> userAddresses) {
     if (userAddresses.isEmpty()) {
       log.debug("Setting first address as default for user: {}", address.getUser().getId());
@@ -120,6 +139,7 @@ public class AddressService {
   }
 
   private void updateAddressFields(Address address, AddressDTO addressDTO) {
+    address.setAliasName(addressDTO.getAliasName());
     address.setStreetAddress(addressDTO.getStreetAddress());
     address.setWard(addressDTO.getWard());
     address.setDistrict(addressDTO.getDistrict());

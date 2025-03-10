@@ -15,6 +15,9 @@ import lombok.NoArgsConstructor;
 public class AddressDTO {
   private Long id;
 
+  @Size(max = 100, message = "Alias name must not exceed 100 characters")
+  private String aliasName;
+
   @NotBlank(message = "Street address is required")
   @Size(max = 255, message = "Street address must not exceed 255 characters")
   private String streetAddress;

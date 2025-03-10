@@ -21,7 +21,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,7 +36,6 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
     @Column(nullable = false, unique = true)
     private String name;
 
@@ -56,7 +54,6 @@ public class Product {
     @Min(value = 0, message = "Price must be non-negative")
     private Long price;
 
-    @NotNull
     @Column(nullable = false, unique = true)
     private String sku;
 

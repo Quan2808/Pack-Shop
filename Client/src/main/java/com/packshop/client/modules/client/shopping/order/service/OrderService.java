@@ -28,7 +28,7 @@ public class OrderService extends ApiBaseService {
     } catch (ApiException e) {
       log.error("Error fetching orders for user {}: {}", userId, e.getMessage());
       throw new ApiException(
-          "We couldn’t load your orders. Please try again later.",
+          "Couldn’t load your orders. Please try again later.",
           e.getStatusCode(),
           e.getErrorCode(),
           e.getErrors(),

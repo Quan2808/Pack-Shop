@@ -1,5 +1,7 @@
 package com.packshop.client.modules.client.home.controllers;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 import org.modelmapper.ModelMapper;
@@ -18,15 +20,19 @@ import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.identity.AuthResponse;
 import com.packshop.client.dto.identity.UpdateAccountRequest;
 import com.packshop.client.dto.identity.UpdatePasswordRequest;
+import com.packshop.client.dto.shopping.address.AddressDTO;
 import com.packshop.client.modules.client.home.services.AuthService;
+import com.packshop.client.modules.client.shopping.address.service.AddressService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
-@RequestMapping("/account/profile")
 @Slf4j
+@RequiredArgsConstructor
+@RequestMapping("/account/profile")
 public class AccountController {
 
     private static final String PROFILE_VIEW = "client/account/profile/index";
@@ -39,12 +45,7 @@ public class AccountController {
     private final ViewRenderer viewRenderer;
     private final ModelMapper modelMapper;
     private final AuthService authService;
-
-    public AccountController(AuthService authService, ViewRenderer viewRenderer, ModelMapper modelMapper) {
-        this.authService = authService;
-        this.viewRenderer = viewRenderer;
-        this.modelMapper = modelMapper;
-    }
+    private final AddressService addressService;
 
     @GetMapping()
     public String profile(HttpSession session, Model model) {
@@ -54,12 +55,12 @@ public class AccountController {
         }
         AuthResponse userInfo = authService.getCurrentUser(token);
         UpdateAccountRequest updateProfileRequest = modelMapper.map(userInfo, UpdateAccountRequest.class);
+        addProfileAttributesToModel(model, userInfo, updateProfileRequest);
 
-        model.addAttribute("isLoggedIn", true);
-        model.addAttribute("userInfo", userInfo);
-        model.addAttribute("user", session);
-        model.addAttribute("updateProfileRequest", updateProfileRequest);
-        model.addAttribute("updatePasswordRequest", new UpdatePasswordRequest());
+        List<AddressDTO> addresses = addressService.getUserAddresses(userInfo.getUserId());
+        addresses.sort(Comparator.comparing(AddressDTO::getIsDefault).reversed());
+
+        model.addAttribute("addresses", addresses);
 
         log.info("User info: {}", userInfo);
         return viewRenderer.renderView(model, PROFILE_VIEW, "Profile");
@@ -194,5 +195,13 @@ public class AccountController {
             session.setAttribute("roles", roles);
             session.setAttribute("isAdmin", roles.contains("ADMIN"));
         }
+    }
+
+    private void addProfileAttributesToModel(Model model, AuthResponse userInfo,
+            UpdateAccountRequest updateProfileRequest) {
+        model.addAttribute("isLoggedIn", true);
+        model.addAttribute("userInfo", userInfo);
+        model.addAttribute("updateProfileRequest", updateProfileRequest);
+        model.addAttribute("updatePasswordRequest", new UpdatePasswordRequest());
     }
 }

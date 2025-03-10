@@ -13,27 +13,36 @@
   </div>
 
   <div class="card-body">
-    <div class="accordion accordion-flush" id="order-accordion">
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="flush-heading-0">
+    <div class="accordion accordion-flush" id="address-accordion">
+      <div class="accordion-item" th:each="a, orderStat: ${addresses}">
+        <h2
+          class="accordion-header"
+          th:id="'flush-heading-' + ${orderStat.index}"
+        >
           <div class="d-flex justify-content-between align-items-start w-100">
             <button
               data-mdb-collapse-init
               class="accordion-button item-accordion-button collapsed flex-grow-1 text-start"
               type="button"
-              data-mdb-target="#flush-collapse-0"
+              th:data-mdb-target="'#flush-collapse-' + ${orderStat.index}"
               aria-expanded="false"
-              aria-controls="flush-collapse-0"
+              th:aria-controls="'flush-collapse-' + ${orderStat.index}"
             >
               <i class="fas fa-chevron-right me-3 order-chevron text-muted"></i>
               <div class="ms-3">
                 <p class="mb-1">
-                  <span class="fw-bold me-3">Alias name</span>
-                  <span class="badge rounded-pill badge-info"
+                  <span class="fw-bold me-3" th:text="${a.aliasName}"
+                    >Alias name</span
+                  >
+                  <span
+                    class="badge rounded-pill badge-info"
+                    th:if="${a.isDefault}"
                     >Default address</span
                   >
                 </p>
-                <p class="text-muted mb-0">Full address</p>
+                <p class="text-muted mb-0" th:text="${a.fullAddress}">
+                  Full address
+                </p>
               </div>
             </button>
 
@@ -73,28 +82,30 @@
         </h2>
 
         <div
-          id="flush-collapse-0"
+          th:id="'flush-collapse-' + ${orderStat.index}"
           class="accordion-collapse collapse"
-          aria-labelledby="flush-heading-0"
-          data-mdb-parent="#order-accordion"
+          th:aria-labelledby="'flush-heading-' + ${orderStat.index}"
+          data-mdb-parent="#address-accordion"
         >
           <div class="accordion-body">
             <div class="d-flex flex-column pb-5">
               <div>
                 <span class="fw-bold text-gray-600">Street Address: </span>
-                <span class="text-muted">Address</span>
+                <span class="text-muted" th:text="${a.streetAddress}"
+                  >Address</span
+                >
               </div>
               <div>
                 <span class="fw-bold text-gray-600">Ward: </span>
-                <span class="text-muted">Ward</span>
+                <span class="text-muted" th:text="${a.ward}">Ward</span>
               </div>
               <div>
                 <span class="fw-bold text-gray-600">District: </span>
-                <span class="text-muted">District</span>
+                <span class="text-muted" th:text="${a.district}">District</span>
               </div>
               <div>
                 <span class="fw-bold text-gray-600">Province: </span>
-                <span class="text-muted">Province</span>
+                <span class="text-muted" th:text="${a.province}">Province</span>
               </div>
             </div>
           </div>

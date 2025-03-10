@@ -140,10 +140,11 @@
             </div>
             <span
               ><strong
-                th:text="${#aggregates.sum(cart.cartItems.![product.price * quantity])} + ' USD'"
+                th:text="${#aggregates.sum(cart.cartItems.![product.price * quantity])}"
                 >$0.00</strong
-              ></span
-            >
+              >
+              <i class="fa-solid fa-dong-sign"></i
+            ></span>
           </div>
           <button
             type="button"

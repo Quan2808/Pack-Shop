@@ -3,9 +3,10 @@ package com.packshop.api.modules.identity.entities;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.packshop.api.modules.identity.entities.address.Address;
+
 import com.packshop.api.modules.shopping.cart.entities.Cart;
 import com.packshop.api.modules.shopping.order.entities.Order;
-import com.packshop.api.modules.shopping.address.entity.Address;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -62,7 +63,7 @@ public class User {
         private String avatarUrl;
 
         @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-        private Set<Address> address;
+        private Set<Address> shippingAddresses;
 
         @OneToOne(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE,
                         CascadeType.REMOVE }, fetch = FetchType.LAZY)

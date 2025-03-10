@@ -48,11 +48,15 @@ public class AddressService {
     log.info("Creating new address for user: {}", user.getId());
 
     Address address = convertToEntity(addressDTO);
+
     address.setFullAddress(address.generateFullAddress());
     address.setUser(user);
 
     // Check for duplicate and handle default logic in one pass
     List<Address> userAddresses = addressRepository.findByUser(user);
+
+    assignAliasNameIfEmpty(address, addressDTO, user, userAddresses);
+
     checkForDuplicateAddress(address.getFullAddress(), userAddresses);
     checkForDuplicateAliasName(address.getAliasName(), userAddresses);
     setDefaultAddressLogic(address, userAddresses);
@@ -73,6 +77,8 @@ public class AddressService {
     updateAddressFields(address, addressDTO);
 
     List<Address> userAddresses = addressRepository.findByUser(user);
+
+    assignAliasNameIfEmpty(address, addressDTO, user, userAddresses);
     checkForDuplicateAddress(address.getFullAddress(), userAddresses, addressId);
     checkForDuplicateAliasName(address.getAliasName(), userAddresses, addressId);
 
@@ -121,6 +127,14 @@ public class AddressService {
 
   private void checkForDuplicateAliasName(String aliasName, List<Address> userAddresses) {
     checkForDuplicateAliasName(aliasName, userAddresses, null);
+  }
+
+  private void assignAliasNameIfEmpty(Address address, AddressDTO addressDTO, User user, List<Address> userAddresses) {
+    if (addressDTO.getAliasName() == null || addressDTO.getAliasName().trim().isEmpty()) {
+      address.setAliasName(address.generateDefaultAliasName(user, userAddresses));
+    } else {
+      address.setAliasName(addressDTO.getAliasName());
+    }
   }
 
   private void setDefaultAddressLogic(Address address, List<Address> userAddresses) {

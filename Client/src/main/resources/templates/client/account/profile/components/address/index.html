@@ -1,0 +1,105 @@
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="p-2">
+        <h5 class="mb-0 fw-bold">Shipping Addresses</h5>
+      </div>
+      <div class="d-flex align-items-center p-2">
+        <button type="button" class="btn btn-success" data-mdb-ripple-init>
+          Add new address
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="accordion accordion-flush" id="order-accordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="flush-heading-0">
+          <div class="d-flex justify-content-between align-items-start w-100">
+            <button
+              data-mdb-collapse-init
+              class="accordion-button item-accordion-button collapsed flex-grow-1 text-start"
+              type="button"
+              data-mdb-target="#flush-collapse-0"
+              aria-expanded="false"
+              aria-controls="flush-collapse-0"
+            >
+              <i class="fas fa-chevron-right me-3 order-chevron text-muted"></i>
+              <div class="ms-3">
+                <p class="mb-1">
+                  <span class="fw-bold me-3">Alias name</span>
+                  <span class="badge rounded-pill badge-info"
+                    >Default address</span
+                  >
+                </p>
+                <p class="text-muted mb-0">Full address</p>
+              </div>
+            </button>
+
+            <div class="d-flex my-3 ms-9">
+              <button
+                class="btn btn-link me-1"
+                data-mdb-ripple-init
+                data-mdb-ripple-color="dark"
+                data-mdb-popover-init
+                data-mdb-trigger="hover"
+                data-mdb-content="Edit"
+              >
+                <i class="fa-solid fa-pencil"></i>
+              </button>
+              <button
+                class="btn btn-link me-1"
+                data-mdb-ripple-init
+                data-mdb-ripple-color="dark"
+                data-mdb-popover-init
+                data-mdb-trigger="hover"
+                data-mdb-content="Delete"
+              >
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+              <button
+                class="btn btn-link me-1"
+                data-mdb-ripple-init
+                data-mdb-ripple-color="dark"
+                data-mdb-popover-init
+                data-mdb-trigger="hover"
+                data-mdb-content="Set as defalt address"
+              >
+                <i class="fa-solid fa-check"></i>
+              </button>
+            </div>
+          </div>
+        </h2>
+
+        <div
+          id="flush-collapse-0"
+          class="accordion-collapse collapse"
+          aria-labelledby="flush-heading-0"
+          data-mdb-parent="#order-accordion"
+        >
+          <div class="accordion-body">
+            <div class="d-flex flex-column pb-5">
+              <div>
+                <span class="fw-bold text-gray-600">Street Address: </span>
+                <span class="text-muted">Address</span>
+              </div>
+              <div>
+                <span class="fw-bold text-gray-600">Ward: </span>
+                <span class="text-muted">Ward</span>
+              </div>
+              <div>
+                <span class="fw-bold text-gray-600">District: </span>
+                <span class="text-muted">District</span>
+              </div>
+              <div>
+                <span class="fw-bold text-gray-600">Province: </span>
+                <span class="text-muted">Province</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

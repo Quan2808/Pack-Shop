@@ -1,5 +1,7 @@
 package com.packshop.api.modules.shopping.address.entity;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.packshop.api.modules.identity.entities.User;
 
@@ -67,4 +69,10 @@ public class Address {
         return String.format("%s, %s, %s, %s",
                 streetAddress, ward, district, province);
     }
+
+    public String generateDefaultAliasName(User user, List<Address> userAddresses) {
+        int nextIndex = userAddresses.size() + 1;
+        return "My Address " + nextIndex;
+    }
+
 }

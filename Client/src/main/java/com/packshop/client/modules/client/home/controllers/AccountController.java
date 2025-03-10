@@ -10,12 +10,14 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.packshop.client.common.exceptions.ApiException;
 import com.packshop.client.common.utilities.ViewRenderer;
 import com.packshop.client.dto.identity.AuthResponse;
 import com.packshop.client.dto.identity.UpdateAccountRequest;
@@ -61,9 +63,23 @@ public class AccountController {
         addresses.sort(Comparator.comparing(AddressDTO::getIsDefault).reversed());
 
         model.addAttribute("addresses", addresses);
+        model.addAttribute("newAddress", new AddressDTO());
 
         log.info("User info: {}", userInfo);
         return viewRenderer.renderView(model, PROFILE_VIEW, "Profile");
+    }
+
+    @PostMapping("/remove-address/{addressId}")
+    public String removeAddress(@PathVariable("addressId") Long addressId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            addressService.removeAddress(addressId);
+            redirectAttributes.addFlashAttribute("successMessage", "Address removed successfully!");
+        } catch (ApiException e) {
+            log.error("Error removing address: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to remove address.");
+        }
+        return REDIRECT_PROFILE;
     }
 
     @PostMapping("/update")

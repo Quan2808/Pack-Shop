@@ -35,4 +35,9 @@ public class AddressService extends ApiBaseService {
           e);
     }
   }
+
+  public void removeAddress(Long addressId) {
+    log.info("Removing item from cart: addressId={}", addressId);
+    deleteFromApi(ADDRESSES_API_URL + "/", addressId);
+  }
 }

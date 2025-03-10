@@ -57,16 +57,22 @@
               >
                 <i class="fa-solid fa-pencil"></i>
               </button>
-              <button
-                class="btn btn-link me-1"
-                data-mdb-ripple-init
-                data-mdb-ripple-color="dark"
-                data-mdb-popover-init
-                data-mdb-trigger="hover"
-                data-mdb-content="Delete"
+              <form
+                th:action="@{/account/profile/remove-address/{addressId}(addressId=${a.id})}"
+                method="post"
+                class="d-inline"
               >
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
+                <button
+                  class="btn btn-link me-1"
+                  data-mdb-ripple-init
+                  data-mdb-ripple-color="dark"
+                  data-mdb-popover-init
+                  data-mdb-trigger="hover"
+                  data-mdb-content="Delete"
+                >
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </form>
               <button
                 class="btn btn-link me-1"
                 data-mdb-ripple-init

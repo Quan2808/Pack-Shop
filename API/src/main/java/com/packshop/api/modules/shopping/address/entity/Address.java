@@ -58,4 +58,9 @@ public class Address {
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
+
+    public String generateFullAddress() {
+        return String.format("%s, %s, %s, %s",
+                streetAddress, ward, district, province);
+    }
 }

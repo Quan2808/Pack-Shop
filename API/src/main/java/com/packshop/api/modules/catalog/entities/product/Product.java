@@ -3,7 +3,6 @@ package com.packshop.api.modules.catalog.entities.product;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.packshop.api.common.validation.ValidPath;
 import com.packshop.api.modules.catalog.entities.category.Category;
 
 import jakarta.persistence.CascadeType;
@@ -22,8 +21,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,18 +31,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(name = "thumbnail")
-    @ValidPath(maxLength = 255)
     private String thumbnail;
 
     @Enumerated(EnumType.STRING)
@@ -59,6 +56,7 @@ public class Product {
     @Min(value = 0, message = "Price must be non-negative")
     private Long price;
 
+    @NotNull
     @Column(nullable = false, unique = true)
     private String sku;
 

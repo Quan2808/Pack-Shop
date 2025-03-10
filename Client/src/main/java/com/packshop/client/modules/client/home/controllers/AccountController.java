@@ -69,6 +69,37 @@ public class AccountController {
         return viewRenderer.renderView(model, PROFILE_VIEW, "Profile");
     }
 
+    @PostMapping("/add-address")
+    public String addAddress(@Valid @ModelAttribute("newAddress") AddressDTO newAddress,
+            BindingResult result,
+            HttpSession session,
+            Model model, RedirectAttributes redirectAttributes) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return REDIRECT_AUTH;
+        }
+
+        try {
+            if (result.hasErrors()) {
+                AuthResponse userInfo = authService.getCurrentUser(token);
+                List<AddressDTO> addresses = addressService.getUserAddresses(userInfo.getUserId());
+                addresses.sort(Comparator.comparing(AddressDTO::getIsDefault).reversed());
+
+                redirectAttributes.addFlashAttribute("addresses", addresses);
+                redirectAttributes.addFlashAttribute("newAddress", newAddress); // Retain form data
+
+                return REDIRECT_PROFILE;
+            }
+
+            addressService.saveAddress(newAddress, authService.getCurrentUser(token).getUserId());
+            redirectAttributes.addFlashAttribute("successMessage", "Address removed successfully!");
+        } catch (ApiException e) {
+            log.error("Error removing address: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return REDIRECT_PROFILE;
+    }
+
     @PostMapping("/remove-address/{addressId}")
     public String removeAddress(@PathVariable("addressId") Long addressId,
             RedirectAttributes redirectAttributes) {

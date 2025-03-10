@@ -40,4 +40,43 @@ public class AddressService extends ApiBaseService {
     log.info("Removing item from cart: addressId={}", addressId);
     deleteFromApi(ADDRESSES_API_URL + "/", addressId);
   }
+
+  public AddressDTO saveAddress(AddressDTO addressDTO, Long userId) {
+    try {
+      // You might want to associate the userId with the address if your API requires
+      // it
+      // For example, you could add a userId field to AddressDTO if it doesn't exist
+      log.info("Saving address for user {}: {}", userId, addressDTO);
+
+      if (addressDTO.getId() == null) {
+        // Create new address (POST)
+        AddressDTO savedAddress = postToApi(ADDRESSES_API_URL, addressDTO, AddressDTO.class);
+        log.info("Successfully created new address with ID: {}", savedAddress.getId());
+        return savedAddress;
+      } else {
+        // Update existing address (PUT)
+        AddressDTO updatedAddress = putToApi(ADDRESSES_API_URL + "/" + addressDTO.getId(),
+            addressDTO,
+            AddressDTO.class);
+        log.info("Successfully updated address with ID: {}", updatedAddress.getId());
+        return updatedAddress;
+      }
+    } catch (ApiException e) {
+      log.error("Error saving address for user {}: {}", userId, e.getMessage());
+      throw new ApiException(
+          "Couldn’t save your address. Please try again later.",
+          e.getStatusCode(),
+          e.getErrorCode(),
+          e.getErrors(),
+          e);
+    } catch (Exception e) {
+      log.error("Unexpected error while saving address for user {}: {}", userId, e.getMessage(), e);
+      throw new ApiException(
+          "Unexpected error while saving address",
+          500,
+          "INTERNAL_SERVER_ERROR",
+          null,
+          e);
+    }
+  }
 }

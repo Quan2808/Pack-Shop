@@ -43,18 +43,13 @@ public class AddressService extends ApiBaseService {
 
   public AddressDTO saveAddress(AddressDTO addressDTO, Long userId) {
     try {
-      // You might want to associate the userId with the address if your API requires
-      // it
-      // For example, you could add a userId field to AddressDTO if it doesn't exist
       log.info("Saving address for user {}: {}", userId, addressDTO);
 
       if (addressDTO.getId() == null) {
-        // Create new address (POST)
         AddressDTO savedAddress = postToApi(ADDRESSES_API_URL, addressDTO, AddressDTO.class);
         log.info("Successfully created new address with ID: {}", savedAddress.getId());
         return savedAddress;
       } else {
-        // Update existing address (PUT)
         AddressDTO updatedAddress = putToApi(ADDRESSES_API_URL + "/" + addressDTO.getId(),
             addressDTO,
             AddressDTO.class);
@@ -63,6 +58,14 @@ public class AddressService extends ApiBaseService {
       }
     } catch (ApiException e) {
       log.error("Error saving address for user {}: {}", userId, e.getMessage());
+
+      if (e.getMessage().startsWith("Another address with"))
+        throw new ApiException(
+            e.getMessage(),
+            e.getStatusCode(),
+            e.getErrorCode(),
+            e.getErrors(),
+            e);
       throw new ApiException(
           "Couldn’t save your address. Please try again later.",
           e.getStatusCode(),

@@ -1,18 +1,14 @@
 package com.packshop.client.modules.client.home.controllers;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -26,10 +22,9 @@ import com.packshop.client.dto.shopping.address.AddressDTO;
 import com.packshop.client.modules.client.home.services.AuthService;
 import com.packshop.client.modules.client.shopping.address.service.AddressService;
 
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 @Controller
 @Slf4j
@@ -48,53 +43,59 @@ public class AccountController {
     private final ModelMapper modelMapper;
     private final AuthService authService;
     private final AddressService addressService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @GetMapping()
+    @GetMapping
     public String profile(HttpSession session, Model model) {
         String token = (String) session.getAttribute("token");
         if (token == null) {
+            log.warn("No session token found; redirecting to authentication page.");
             return REDIRECT_AUTH;
         }
-        AuthResponse userInfo = authService.getCurrentUser(token);
-        UpdateAccountRequest updateProfileRequest = modelMapper.map(userInfo, UpdateAccountRequest.class);
-        addProfileAttributesToModel(model, userInfo, updateProfileRequest);
 
-        List<AddressDTO> addresses = addressService.getUserAddresses(userInfo.getUserId());
-        addresses.sort(Comparator.comparing(AddressDTO::getIsDefault).reversed());
+        try {
+            AuthResponse userInfo = authService.getCurrentUser(token);
+            UpdateAccountRequest updateProfileRequest = modelMapper.map(userInfo, UpdateAccountRequest.class);
+            addProfileAttributesToModel(model, userInfo, updateProfileRequest);
 
-        model.addAttribute("addresses", addresses);
-        model.addAttribute("newAddress", new AddressDTO());
+            List<AddressDTO> addresses = addressService.getUserAddresses(userInfo.getUserId());
+            addresses.sort(Comparator.comparing(AddressDTO::getIsDefault).reversed());
+            model.addAttribute("addresses", addresses);
+            model.addAttribute("newAddress", new AddressDTO());
 
-        log.info("User info: {}", userInfo);
-        return viewRenderer.renderView(model, PROFILE_VIEW, "Profile");
+            log.debug("Loaded profile for user ID: {} with {} addresses.", userInfo.getUserId(), addresses.size());
+            return viewRenderer.renderView(model, PROFILE_VIEW, "Profile");
+        } catch (Exception e) {
+            log.error("Failed to load profile page for token: {}. Error: {}", token, e.getMessage(), e);
+            return REDIRECT_AUTH;
+        }
     }
 
     @PostMapping("/add-address")
     public String addAddress(@Valid @ModelAttribute("newAddress") AddressDTO newAddress,
             BindingResult result,
             HttpSession session,
-            Model model, RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
         String token = (String) session.getAttribute("token");
         if (token == null) {
+            log.warn("Session token missing during address addition; redirecting to authentication.");
             return REDIRECT_AUTH;
         }
 
+        AuthResponse userInfo = authService.getCurrentUser(token);
+        if (result.hasErrors()) {
+            log.warn("Validation failed for new address for user ID: {}. Errors: {}", userInfo.getUserId(),
+                    result.getAllErrors());
+            redirectAttributes.addFlashAttribute("newAddress", newAddress);
+            return REDIRECT_PROFILE;
+        }
+
         try {
-            if (result.hasErrors()) {
-                AuthResponse userInfo = authService.getCurrentUser(token);
-                List<AddressDTO> addresses = addressService.getUserAddresses(userInfo.getUserId());
-                addresses.sort(Comparator.comparing(AddressDTO::getIsDefault).reversed());
-
-                redirectAttributes.addFlashAttribute("addresses", addresses);
-                redirectAttributes.addFlashAttribute("newAddress", newAddress); // Retain form data
-
-                return REDIRECT_PROFILE;
-            }
-
-            addressService.saveAddress(newAddress, authService.getCurrentUser(token).getUserId());
-            redirectAttributes.addFlashAttribute("successMessage", "Address removed successfully!");
+            addressService.saveAddress(newAddress, userInfo.getUserId());
+            log.info("Address added successfully for user ID: {}.", userInfo.getUserId());
+            redirectAttributes.addFlashAttribute("successMessage", "Address added successfully!");
         } catch (ApiException e) {
-            log.error("Error removing address: {}", e.getMessage());
+            log.error("Failed to add address for user ID: {}. Error: {}", userInfo.getUserId(), e.getMessage(), e);
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return REDIRECT_PROFILE;
@@ -105,84 +106,86 @@ public class AccountController {
             RedirectAttributes redirectAttributes) {
         try {
             addressService.removeAddress(addressId);
+            log.info("Address ID: {} removed successfully.", addressId);
             redirectAttributes.addFlashAttribute("successMessage", "Address removed successfully!");
         } catch (ApiException e) {
-            log.error("Error removing address: {}", e.getMessage());
+            log.error("Failed to remove address ID: {}. Error: {}", addressId, e.getMessage(), e);
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to remove address.");
         }
         return REDIRECT_PROFILE;
     }
 
     @PostMapping("/update")
-    public String updateProfile(
-            @ModelAttribute("updateProfileRequest") @Valid UpdateAccountRequest request,
-            BindingResult result, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String updateProfile(@Valid @ModelAttribute("updateProfileRequest") UpdateAccountRequest request,
+            BindingResult result,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
         String token = (String) session.getAttribute("token");
         if (token == null) {
+            log.warn("Session token missing during profile update; redirecting to authentication.");
             redirectAttributes.addFlashAttribute("errorMessage", SESSION_EXPIRED_MSG);
             return REDIRECT_AUTH;
         }
+
         if (hasValidationErrors(result, redirectAttributes)) {
             redirectAttributes.addFlashAttribute("updateProfileRequest", request);
             return REDIRECT_PROFILE;
         }
 
+        String username = (String) session.getAttribute("username");
         try {
-            String username = (String) session.getAttribute("username");
             request.setToken(token);
             AuthResponse response = authService.updateProfile(request, username);
             if (UPDATE_PROFILE_SUCCESS_MSG.equals(response.getMessage())) {
                 updateSessionAttributes(session, response);
-                log.info("Profile updated successfully for user: {}", username);
+                log.info("Profile updated successfully for username: {}.", username);
                 redirectAttributes.addFlashAttribute("successMessage", UPDATE_PROFILE_SUCCESS_MSG);
-                return REDIRECT_PROFILE;
             } else {
-                log.warn("Failed to update profile for user: {} - {}", username, response.getMessage());
+                log.warn("Profile update failed for username: {}. Reason: {}", username, response.getMessage());
                 redirectAttributes.addFlashAttribute("errorMessage", response.getMessage());
                 redirectAttributes.addFlashAttribute("updateProfileRequest", request);
-                return REDIRECT_PROFILE;
             }
         } catch (Exception e) {
-            log.error("Error updating profile: ", e);
-            String errorMessage = extractErrorMessage(e, "Failed to update profile");
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            log.error("Error updating profile for username: {}. Error: {}", username, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("errorMessage", extractErrorMessage(e, "Failed to update profile"));
             redirectAttributes.addFlashAttribute("updateProfileRequest", request);
-            return REDIRECT_PROFILE;
         }
+        return REDIRECT_PROFILE;
     }
 
     @PostMapping("/update-password")
-    public String updatePassword(
-            @ModelAttribute("updatePasswordRequest") @Valid UpdatePasswordRequest request,
-            BindingResult result, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String updatePassword(@Valid @ModelAttribute("updatePasswordRequest") UpdatePasswordRequest request,
+            BindingResult result,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
         String token = (String) session.getAttribute("token");
         if (token == null) {
+            log.warn("Session token missing during password update; redirecting to authentication.");
             redirectAttributes.addFlashAttribute("errorMessage", SESSION_EXPIRED_MSG);
             return REDIRECT_AUTH;
         }
+
         if (hasValidationErrors(result, redirectAttributes)) {
+            redirectAttributes.addFlashAttribute("updatePasswordRequest", request);
             return REDIRECT_PROFILE;
         }
 
+        String username = (String) session.getAttribute("username");
         try {
-            String username = (String) session.getAttribute("username");
             AuthResponse response = authService.updatePassword(request.getOldPassword(), request.getNewPassword());
             if (UPDATE_PASSWORD_SUCCESS_MSG.equals(response.getMessage())) {
-                log.info("Password updated successfully for user: {}", username);
+                log.info("Password updated successfully for username: {}.", username);
                 redirectAttributes.addFlashAttribute("successMessage", UPDATE_PASSWORD_SUCCESS_MSG);
-                return REDIRECT_PROFILE;
             } else {
-                log.warn("Failed to update password for user: {} - {}", username, response.getMessage());
+                log.warn("Password update failed for username: {}. Reason: {}", username, response.getMessage());
                 redirectAttributes.addFlashAttribute("errorMessage", response.getMessage());
                 redirectAttributes.addFlashAttribute("updatePasswordRequest", request);
-                return REDIRECT_PROFILE;
             }
         } catch (Exception e) {
-            log.error("Error updating password: ", e);
-            String errorMessage = extractErrorMessage(e, "Failed to update password");
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            return REDIRECT_PROFILE;
+            log.error("Error updating password for username: {}. Error: {}", username, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("errorMessage", extractErrorMessage(e, "Failed to update password"));
         }
+        return REDIRECT_PROFILE;
     }
 
     private boolean hasValidationErrors(BindingResult result, RedirectAttributes redirectAttributes) {
@@ -191,7 +194,7 @@ public class AccountController {
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
                     .reduce((msg1, msg2) -> msg1 + "; " + msg2)
                     .orElse("Validation failed");
-            log.warn("Validation failed: {}", errorMessage);
+            log.warn("Validation errors occurred: {}", errorMessage);
             redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
             return true;
         }
@@ -199,26 +202,19 @@ public class AccountController {
     }
 
     private String extractErrorMessage(Exception e, String defaultMessage) {
-        String errorMessage = defaultMessage;
-        if (e instanceof HttpClientErrorException) {
-            HttpClientErrorException clientError = (HttpClientErrorException) e;
-            errorMessage = parseErrorResponse(clientError, errorMessage);
-        } else if (e.getCause() instanceof HttpClientErrorException) {
-            HttpClientErrorException clientError = (HttpClientErrorException) e.getCause();
-            errorMessage = parseErrorResponse(clientError, errorMessage);
-        }
-        return errorMessage;
-    }
-
-    private String parseErrorResponse(HttpClientErrorException clientError, String defaultMessage) {
-        try {
-            AuthResponse errorResponse = new ObjectMapper()
-                    .readValue(clientError.getResponseBodyAsString(), AuthResponse.class);
-            if (errorResponse != null && errorResponse.getMessage() != null) {
-                return errorResponse.getMessage();
+        if (e instanceof HttpClientErrorException || e.getCause() instanceof HttpClientErrorException) {
+            HttpClientErrorException clientError = (e instanceof HttpClientErrorException)
+                    ? (HttpClientErrorException) e
+                    : (HttpClientErrorException) e.getCause();
+            try {
+                AuthResponse errorResponse = objectMapper.readValue(clientError.getResponseBodyAsString(),
+                        AuthResponse.class);
+                if (errorResponse != null && errorResponse.getMessage() != null) {
+                    return errorResponse.getMessage();
+                }
+            } catch (Exception parseEx) {
+                log.warn("Failed to parse error response from API: {}", parseEx.getMessage());
             }
-        } catch (Exception parseEx) {
-            log.warn("Failed to parse error response: {}", parseEx.getMessage());
         }
         return defaultMessage;
     }
@@ -232,7 +228,6 @@ public class AccountController {
         if (response.getToken() != null) {
             session.setAttribute("token", response.getToken());
         }
-
         if (response.getRefreshToken() != null) {
             session.setAttribute("refreshToken", response.getRefreshToken());
         }

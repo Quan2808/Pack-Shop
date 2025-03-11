@@ -1,5 +1,6 @@
 package com.packshop.client.common.services;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +38,7 @@ public abstract class ApiBaseService {
             ResponseEntity<T> response = executeRequest(url, HttpMethod.GET, createJsonEntity(null), responseType);
             return response.getBody();
         } catch (ApiException e) {
-            throw e; // Re-throw để xử lý ở tầng cao hơn nếu cần
+            throw e;
         }
     }
 
@@ -123,7 +124,7 @@ public abstract class ApiBaseService {
 
     private HttpEntity<Object> createJsonEntity(Object body) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         return new HttpEntity<>(body, headers);
     }
 

@@ -178,27 +178,18 @@
           </div>
 
           <!-- Province/City -->
-          <div class="row mb-4">
+          <div class="mb-4">
             <label class="form-label fw-semibold">Province/City</label>
-            <div class="col">
-              <div data-mdb-input-init class="form-outline mb-3">
-                <input type="text" id="searchInput" class="form-control" />
-                <label class="form-label" for="searchInput"
-                  >Enter search keyword</label
-                >
-              </div>
-            </div>
-            <div class="col">
-              <select
-                data-mdb-select-init
-                class="select form-control"
-                id="provinceSelect"
-                th:field="*{province}"
-              >
-                <option value="" selected>Select Province/City</option>
-              </select>
-              <div class="text-danger" th:errors="*{province}"></div>
-            </div>
+            <select
+              data-mdb-select-init
+              class="select form-control"
+              id="province"
+              onchange="loadDistricts()"
+              th:field="*{province}"
+            >
+              <option value="" selected>Select Province/City</option>
+            </select>
+            <div class="text-danger" th:errors="*{province}"></div>
           </div>
 
           <!-- District -->
@@ -207,7 +198,8 @@
             <select
               data-mdb-select-init
               class="select form-control"
-              id="districtSelect"
+              id="district"
+              onchange="loadWards()"
               th:field="*{district}"
               disabled
             >
@@ -222,7 +214,7 @@
             <select
               data-mdb-select-init
               class="select form-control"
-              id="wardSelect"
+              id="ward"
               th:field="*{ward}"
               disabled
             >

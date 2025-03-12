@@ -28,10 +28,10 @@ public class OrderService extends ApiBaseService {
 
   }
 
-  public OrderDTO createOrder() {
+  public OrderDTO createOrder(Long addressId) {
     log.info("Creating new order via API");
     try {
-      return postToApi(ORDERS_API_URL, null, OrderDTO.class);
+      return postToApi(ORDERS_API_URL + "?address=" + addressId, null, OrderDTO.class);
     } catch (ApiException e) {
       log.error("Error creating order: {}", e.getMessage());
       throw new ApiException(

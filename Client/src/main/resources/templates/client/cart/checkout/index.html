@@ -65,18 +65,52 @@
               <i class="fa-solid fa-dong-sign"></i>
             </span>
           </div>
-          <button
-            type="button"
-            data-mdb-button-init
-            data-mdb-ripple-init
-            class="btn btn-primary btn-lg btn-block"
-          >
-            Order
-          </button>
+          <form id="orderForm" th:action="@{/order/create}" method="post">
+            <input type="hidden" name="addressId" id="selectedAddressId" />
+            <button
+              data-mdb-ripple-init
+              type="submit"
+              class="btn btn-primary btn-block"
+            >
+              Order
+            </button>
+          </form>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<th:block th:fragment="viewScripts"> </th:block>
+<th:block th:fragment="viewScripts">
+  <script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+      // Get all radio buttons
+      const addressRadios = document.querySelectorAll(
+        'input[name="Address-Check-Out"]'
+      );
+      const selectedAddressInput = document.getElementById("selectedAddressId");
+
+      // Set the default selected address (if any) on page load
+      const defaultAddress = document.querySelector(
+        'input[name="Address-Check-Out"]:checked'
+      );
+      if (defaultAddress) {
+        selectedAddressInput.value = defaultAddress.id;
+      }
+
+      // Add event listener to update hidden input when a radio button is selected
+      addressRadios.forEach((radio) => {
+        radio.addEventListener("change", function () {
+          if (this.checked) {
+            selectedAddressInput.value = this.id; // Set the addressId to the hidden input
+          }
+        });
+      });
+
+      // Optional: Format prices to use dots instead of commas
+      document.querySelectorAll("strong").forEach((el) => {
+        el.textContent = el.textContent.replace(/,/g, ".");
+      });
+    });
+  </script>
+</th:block>

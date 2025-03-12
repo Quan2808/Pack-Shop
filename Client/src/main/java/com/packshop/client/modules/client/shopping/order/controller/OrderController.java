@@ -48,6 +48,25 @@ public class OrderController {
     return viewRenderer.renderView(model, "client/order/index", "Order");
   }
 
+  @PostMapping("/create")
+  public String createOrder(@RequestParam Long addressId, HttpSession session,
+      RedirectAttributes redirectAttributes, Model model) {
+    String token = (String) session.getAttribute("token");
+    if (token == null) {
+      return "redirect:/account/authentication";
+    }
+    try {
+      OrderDTO newOrder = orderService.createOrder(addressId);
+      redirectAttributes.addFlashAttribute("successMessage",
+          "Your order has been created successfully. Order ID: " + newOrder.getId());
+      return REDIRECT_TO_ORDER; // Redirects to the order list page
+    } catch (ApiException e) {
+      log.error("Error creating order: {}", e.getMessage());
+      redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+      return "redirect:/cart/checkout"; // Redirect back to checkout on failure
+    }
+  }
+
   @PostMapping("/{orderId}/update-status")
   public String updateOrderStatus(@PathVariable Long orderId, @RequestParam String newStatus, HttpSession session,
       RedirectAttributes redirectAttributes, Model model) {

@@ -60,6 +60,9 @@
                 data-mdb-popover-init
                 data-mdb-trigger="hover"
                 data-mdb-content="Edit"
+                onclick="showEditModal(this)"
+                th:attr="data-id=${a.id}"
+                data-mdb-target="#updateAddressModal"
               >
                 <i class="fa-solid fa-pencil"></i>
               </button>

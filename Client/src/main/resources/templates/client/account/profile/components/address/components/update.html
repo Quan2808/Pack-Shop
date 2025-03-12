@@ -1,0 +1,133 @@
+<div
+  class="modal fade"
+  id="updateAddressModal"
+  tabindex="-1"
+  aria-labelledby="updateAddressModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" aria-hidden="false">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateAddressModalLabel">Update Address</h5>
+      </div>
+      <div class="modal-body" th:object="${editAddress}">
+        <form
+          th:action="@{/account/profile/update-address/{addressId}(addressId=${selectedAddressId})}"
+          method="post"
+        >
+          <!-- Hidden field to store address ID -->
+          <input type="hidden" th:field="*{id}" />
+
+          <!-- Alias Name -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Alias Name</label>
+            <div data-mdb-input-init class="form-outline">
+              <input
+                type="text"
+                id="editAliasName"
+                class="form-control"
+                th:field="*{aliasName}"
+              />
+              <label class="form-label" for="editAliasName"
+                >Enter alias name (optional)</label
+              >
+              <div class="text-danger" th:errors="*{aliasName}"></div>
+            </div>
+          </div>
+
+          <!-- Street Address -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Street Address</label>
+
+            <div data-mdb-input-init class="form-outline">
+              <input
+                type="text"
+                id="editStreetAddress"
+                class="form-control"
+                th:field="*{streetAddress}"
+              />
+              <label class="form-label" for="editStreetAddress"
+                >Enter street address</label
+              >
+              <div class="text-danger" th:errors="*{streetAddress}"></div>
+            </div>
+          </div>
+
+          <!-- Province/City -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Province/City</label>
+            <select
+              data-mdb-select-init
+              class="select form-control"
+              id="editProvince"
+              onchange="loadDistricts('edit')"
+              th:field="*{province}"
+            >
+              <option value="" selected>Select Province/City</option>
+            </select>
+            <div class="text-danger" th:errors="*{province}"></div>
+          </div>
+
+          <!-- District -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">District</label>
+            <select
+              data-mdb-select-init
+              class="select form-control"
+              id="editDistrict"
+              onchange="loadWards('edit')"
+              th:field="*{district}"
+              disabled
+            >
+              <option value="" selected>Select District</option>
+            </select>
+            <div class="text-danger" th:errors="*{district}"></div>
+          </div>
+
+          <!-- Ward/Commune -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Ward/Commune</label>
+            <select
+              data-mdb-select-init
+              class="select form-control"
+              id="editWard"
+              th:field="*{ward}"
+              disabled
+            >
+              <option value="" selected>Select Ward/Commune</option>
+            </select>
+            <div class="text-danger" th:errors="*{ward}"></div>
+          </div>
+
+          <!-- Is Default Checkbox -->
+          <div class="mb-4 form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="editIsDefault"
+              th:field="*{isDefault}"
+            />
+            <label class="form-check-label" for="editIsDefault"
+              >Set as default address</label
+            >
+          </div>
+
+          <!-- Buttons -->
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-mdb-ripple-init
+              data-mdb-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" data-mdb-ripple-init>
+              <i class="fas fa-save me-2"></i>Update
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

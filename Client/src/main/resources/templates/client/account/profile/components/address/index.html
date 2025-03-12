@@ -53,7 +53,7 @@
             </button>
 
             <div class="d-flex my-3 ms-9">
-              <button
+              <!-- <button
                 class="btn btn-link me-1"
                 data-mdb-ripple-init
                 data-mdb-ripple-color="dark"
@@ -65,7 +65,7 @@
                 data-mdb-target="#updateAddressModal"
               >
                 <i class="fa-solid fa-pencil"></i>
-              </button>
+              </button> -->
               <form
                 th:action="@{/account/profile/remove-address/{addressId}(addressId=${a.id})}"
                 method="post"
@@ -89,6 +89,7 @@
                 data-mdb-popover-init
                 data-mdb-trigger="hover"
                 data-mdb-content="Set as defalt address"
+                th:disabled="${a.isDefault}"
               >
                 <i class="fa-solid fa-check"></i>
               </button>

@@ -61,6 +61,15 @@ public class AddressController {
     return ResponseEntity.ok(updatedAddress);
   }
 
+  @PutMapping("/{addressId}/set-default-address")
+  public ResponseEntity<AddressDTO> updateDefaultAddress(
+      @AuthenticationPrincipal User user,
+      @PathVariable Long addressId,
+      @Valid @RequestBody AddressDTO addressDTO) {
+    AddressDTO updatedAddress = addressService.updateDefaultAddress(user, addressId, addressDTO);
+    return ResponseEntity.ok(updatedAddress);
+  }
+
   @DeleteMapping("/{addressId}")
   public ResponseEntity<Void> deleteAddress(
       @AuthenticationPrincipal User user,

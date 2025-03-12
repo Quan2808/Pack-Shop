@@ -90,6 +90,40 @@ public class AddressService {
   }
 
   @Transactional
+  public AddressDTO updateDefaultAddress(User user, Long addressId, AddressDTO addressDTO) {
+    log.info("Setting address ID: {} as default for user", addressId, user.getId());
+
+    Address addressToSetDefault = addressRepository.findByIdAndUser(addressId, user)
+        .orElseThrow(() -> new ResourceNotFoundException(
+            String.format("Address with ID %d not found for user %d", addressId, user.getId())));
+
+    List<Address> userAddresses = addressRepository.findByUser(user);
+
+    if (Boolean.TRUE.equals(addressToSetDefault.getIsDefault())) {
+      log.debug("Address ID: {} is already default for user: {}", addressId,
+          user.getId());
+      return convertToDTO(addressToSetDefault);
+    }
+
+    userAddresses.stream()
+        .filter(a -> Boolean.TRUE.equals(a.getIsDefault()) &&
+            !a.getId().equals(addressId))
+        .forEach(a -> {
+          a.setIsDefault(false);
+          addressRepository.save(a);
+          log.debug("Unset default status for address ID: {}", a.getId());
+        });
+
+    addressToSetDefault.setIsDefault(true);
+    Address updatedAddress = addressRepository.save(addressToSetDefault);
+
+    log.info("Successfully set address ID: {} as default for user: {}",
+        updatedAddress.getId(), user.getId());
+
+    return convertToDTO(updatedAddress);
+  }
+
+  @Transactional
   public void deleteAddress(User user, Long addressId) {
     log.info("Deleting address ID: {} for user: {}", addressId, user.getId());
 
@@ -148,6 +182,7 @@ public class AddressService {
           .forEach(a -> {
             a.setIsDefault(false);
             addressRepository.save(a);
+            log.debug("Unset default status for address ID: {}", a.getId());
           });
     }
   }

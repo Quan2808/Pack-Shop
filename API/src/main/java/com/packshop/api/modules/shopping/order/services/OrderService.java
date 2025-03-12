@@ -19,6 +19,7 @@ import com.packshop.api.modules.shopping.address.entity.Address;
 import com.packshop.api.modules.shopping.address.repository.AddressRepository;
 import com.packshop.api.modules.shopping.cart.entities.Cart;
 import com.packshop.api.modules.shopping.cart.repositories.CartRepository;
+import com.packshop.api.modules.shopping.cart.service.CartService;
 import com.packshop.api.modules.shopping.dto.ProductItemDTO;
 import com.packshop.api.modules.shopping.order.dto.OrderDTO;
 import com.packshop.api.modules.shopping.order.dto.OrderItemDTO;
@@ -37,6 +38,7 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
     private final AddressRepository addressRepository;
+    private final CartService cartService;
     private final ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
@@ -110,6 +112,7 @@ public class OrderService {
 
         // Clear cart after order creation
         cart.getCartItems().clear();
+        cartService.clearCart(user);
         cartRepository.save(cart);
 
         log.info("Order created successfully for user: {}", user.getUsername());

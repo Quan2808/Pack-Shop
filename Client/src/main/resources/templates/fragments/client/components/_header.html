@@ -75,22 +75,12 @@
         <div class="d-flex align-items-center">
           <div class="grid ps-3 pe-2">
             <a
+              th:if="${isLoggedIn}"
               class="nav-link position-relative"
               href="/cart"
               th:classappend="${view.contains('/cart') ? 'nav-active' : ''}"
             >
               <i class="fas fa-shopping-cart fa-lg"></i>
-              <span
-                class="badge rounded-pill bg-danger text-white position-absolute"
-                style="
-                  top: -5px;
-                  right: -10px;
-                  font-size: 0.7rem;
-                  padding: 4px 8px;
-                "
-              >
-                1
-              </span>
             </a>
           </div>
 

@@ -45,7 +45,7 @@ public class OrderController {
       log.error("Error fetching orders: {}", e.getMessage());
       redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
     }
-    return viewRenderer.renderView(model, "client/order/index", "Order");
+    return viewRenderer.renderView(model, "client/order/list/index", "Order");
   }
 
   @PostMapping("/create")
@@ -63,7 +63,7 @@ public class OrderController {
     } catch (ApiException e) {
       log.error("Error creating order: {}", e.getMessage());
       redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-      return "redirect:/cart/checkout"; // Redirect back to checkout on failure
+      return "redirect:/cart/check-out"; // Redirect back to checkout on failure
     }
   }
 

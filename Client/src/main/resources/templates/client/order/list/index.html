@@ -17,20 +17,17 @@
       <div class="accordion accordion-flush" id="order-accordion">
         <div
           class="accordion-item"
-          th:each="order, orderStat : ${orders}"
+          th:each="order, stat : ${orders}"
           th:object="${order}"
         >
-          <h2
-            class="accordion-header"
-            th:id="'flush-heading-' + ${orderStat.index}"
-          >
+          <h2 class="accordion-header" th:id="'flush-heading-' + ${stat.index}">
             <button
               data-mdb-collapse-init
               class="accordion-button item-accordion-button collapsed"
               type="button"
-              th:data-mdb-target="'#flush-collapse-' + ${orderStat.index}"
+              th:data-mdb-target="'#flush-collapse-' + ${stat.index}"
               aria-expanded="false"
-              th:aria-controls="'flush-collapse-' + ${orderStat.index}"
+              th:aria-controls="'flush-collapse-' + ${stat.index}"
             >
               <i class="fas fa-chevron-right me-3 order-chevron text-muted"></i>
               <div class="ms-3">
@@ -40,17 +37,17 @@
                   >
                   <span
                     th:text="${order.status}"
-                    th:class="${'badge ' + 
-                (order.status == T(com.packshop.client.dto.shopping.order.OrderDTO.Status).DELIVERED ? 'bg-success' : 
-                (order.status == T(com.packshop.client.dto.shopping.order.OrderDTO.Status).PENDING ? 'bg-warning' : 
-                (order.status == T(com.packshop.client.dto.shopping.order.OrderDTO.Status).SHIPPED ? 'bg-primary' : 'bg-danger')))}"
+                    th:class="${'badge rounded-pill ' + 
+    (order.status.name() == 'DELIVERED' ? 'badge-success' : 
+    (order.status.name() == 'PENDING' ? 'badge-warning' : 
+    (order.status.name() == 'SHIPPED' ? 'badge-primary' : 'badge-danger')))}"
                   >
                     STATUS
                   </span>
                 </p>
                 <p
                   class="text-muted mb-0"
-                  th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}"
+                  th:text="${order.orderDate != null ? #temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm') : 'N/A'}"
                 >
                   01-01-2023 12:00
                 </p>
@@ -58,9 +55,9 @@
             </button>
           </h2>
           <div
-            th:id="'flush-collapse-' + ${orderStat.index}"
+            th:id="'flush-collapse-' + ${stat.index}"
             class="accordion-collapse collapse"
-            th:aria-labelledby="'flush-heading-' + ${orderStat.index}"
+            th:aria-labelledby="'flush-heading-' + ${stat.index}"
             data-mdb-parent="#order-accordion"
           >
             <div class="accordion-body">
@@ -75,7 +72,10 @@
                     <th class="fw-bold min-w-100px text-end">Total</th>
                   </tr>
                 </thead>
-                <tbody class="fw-semibold text-gray-600">
+                <tbody
+                  th:if="${order.orderItems != null and not #lists.isEmpty(order.orderItems)}"
+                  class="fw-semibold text-gray-600"
+                >
                   <tr th:each="item : ${order.orderItems}">
                     <td>
                       <div class="d-flex align-items-center">
@@ -83,14 +83,14 @@
                           th:src="${item.product.thumbnail}"
                           th:alt="${item.product.name}"
                           style="width: 45px; height: 45px"
-                          class="img-fluid rounded"
+                          class="rounded-circle"
                         />
-                        <div class="ms-5">
-                          <div
-                            class="fs-7 text-muted"
-                            th:text="${item.product.name}"
-                          ></div>
-                        </div>
+                        <p
+                          class="fw-bold mb-1 ms-3"
+                          th:text="${item.product.name}"
+                        >
+                          Product Name
+                        </p>
                       </div>
                     </td>
                     <td
@@ -99,29 +99,38 @@
                     ></td>
                     <td
                       class="text-end text-muted"
-                      th:text="${#numbers.formatInteger(item.unitPrice, 0, 'POINT')} + ' đ'"
+                      th:text="${#numbers.formatInteger(item.unitPrice, 0, 'POINT') + 'đ'}"
                     ></td>
                     <td
                       class="text-end text-muted"
-                      th:text="${#numbers.formatInteger(item.subtotal, 0, 'POINT')} + ' đ'"
+                      th:text="${#numbers.formatInteger(item.subtotal, 0, 'POINT') + 'đ'}"
                     ></td>
                   </tr>
+                </tbody>
+                <tbody
+                  th:unless="${order.orderItems != null and not #lists.isEmpty(order.orderItems)}"
+                >
+                  <tr>
+                    <td colspan="4">No items in this order.</td>
+                  </tr>
+                </tbody>
+                <tfoot>
                   <tr>
                     <td
-                      class="text-end no-border-bottom"
+                      class="text-end text-muted no-border-bottom"
                       th:text="${order.address}"
                     >
-                      Shpping Address
+                      Shipping Address
                     </td>
                     <td colspan="2" class="text-end no-border-bottom">
                       Subtotal
                     </td>
                     <td
                       class="fw-bolder text-end no-border-bottom"
-                      th:text="${#numbers.formatInteger(order.totalAmount, 0, 'POINT')} + ' đ'"
+                      th:text="${#numbers.formatInteger(order.totalAmount, 0, 'POINT')}"
                     ></td>
                   </tr>
-                </tbody>
+                </tfoot>
               </table>
             </div>
           </div>

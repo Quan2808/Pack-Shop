@@ -60,6 +60,9 @@ public class Order {
     @Column(nullable = false)
     private Long totalAmount;
 
+    @Column(name = "address", nullable = false)
+    private String address;
+
     public enum Status {
         PENDING,
         SHIPPED,
@@ -67,14 +70,13 @@ public class Order {
         CANCELLED
     }
 
-    // Phương thức tiện ích
     public void addOrderItem(OrderItem item) {
         if (orderItems == null) {
             orderItems = new HashSet<>();
         }
         orderItems.add(item);
-        item.setOrder(this); // Đảm bảo tính hai chiều
-        updateTotalAmount(); // Cập nhật tổng giá trị
+        item.setOrder(this);
+        updateTotalAmount();
     }
 
     public void removeOrderItem(OrderItem item) {
@@ -85,7 +87,7 @@ public class Order {
 
     public void updateTotalAmount() {
         this.totalAmount = orderItems.stream()
-                .map(orderItem -> orderItem.getUnitPrice() * orderItem.getQuantity()) // Calculate subtotal
-                .reduce(0L, Long::sum); // Sum up all subtotals to get the total amount
+                .map(orderItem -> orderItem.getUnitPrice() * orderItem.getQuantity())
+                .reduce(0L, Long::sum);
     }
 }

@@ -15,6 +15,8 @@ import com.packshop.api.common.exceptions.ResourceNotFoundException;
 import com.packshop.api.modules.catalog.entities.product.Product;
 import com.packshop.api.modules.catalog.repositories.ProductRepository;
 import com.packshop.api.modules.identity.entities.User;
+import com.packshop.api.modules.shopping.address.entity.Address;
+import com.packshop.api.modules.shopping.address.repository.AddressRepository;
 import com.packshop.api.modules.shopping.cart.entities.Cart;
 import com.packshop.api.modules.shopping.cart.repositories.CartRepository;
 import com.packshop.api.modules.shopping.dto.ProductItemDTO;
@@ -34,6 +36,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final AddressRepository addressRepository;
     private final ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
@@ -55,8 +58,12 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDTO createOrderFromCart(User user) {
+    public OrderDTO createOrderFromCart(User user, Long addressId) {
         log.info("Creating order from cart for user: {}", user.getUsername());
+
+        // Find user's address
+        Address address = addressRepository.findByIdAndUser(addressId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found for user: " + user.getUsername()));
 
         // Find user's cart
         Cart cart = cartRepository.findByUser(user)
@@ -96,6 +103,7 @@ public class OrderService {
 
         order.setOrderItems(orderItems);
         order.updateTotalAmount();
+        order.setAddress(address.getFullAddress());
 
         // Save order
         Order savedOrder = orderRepository.save(order);

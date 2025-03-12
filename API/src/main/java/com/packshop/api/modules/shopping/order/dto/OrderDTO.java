@@ -16,6 +16,7 @@ public class OrderDTO {
     private Status status;
     private BigDecimal totalAmount;
     private List<OrderItemDTO> orderItems;
+    private String address;
 
     public enum Status {
         PENDING,

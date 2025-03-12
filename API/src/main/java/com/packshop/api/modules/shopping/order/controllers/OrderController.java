@@ -47,9 +47,10 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(
+            @RequestParam("address") Long addressId,
             @AuthenticationPrincipal User user) {
         log.info("Creating order for user: {}", user.getUsername());
-        OrderDTO createdOrder = orderService.createOrderFromCart(user);
+        OrderDTO createdOrder = orderService.createOrderFromCart(user, addressId);
         return ResponseEntity.ok(createdOrder);
     }
 

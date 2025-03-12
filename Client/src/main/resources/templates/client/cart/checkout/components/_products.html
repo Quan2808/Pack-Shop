@@ -1,0 +1,47 @@
+<div class="card mb-4">
+  <div class="card-header py-3">
+    <h5 class="mb-0 fw-bold">Products</h5>
+  </div>
+  <div class="card-body">
+    <table class="table align-middle mb-0 bg-white">
+      <thead class="bg-light">
+        <tr>
+          <th class="fw-bold min-w-175px">Product</th>
+          <th class="fw-bold min-w-100px text-end">Qty</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="item: ${cart.cartItems}" class="no-border-bottom">
+          <td>
+            <div class="d-flex align-items-center">
+              <img
+                th:src="${item.product.thumbnail}"
+                th:alt="${item.product.name}"
+                style="width: 45px; height: 45px"
+                class="rounded-circle"
+              />
+              <div class="ms-3">
+                <p class="fw-bold mb-1" th:text="${item.product.name}">
+                  Product Name
+                </p>
+                <p
+                  class="text-muted mb-0"
+                  th:text="'Price: ' + ${#numbers.formatDecimal(item.product.price, 0, 'COMMA', 0, 'POINT')}"
+                >
+                  Price: 123
+                </p>
+              </div>
+            </div>
+          </td>
+
+          <td
+            class="text-end text-muted no-border-bottom"
+            th:text="${item.quantity}"
+          >
+            123
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

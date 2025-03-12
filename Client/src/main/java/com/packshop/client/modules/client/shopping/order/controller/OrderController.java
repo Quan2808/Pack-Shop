@@ -32,7 +32,7 @@ public class OrderController {
   private final OrderService orderService;
 
   @GetMapping
-  public String showOrders(HttpSession session, Model model) {
+  public String showOrders(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
     String token = (String) session.getAttribute("token");
     if (token == null) {
       return "redirect:/account/authentication";
@@ -43,7 +43,7 @@ public class OrderController {
       model.addAttribute("orders", orders);
     } catch (ApiException e) {
       log.error("Error fetching orders: {}", e.getMessage());
-      model.addAttribute("errorMessage", e.getMessage());
+      redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
     }
     return viewRenderer.renderView(model, "client/order/index", "Order");
   }

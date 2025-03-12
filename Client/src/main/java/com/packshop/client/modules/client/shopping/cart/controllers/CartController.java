@@ -1,6 +1,7 @@
 package com.packshop.client.modules.client.shopping.cart.controllers;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -15,8 +16,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.packshop.client.common.exceptions.ApiException;
 import com.packshop.client.common.utilities.ViewRenderer;
+import com.packshop.client.dto.shopping.address.AddressDTO;
 import com.packshop.client.dto.shopping.cart.CartDTO;
 import com.packshop.client.dto.shopping.cart.CartItemRequest;
+import com.packshop.client.modules.client.shopping.address.service.AddressService;
 import com.packshop.client.modules.client.shopping.cart.services.CartService;
 
 import jakarta.servlet.http.HttpSession;
@@ -31,6 +34,7 @@ public class CartController {
 
     private final ViewRenderer viewRenderer;
     private final CartService cartService;
+    private final AddressService addressService;
 
     @GetMapping
     public String showCart(HttpSession session, Model model) {
@@ -46,7 +50,28 @@ public class CartController {
             log.error("Error fetching cart: {}", e.getMessage());
             model.addAttribute("errorMessage", "Unable to load cart. Please try again later.");
         }
-        return viewRenderer.renderView(model, "client/cart/index", "Cart");
+        return viewRenderer.renderView(model, "client/cart/list/index", "Cart");
+    }
+
+    @GetMapping("/check-out")
+    public String showCheckOut(HttpSession session, Model model) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/account/authentication";
+        }
+        try {
+            Long userId = (Long) model.getAttribute("userId");
+            CartDTO cart = cartService.getCartForUser(userId);
+            model.addAttribute("cart", cart);
+
+            List<AddressDTO> addresses = addressService.getUserAddresses(userId);
+            addresses.sort(Comparator.comparing(AddressDTO::getIsDefault).reversed());
+            model.addAttribute("addresses", addresses);
+        } catch (ApiException e) {
+            log.error("Error fetching cart: {}", e.getMessage());
+            model.addAttribute("errorMessage", "Unable to load cart. Please try again later.");
+        }
+        return viewRenderer.renderView(model, "client/cart/checkout/index", "Check Out");
     }
 
     @PostMapping("/add")
@@ -135,4 +160,5 @@ public class CartController {
             return "redirect:/cart";
         }
     }
+
 }

@@ -23,17 +23,9 @@ public class OrderService extends ApiBaseService {
   }
 
   public List<OrderDTO> getUserOrders(Long userId) {
-    try {
-      return getAllFromApi(ORDERS_API_URL, OrderDTO[].class);
-    } catch (ApiException e) {
-      log.error("Error fetching orders for user {}: {}", userId, e.getMessage());
-      throw new ApiException(
-          "Couldn’t load your orders. Please try again later.",
-          e.getStatusCode(),
-          e.getErrorCode(),
-          e.getErrors(),
-          e);
-    }
+    log.info("{}", getAllFromApi(ORDERS_API_URL, OrderDTO[].class));
+    return getAllFromApi(ORDERS_API_URL, OrderDTO[].class);
+
   }
 
   public OrderDTO createOrder() {

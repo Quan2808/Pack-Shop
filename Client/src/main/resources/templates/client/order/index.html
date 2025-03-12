@@ -1,21 +1,4 @@
-<th:block th:fragment="viewStyles">
-  <style>
-    .item-accordion-button::after {
-      display: none;
-    }
-    .item-accordion-button.collapsed i.order-chevron {
-      transform: rotate(0deg);
-      transition: transform 0.2s ease-in-out;
-    }
-    .item-accordion-button:not(.collapsed) i.order-chevron {
-      transform: rotate(90deg);
-      transition: transform 0.2s ease-in-out;
-    }
-    .no-border-bottom {
-      border-bottom: none !important;
-    }
-  </style>
-</th:block>
+<th:block th:fragment="viewStyles"> </th:block>
 
 <div th:fragment="content" class="container">
   <div
@@ -124,7 +107,13 @@
                     ></td>
                   </tr>
                   <tr>
-                    <td colspan="3" class="text-end no-border-bottom">
+                    <td
+                      class="text-end no-border-bottom"
+                      th:text="${order.address}"
+                    >
+                      Shpping Address
+                    </td>
+                    <td colspan="2" class="text-end no-border-bottom">
                       Subtotal
                     </td>
                     <td

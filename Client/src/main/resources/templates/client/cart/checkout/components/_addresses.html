@@ -1,0 +1,29 @@
+<div class="card mb-4">
+  <div class="card-header py-3">
+    <h5 class="mb-0 fw-bold">Addresses</h5>
+  </div>
+  <div class="card-body">
+    <!-- Default radio -->
+    <div
+      class="form-check d-flex align-items-center mb-3 ms-3"
+      th:each="a, orderStat: ${addresses}"
+    >
+      <input
+        class="form-check-input me-3"
+        type="radio"
+        name="flexRadioDefault"
+        th:id="${a.id}"
+        th:checked="${a.isDefault}"
+      />
+      <label class="form-check-label" th:for="${a.id}">
+        <p class="mb-1">
+          <span class="fw-bold me-3" th:text="${a.aliasName}">Alias name</span>
+          <span class="badge rounded-pill badge-info" th:if="${a.isDefault}"
+            >Default address</span
+          >
+        </p>
+        <p class="text-muted mb-0" th:text="${a.fullAddress}">Full address</p>
+      </label>
+    </div>
+  </div>
+</div>

@@ -62,6 +62,7 @@ public class AccountController {
             addresses.sort(Comparator.comparing(AddressDTO::getIsDefault).reversed());
             model.addAttribute("addresses", addresses);
             model.addAttribute("newAddress", new AddressDTO());
+            model.addAttribute("editAddress", new AddressDTO());
 
             log.debug("Loaded profile for user ID: {} with {} addresses.", userInfo.getUserId(), addresses.size());
             return viewRenderer.renderView(model, PROFILE_VIEW, "Profile");
@@ -99,6 +100,41 @@ public class AccountController {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return REDIRECT_PROFILE;
+    }
+
+    @PostMapping("/update-address/{addressId}")
+    public String updateAddress(
+            @PathVariable("addressId") Long addressId,
+            @ModelAttribute("editAddress") @Valid AddressDTO editAddress,
+            BindingResult bindingResult,
+            HttpSession session,
+            Model model) {
+
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            log.warn("No session token found; redirecting to authentication page.");
+            return REDIRECT_AUTH;
+        }
+
+        try {
+            if (bindingResult.hasErrors()) {
+                AuthResponse userInfo = authService.getCurrentUser(token);
+                List<AddressDTO> addresses = addressService.getUserAddresses(userInfo.getUserId());
+                addresses.sort(Comparator.comparing(AddressDTO::getIsDefault).reversed());
+                model.addAttribute("addresses", addresses);
+                model.addAttribute("newAddress", new AddressDTO());
+                return viewRenderer.renderView(model, PROFILE_VIEW, "Profile");
+            }
+
+            editAddress.setId(addressId);
+            addressService.updateUserAddress(addressId, editAddress);
+            log.debug("Updated address ID: {} for user", addressId);
+            return "redirect:/account/profile";
+        } catch (Exception e) {
+            log.error("Failed to update address ID: {}. Error: {}", addressId, e.getMessage(), e);
+            model.addAttribute("errorMessage", "Failed to update address: " + e.getMessage());
+            return viewRenderer.renderView(model, PROFILE_VIEW, "Profile");
+        }
     }
 
     @PostMapping("/remove-address/{addressId}")

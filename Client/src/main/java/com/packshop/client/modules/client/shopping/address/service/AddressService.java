@@ -2,6 +2,8 @@ package com.packshop.client.modules.client.shopping.address.service;
 
 import java.util.List;
 
+import javax.xml.catalog.CatalogException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -80,6 +82,25 @@ public class AddressService extends ApiBaseService {
           "INTERNAL_SERVER_ERROR",
           null,
           e);
+    }
+  }
+
+  public void updateUserAddress(Long id, AddressDTO addressDTO) {
+    if (id == null || id <= 0) {
+      log.warn("Invalid category ID for update: {}", id);
+      throw new IllegalArgumentException("Category ID must be a positive number");
+    }
+    if (addressDTO == null || addressDTO.getId() == null) {
+      log.warn("Invalid category data for update: {}", addressDTO);
+      throw new IllegalArgumentException("Category data and name must not be null");
+    }
+    log.info("Updating category with ID: {}", id);
+    try {
+      putToApi(ADDRESSES_API_URL, addressDTO, id);
+      log.info("Category updated successfully: {}", addressDTO.getId());
+    } catch (CatalogException e) {
+      log.error("Failed to update category with ID: {}", id, e);
+      throw e;
     }
   }
 }

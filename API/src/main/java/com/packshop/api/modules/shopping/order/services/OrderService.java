@@ -1,13 +1,28 @@
 package com.packshop.api.modules.shopping.order.services;
 
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.modelmapper.ModelMapper;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.packshop.api.common.exceptions.InsufficientStockException;
 import com.packshop.api.common.exceptions.InvalidStatusException;
@@ -26,6 +41,9 @@ import com.packshop.api.modules.shopping.order.dto.OrderItemDTO;
 import com.packshop.api.modules.shopping.order.entities.Order;
 import com.packshop.api.modules.shopping.order.entities.OrderItem;
 import com.packshop.api.modules.shopping.order.repositories.OrderRepository;
+import com.packshop.api.modules.shopping.payment.PaymentTransaction;
+import com.packshop.api.modules.shopping.payment.PaymentTransactionDTO;
+import com.packshop.api.modules.shopping.payment.PaymentTransactionRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +58,172 @@ public class OrderService {
     private final AddressRepository addressRepository;
     private final CartService cartService;
     private final ModelMapper modelMapper;
+    private final PaymentTransactionRepository paymentTransactionRepository;
+    private final RestTemplate restTemplate;
+
+    private static final String MOMO_PARTNER_CODE = "MOMOBKUN20180529";
+    private static final String MOMO_ACCESS_KEY = "klm05TvNBzhg7h7j";
+    private static final String MOMO_SECRET_KEY = "at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa";
+    private static final String MOMO_API_ENDPOINT = "https://test-payment.momo.vn/v2/gateway/api/create";
+
+    @Transactional
+    public OrderDTO createOrderFromCartWithMoMo(User user, Long addressId) {
+        log.info("Creating order from cart with MoMo payment (Sandbox) for user: {}", user.getUsername());
+
+        // Tìm địa chỉ của người dùng
+        Address address = addressRepository.findByIdAndUser(addressId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found for user: " + user.getUsername()));
+
+        // Tìm giỏ hàng
+        Cart cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user: " + user.getUsername()));
+
+        if (cart.getCartItems().isEmpty()) {
+            throw new IllegalStateException("Cannot create order from empty cart");
+        }
+
+        // Tạo đơn hàng
+        Order order = new Order();
+        order.setUser(user);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(Order.Status.PENDING);
+
+        Set<OrderItem> orderItems = cart.getCartItems().stream()
+                .map(cartItem -> {
+                    Product product = validateProductAvailability(cartItem.getProduct(), cartItem.getQuantity());
+                    OrderItem orderItem = new OrderItem();
+                    orderItem.setOrder(order);
+                    orderItem.setProductId(product.getId());
+                    orderItem.setProductName(product.getName());
+                    orderItem.setUnitPrice(product.getPrice().longValue());
+                    orderItem.setQuantity(cartItem.getQuantity());
+                    product.setQuantity(product.getQuantity() - cartItem.getQuantity());
+                    productRepository.save(product);
+                    return orderItem;
+                })
+                .collect(Collectors.toSet());
+
+        order.setOrderItems(orderItems);
+        order.updateTotalAmount();
+        order.setAddress(address.getFullAddress());
+
+        // Lưu order trước để có ID hợp lệ
+        Order savedOrder = orderRepository.save(order);
+
+        // Tạo giao dịch MoMo trong Sandbox với savedOrder
+        PaymentTransaction paymentTransaction = createMoMoPaymentTransaction(savedOrder);
+        savedOrder.setPaymentTransaction(paymentTransaction);
+
+        // Lưu lại order sau khi thêm paymentTransaction
+        orderRepository.save(savedOrder);
+
+        // Xóa giỏ hàng
+        cart.getCartItems().clear();
+        cartService.clearCart(user);
+        cartRepository.save(cart);
+
+        log.info("Order created successfully with MoMo payment (Sandbox) for user: {}", user.getUsername());
+        return convertToOrderDTO(savedOrder);
+    }
+
+    private PaymentTransaction createMoMoPaymentTransaction(Order order) {
+        String requestId = "REQ_" + System.currentTimeMillis();
+        String orderId = "ORDER_" + order.getId() + "_" + System.currentTimeMillis();
+        String signature = generateSignature(requestId, orderId, order.getTotalAmount());
+
+        // Tạo payload cho API MoMo Sandbox
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("partnerCode", MOMO_PARTNER_CODE);
+        requestBody.put("requestId", requestId);
+        requestBody.put("orderId", orderId);
+        requestBody.put("amount", order.getTotalAmount());
+        requestBody.put("orderInfo", "Payment for order #" + order.getId() + " (Sandbox Test)");
+        requestBody.put("redirectUrl", "http://localhost:8080/payment/return");
+        requestBody.put("ipnUrl", "http://localhost:8080/payment/ipn");
+        requestBody.put("requestType", "captureWallet");
+        requestBody.put("extraData", "");
+        requestBody.put("signature", signature);
+        requestBody.put("lang", "vi");
+
+        log.info("MoMo Request Payload: {}", requestBody);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    MOMO_API_ENDPOINT,
+                    HttpMethod.POST,
+                    entity,
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    });
+            Map<String, Object> responseBody = response.getBody();
+
+            if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
+                throw new RuntimeException("Failed to create MoMo payment transaction: " + response.getStatusCode());
+            }
+
+            log.info("MoMo Response: {}", responseBody);
+
+            // Tạo PaymentTransaction từ phản hồi của MoMo
+            PaymentTransaction paymentTransaction = new PaymentTransaction();
+            paymentTransaction.setOrder(order);
+            // Dùng orderId thay vì transId vì MoMo không trả về transId trong sandbox
+            paymentTransaction.setTransactionId((String) responseBody.get("orderId")); // Hoặc
+                                                                                       // responseBody.get("requestId")
+            paymentTransaction.setRequestId(requestId);
+            paymentTransaction.setPartnerCode(MOMO_PARTNER_CODE);
+            paymentTransaction.setAmount(order.getTotalAmount());
+            paymentTransaction.setStatus(PaymentTransaction.PaymentStatus.PENDING);
+            paymentTransaction.setPayUrl((String) responseBody.get("payUrl"));
+            paymentTransaction.setQrCodeUrl((String) responseBody.get("qrCodeUrl"));
+            paymentTransaction.setTransactionDate(LocalDateTime.now());
+            paymentTransaction.setResponseMessage((String) responseBody.get("message"));
+
+            return paymentTransactionRepository.save(paymentTransaction);
+        } catch (Exception e) {
+            log.error("Error calling MoMo Sandbox API: {}", e.getMessage());
+            throw new RuntimeException("Failed to integrate with MoMo Sandbox", e);
+        }
+    }
+
+    private String generateSignature(String requestId, String orderId, Long amount) {
+        String extraData = ""; // Phải khớp với requestBody
+        String rawData = "accessKey=" + MOMO_ACCESS_KEY +
+                "&amount=" + amount +
+                "&extraData=" + extraData +
+                "&ipnUrl=" + "http://localhost:8080/payment/ipn" + // Thêm ipnUrl
+                "&orderId=" + orderId +
+                "&orderInfo=" + "Payment for order #" + orderId.split("_")[1] + " (Sandbox Test)" + // Tạm dùng split để
+                                                                                                    // lấy ID
+                "&partnerCode=" + MOMO_PARTNER_CODE +
+                "&redirectUrl=" + "http://localhost:8080/payment/return" +
+                "&requestId=" + requestId +
+                "&requestType=captureWallet";
+
+        log.info("Signature Raw Data: {}", rawData); // Log để kiểm tra
+
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(MOMO_SECRET_KEY.getBytes(StandardCharsets.UTF_8),
+                    "HmacSHA256");
+            mac.init(secretKeySpec);
+            byte[] hmacBytes = mac.doFinal(rawData.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(hmacBytes);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException("Failed to generate HMAC-SHA256 signature", e);
+        }
+    }
+
+    // Hàm phụ để chuyển byte[] thành chuỗi hex
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
 
     @Transactional(readOnly = true)
     public List<OrderDTO> getOrdersByUser(User user) {
@@ -161,28 +345,25 @@ public class OrderService {
     }
 
     private OrderDTO convertToOrderDTO(Order order) {
-        // Create OrderDTO
         OrderDTO orderDTO = modelMapper.map(order, OrderDTO.class);
 
-        // Map order items with product details
         List<OrderItemDTO> orderItemDTOs = order.getOrderItems().stream()
                 .map(orderItem -> {
                     OrderItemDTO itemDTO = modelMapper.map(orderItem, OrderItemDTO.class);
-
-                    // Fetch product details
                     Product product = productRepository.findById(orderItem.getProductId())
                             .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-
-                    // Map product to ProductItemDTO
                     ProductItemDTO productItemDTO = modelMapper.map(product, ProductItemDTO.class);
                     itemDTO.setProduct(productItemDTO);
                     itemDTO.setSubtotal(orderItem.getUnitPrice() * orderItem.getQuantity());
-
                     return itemDTO;
                 })
                 .collect(Collectors.toList());
 
         orderDTO.setOrderItems(orderItemDTOs);
+
+        if (order.getPaymentTransaction() != null) {
+            orderDTO.setPaymentTransaction(modelMapper.map(order.getPaymentTransaction(), PaymentTransactionDTO.class));
+        }
 
         return orderDTO;
     }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.packshop.api.common.exceptions.ResourceNotFoundException;
 import com.packshop.api.modules.identity.entities.User;
 import com.packshop.api.modules.shopping.order.dto.OrderDTO;
 import com.packshop.api.modules.shopping.order.entities.Order;
@@ -43,6 +44,33 @@ public class OrderController {
         log.info("Retrieving order {} for user {}", orderId, user.getUsername());
         OrderDTO order = orderService.getOrderById(orderId, user);
         return ResponseEntity.ok(order);
+    }
+
+    @PostMapping("/create-with-momo")
+    public ResponseEntity<OrderDTO> createOrderFromCartWithMoMo(
+            @RequestParam("address") Long addressId,
+            @AuthenticationPrincipal User user) {
+        try {
+            if (user == null) {
+                log.warn("Unauthenticated user attempted to create an order");
+                return ResponseEntity.status(401).body(null); // Unauthorized
+            }
+
+            OrderDTO orderDTO = orderService.createOrderFromCartWithMoMo(user, addressId);
+
+            log.info("Order created successfully with MoMo for user: {}", user.getUsername());
+            return ResponseEntity.ok(orderDTO);
+
+        } catch (ResourceNotFoundException e) {
+            log.error("Resource not found: {}", e.getMessage());
+            return ResponseEntity.status(404).body(null);
+        } catch (IllegalStateException e) {
+            log.error("Illegal state: {}", e.getMessage());
+            return ResponseEntity.status(400).body(null);
+        } catch (Exception e) {
+            log.error("Error creating order with MoMo: {}", e.getMessage());
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
     @PostMapping

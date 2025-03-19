@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.packshop.api.modules.identity.entities.User;
-import com.packshop.api.modules.shopping.payment.PaymentTransaction;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,7 +21,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -64,16 +62,6 @@ public class Order {
 
     @Column(name = "address", nullable = false)
     private String address;
-
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private PaymentTransaction paymentTransaction;
-
-    // Cập nhật phương thức addOrderItem và removeOrderItem nếu cần
-    public void setPaymentTransaction(PaymentTransaction paymentTransaction) {
-        this.paymentTransaction = paymentTransaction;
-        paymentTransaction.setOrder(this);
-    }
 
     public enum Status {
         PENDING,

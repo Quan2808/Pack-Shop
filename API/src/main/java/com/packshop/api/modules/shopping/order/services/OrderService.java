@@ -1,11 +1,17 @@
 package com.packshop.api.modules.shopping.order.services;
 
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -37,8 +43,7 @@ import com.packshop.api.modules.shopping.order.entities.OrderItem;
 import com.packshop.api.modules.shopping.order.repositories.OrderRepository;
 import com.packshop.api.modules.shopping.payment.PaymentTransaction;
 import com.packshop.api.modules.shopping.payment.PaymentTransactionDTO;
-import com.packshop.api.modules.shopping.payment.repository.PaymentTransactionRepository;
-import com.packshop.api.modules.shopping.payment.utility.MoMoSignatureGenerator;
+import com.packshop.api.modules.shopping.payment.PaymentTransactionRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +60,6 @@ public class OrderService {
     private final ModelMapper modelMapper;
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final RestTemplate restTemplate;
-    private final MoMoSignatureGenerator signatureGenerator;
 
     private static final String MOMO_PARTNER_CODE = "MOMOBKUN20180529";
     private static final String MOMO_ACCESS_KEY = "klm05TvNBzhg7h7j";
@@ -125,7 +129,7 @@ public class OrderService {
     private PaymentTransaction createMoMoPaymentTransaction(Order order) {
         String requestId = "REQ_" + System.currentTimeMillis();
         String orderId = "ORDER_" + order.getId() + "_" + System.currentTimeMillis();
-        String signature = signatureGenerator.generateSignature(requestId, orderId, order.getTotalAmount());
+        String signature = generateSignature(requestId, orderId, order.getTotalAmount());
 
         // Tạo payload cho API MoMo Sandbox
         Map<String, Object> requestBody = new HashMap<>();
@@ -182,6 +186,43 @@ public class OrderService {
             log.error("Error calling MoMo Sandbox API: {}", e.getMessage());
             throw new RuntimeException("Failed to integrate with MoMo Sandbox", e);
         }
+    }
+
+    private String generateSignature(String requestId, String orderId, Long amount) {
+        String extraData = ""; // Phải khớp với requestBody
+        String rawData = "accessKey=" + MOMO_ACCESS_KEY +
+                "&amount=" + amount +
+                "&extraData=" + extraData +
+                "&ipnUrl=" + "http://localhost:8080/payment/ipn" + // Thêm ipnUrl
+                "&orderId=" + orderId +
+                "&orderInfo=" + "Payment for order #" + orderId.split("_")[1] + " (Sandbox Test)" + // Tạm dùng split để
+                                                                                                    // lấy ID
+                "&partnerCode=" + MOMO_PARTNER_CODE +
+                "&redirectUrl=" + "http://localhost:8080/payment/return" +
+                "&requestId=" + requestId +
+                "&requestType=captureWallet";
+
+        log.info("Signature Raw Data: {}", rawData); // Log để kiểm tra
+
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(MOMO_SECRET_KEY.getBytes(StandardCharsets.UTF_8),
+                    "HmacSHA256");
+            mac.init(secretKeySpec);
+            byte[] hmacBytes = mac.doFinal(rawData.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(hmacBytes);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException("Failed to generate HMAC-SHA256 signature", e);
+        }
+    }
+
+    // Hàm phụ để chuyển byte[] thành chuỗi hex
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
     }
 
     @Transactional(readOnly = true)

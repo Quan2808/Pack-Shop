@@ -37,7 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String uri = request.getRequestURI();
-        if (uri.equals("/auth/login") || uri.equals("/auth/register") || uri.equals("/auth/refresh")) {
+        if (uri.startsWith("/auth/login") || uri.startsWith("/auth/register") || uri.startsWith("/auth/refresh")) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Skipping authentication for: {}", uri);
             }

@@ -1,5 +1,6 @@
 logging:
   level:
+    root: info
     org:
       hibernate:
         SQL: FALSE
@@ -7,5 +8,7 @@ logging:
           descriptor:
             sql:
               BasicBinder: TRACE
+      springframework:
+        security: DEBUG
 #    org.springframework.security: DEBUG
 #    com.packshop.api.modules.identity: DEBUG

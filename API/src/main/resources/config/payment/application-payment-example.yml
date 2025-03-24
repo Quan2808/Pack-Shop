@@ -1,0 +1,13 @@
+momo:
+  partner-code: [HIDDEN]
+  access-key: [HIDDEN]
+  secret-key: [HIDDEN]
+  api-endpoint: https://test-payment.momo.vn/v2/gateway/api
+  redirect-url: http://localhost:8080/payment/return
+  ipn-url: http://localhost:8080/payment/ipn
+
+paypal:
+  client:
+    id: [HIDDEN]
+    secret: [HIDDEN]
+  mode: live

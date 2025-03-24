@@ -1,0 +1,15 @@
+spring:
+  config:
+    import:
+      - optional:classpath:config/database/application-database.yml
+      - optional:classpath:config/payment/application-payment.yml
+      - classpath:config/security/application-security.yml
+      - classpath:config/logging/application-logging.yml
+      - classpath:config/server/application-server.yml
+  application:
+    name: API
+  servlet:
+    context-path: /api
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false

@@ -19,6 +19,8 @@ import com.packshop.api.modules.shopping.address.entity.Address;
 import com.packshop.api.modules.shopping.cart.dto.CartItemDTO;
 import com.packshop.api.modules.shopping.cart.entities.CartItem;
 import com.packshop.api.modules.shopping.dto.ProductItemDTO;
+import com.packshop.api.modules.shopping.payment.dto.PaymentTransactionDTO;
+import com.packshop.api.modules.shopping.payment.entity.PaymentTransaction;
 
 @Configuration
 public class ModelMapperConfig {
@@ -67,6 +69,11 @@ public class ModelMapperConfig {
                 modelMapper.createTypeMap(AddressDTO.class, Address.class)
                                 .addMappings(mapper -> {
                                         mapper.skip(Address::setUser);
+                                });
+
+                modelMapper.typeMap(PaymentTransaction.class, PaymentTransactionDTO.class)
+                                .addMappings(mapper -> {
+                                        mapper.map(src -> src.getOrder().getId(), PaymentTransactionDTO::setOrderId);
                                 });
 
                 modelMapper.getConfiguration()

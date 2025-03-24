@@ -1,0 +1,10 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  client:
+    connection-timeout: 5000ms
+    read-timeout: 10000ms

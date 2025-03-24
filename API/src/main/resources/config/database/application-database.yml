@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=PackShop2;trustServerCertificate=true
+    username: sa
+    password: "1"
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    properties:
+      hibernate:
+        id:
+          "[new_generator_mappings]": true
+        "[format_sql]": true
+    show-sql: false
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: true
